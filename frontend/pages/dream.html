@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>꿈해몽 - 우리의 운세</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 15px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .back-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .top-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .top-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 15px;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .top-btn:hover {
+      background: #f8f8f8;
+      border-color: #667eea;
+    }
+
+    .user-info-display {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* 검색 영역 */
+    .search-section {
+      margin-bottom: 30px;
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 15px 50px 15px 20px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #9b59b6;
+      box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+    }
+
+    .search-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #ff4757;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .search-btn:hover {
+      background: #ff3838;
+    }
+
+
+
+    /* 로딩 */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      display: none;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #9b59b6;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 검색 결과 없음 */
+    .no-results {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+      display: none;
+    }
+
+    .no-results.show {
+      display: block;
+    }
+
+    .no-results-icon {
+      font-size: 50px;
+      margin-bottom: 15px;
+    }
+
+    /* 결과 영역 */
+    .results-section {
+      display: none;
+    }
+
+    .results-section.show {
+      display: block;
+    }
+
+    /* 꿈 해석 결과 스타일 */
+    .dream-interpretation-result {
+      animation: fadeIn 0.5s;
+    }
+
+    .user-dream-box,
+    .interpretation-box,
+    .symbols-box,
+    .fortune-box,
+    .advice-box {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      border-left: 5px solid #667eea;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      animation: fadeIn 0.5s;
+    }
+
+    .user-dream-box h3,
+    .interpretation-box h3,
+    .symbols-box h3,
+    .fortune-box h3,
+    .advice-box h3 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .user-dream-text {
+      color: #333;
+      font-size: 16px;
+      line-height: 1.8;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 3px solid #667eea;
+    }
+
+    .interpretation-text {
+      color: #444;
+      font-size: 15px;
+      line-height: 1.9;
+    }
+
+    .symbols-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .symbol-tag {
+      padding: 8px 16px;
+      color: white;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* 키워드 태그 다양한 색상 */
+    .symbol-tag:nth-child(1) {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .symbol-tag:nth-child(2) {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .symbol-tag:nth-child(3) {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    .symbol-tag:nth-child(4) {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+    
+    .symbol-tag:nth-child(5) {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+    
+    .symbol-tag:nth-child(6) {
+      background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+    }
+    
+    .symbol-tag:nth-child(7) {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    }
+    
+    .symbol-tag:nth-child(8) {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    }
+
+    .fortune-result {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+
+    .fortune-badge-large {
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .fortune-badge-large.길몽 {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .fortune-badge-large.흉몽 {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .fortune-badge-large.중립 {
+      background: #e2e3e5;
+      color: #383d41;
+    }
+
+    .fortune-description {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .advice-text {
+      color: #444;
+      font-size: 15px;
+      line-height: 1.8;
+      background: #fff9e6;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 3px solid #ffd700;
+    }
+
+    .retry-btn {
+      width: 100%;
+      padding: 15px;
+      background: #ff4757;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s;
+    }
+
+    .retry-btn:hover {
+      background: #ff3838;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+
+    /* 사주 변경 모달 (오늘의 운세와 동일) */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #f0f0f0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .date-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      background: #ff5252;
+    }
+
+    /* 꿈 상세보기 모달 */
+    .detail-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1001;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .detail-modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .detail-modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .detail-modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #f0f0f0;
+      border: none;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .detail-modal-close:hover {
+      background: #e0e0e0;
+    }
+
+    .modal-dream-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 15px;
+      padding-right: 40px;
+    }
+
+    .modal-meta {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .modal-section {
+      margin-bottom: 25px;
+    }
+
+    .modal-section-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-section-content {
+      color: #666;
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .related-dreams {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .related-dream-item {
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .related-dream-item:hover {
+      background: #e9ecef;
+    }
+
+    .related-dream-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 3px;
+    }
+
+    .related-dream-category {
+      font-size: 12px;
+      color: #999;
+    }
+
+    /* 반응형 */
+    @media (max-width: 480px) {
+      body {
+        padding: 5px;
+      }
+
+      .container {
+        padding: 15px;
+        border-radius: 15px;
+      }
+
+      .header h1 {
+        font-size: 20px;
+      }
+
+      .header p {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 상단 버튼 -->
+    <div class="top-buttons">
+      <a href="../index.html" class="back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        뒤로가기
+      </a>
+      <div class="header-buttons">
+        <button class="top-btn" onclick="openModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+          </svg>
+          사주변경
+        </button>
+        <button class="top-btn" onclick="shareContent()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          공유하기
+        </button>
+      </div>
+    </div>
+
+    <!-- 헤더 -->
+    <div class="header">
+      <h1>꿈해몽</h1>
+      <p>당신의 꿈을 풀이합니다</p>
+    </div>
+
+    <!-- 사용자 정보 표시 -->
+    <div class="user-info-display" id="userInfoDisplay">
+      사주 정보를 불러오는 중...
+    </div>
+
+    <!-- 검색 영역 -->
+    <div class="search-section">
+      <div class="search-box">
+        <input 
+          type="text" 
+          class="search-input" 
+          id="searchInput"
+          placeholder="기억나는 꿈을 간단하게 적어주세요"
+          autocomplete="off"
+        >
+        <button class="search-btn" id="searchBtn">검색</button>
+      </div>
+    </div>
+
+    <!-- 로딩 -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>꿈을 해석하는 중...</p>
+    </div>
+
+    <!-- 결과 없음 -->
+    <div class="no-results" id="noResults">
+      <div class="no-results-icon">😴</div>
+      <p>검색 결과가 없습니다</p>
+      <p style="font-size: 12px; margin-top: 10px;">다른 키워드로 검색해보세요</p>
+    </div>
+
+    <!-- 꿈 해석 결과 -->
+    <div class="results-section" id="resultsSection">
+      <div class="dream-interpretation-result">
+        <!-- 입력한 꿈 내용 표시 -->
+        <div class="user-dream-box">
+          <h3>입력하신 꿈</h3>
+          <p id="userDreamText" class="user-dream-text"></p>
+        </div>
+
+        <!-- AI 해석 결과 -->
+        <div class="interpretation-box">
+          <h3>꿈 해석</h3>
+          <div id="interpretationText" class="interpretation-text"></div>
+        </div>
+
+        <!-- 관련 상징 -->
+        <div class="symbols-box">
+          <h3>주요 상징</h3>
+          <div id="symbolsList" class="symbols-list"></div>
+        </div>
+
+        <!-- 길흉 판단 -->
+        <div class="fortune-box">
+          <h3>길흉 판단</h3>
+          <div id="fortuneResult" class="fortune-result"></div>
+        </div>
+
+        <!-- 조언 -->
+        <div class="advice-box">
+          <h3>💡 조언</h3>
+          <p id="adviceText" class="advice-text"></p>
+        </div>
+
+        <!-- 다시 해석하기 버튼 -->
+        <button class="retry-btn" onclick="resetDream()">다른 꿈 해석하기</button>
+      </div>
+    </div>
+
+    <!-- 면책조항 -->
+    <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px; border-top: 2px solid #e9ecef;">
+      <p style="font-size: 12px; color: #999; line-height: 1.8; margin-bottom: 10px;">
+        ⚠️ <strong>면책조항</strong>
+      </p>
+      <p style="font-size: 11px; color: #666; line-height: 1.8; text-align: justify;">
+        본 서비스에서 제공하는 운세, 사주, 별자리 등의 콘텐츠는 <strong>엔터테인먼트 및 참고 목적</strong>으로만 제공되며, 
+        어떠한 과학적·의학적·법적 근거나 보증을 제공하지 않습니다. 
+        본 서비스는 쿠팡파트너스 활동의 일환으로 일정액의 수수료를 제공받습니다. 
+        본 서비스의 내용은 <strong>개인의 판단이나 의사결정의 유일한 근거로 사용되어서는 안 되며</strong>, 
+        중요한 결정은 반드시 전문가와 상담하시기 바랍니다. 
+        본 서비스 이용으로 인해 발생하는 어떠한 직접적·간접적 손해에 대해서도 
+        당사는 법적 책임을 지지 않습니다.
+      </p>
+      <p style="font-size: 10px; color: #999; margin-top: 10px; text-align: center;">
+        © 2025 우리의 운세. All rights reserved.
+      </p>
+    </div>
+  </div>
+
+  <!-- 사주 변경 모달 -->
+  <div class="modal" id="sajuModal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h2 class="modal-title">오늘의 운세를 확인하기 위해서는<br>아래 정보가 필요합니다.</h2>
+
+      <div class="form-group">
+        <label class="form-label">성별</label>
+        <select class="form-select" id="gender">
+          <option value="남성">남성</option>
+          <option value="여성">여성</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">양력/음력</label>
+        <select class="form-select" id="calendarType">
+          <option value="양력/음력">양력/음력</option>
+          <option value="음력(평달)">음력(평달)</option>
+          <option value="음력(윤달)">음력(윤달)</option>
+          <option value="양력">양력</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">생년월일</label>
+        <div class="date-inputs">
+          <select class="form-select" id="year"></select>
+          <select class="form-select" id="month"></select>
+          <select class="form-select" id="day"></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">태어난 시간</label>
+        <select class="form-select" id="birthTime">
+          <option value="태어난 시간">태어난 시간</option>
+          <option value="시간 모름">시간 모름</option>
+          <option value="子(00:00~01:30)">子(00:00~01:30)</option>
+          <option value="丑(01:31~03:30)">丑(01:31~03:30)</option>
+          <option value="寅(03:31~05:30)">寅(03:31~05:30)</option>
+          <option value="卯(05:31~07:30)">卯(05:31~07:30)</option>
+          <option value="辰(07:31~09:30)">辰(07:31~09:30)</option>
+          <option value="巳(09:31~11:30)">巳(09:31~11:30)</option>
+          <option value="午(11:31~13:30)">午(11:31~13:30)</option>
+          <option value="未(13:31~15:30)">未(13:31~15:30)</option>
+          <option value="申(15:31~17:30)">申(15:31~17:30)</option>
+          <option value="酉(17:31~19:30)">酉(17:31~19:30)</option>
+          <option value="戌(19:31~21:30)">戌(19:31~21:30)</option>
+          <option value="亥(21:31~23:30)">亥(21:31~23:30)</option>
+          <option value="子(23:31~23:59)">子(23:31~23:59)</option>
+        </select>
+      </div>
+
+      <button class="submit-btn" onclick="saveSaju()">저장하기</button>
+    </div>
+  </div>
+
+  <!-- 꿈 상세보기 모달 -->
+  <div class="detail-modal" id="dreamModal">
+    <div class="detail-modal-content">
+      <button class="detail-modal-close" onclick="closeDreamModal()">×</button>
+      
+      <h2 class="modal-dream-title" id="modalTitle"></h2>
+      
+      <div class="modal-meta" id="modalMeta"></div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">🔮 해석</div>
+        <div class="modal-section-content" id="modalInterpretation"></div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">🏷️ 관련 키워드</div>
+        <div class="dream-keywords" id="modalKeywords"></div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">🔗 관련된 꿈</div>
+        <div class="related-dreams" id="modalRelated"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 전역 변수
+    let currentPage = 1;
+    let currentQuery = '';
+    let totalResults = 0;
+    const resultsPerPage = 10;
+
+    // localStorage에서 사주 정보 가져오기 (오늘의 운세와 동일)
+    let savedData = JSON.parse(localStorage.getItem('fortuneUserData')) || {
+      gender: '남성',
+      calendarType: '음력(평달)',
+      year: '1984',
+      month: '7',
+      day: '7',
+      birthTime: '未(13:31~15:30)'
+    };
+
+    function loadUserInfo() {
+      const savedDataFromStorage = localStorage.getItem('fortuneUserData');
+      if (savedDataFromStorage) {
+        const data = JSON.parse(savedDataFromStorage);
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})`;
+        document.getElementById('userInfoDisplay').textContent = display;
+        return data;
+      } else {
+        document.getElementById('userInfoDisplay').textContent = '사주 정보가 없습니다. 사주변경 버튼을 눌러주세요.';
+        return null;
+      }
+    }
+
+    function initSelects() {
+      const yearSelect = document.getElementById('year');
+      for (let y = 1940; y <= 2025; y++) {
+        const opt = document.createElement('option');
+        opt.value = y + '년';
+        opt.textContent = y + '년';
+        yearSelect.appendChild(opt);
+      }
+
+      const monthSelect = document.getElementById('month');
+      for (let m = 1; m <= 12; m++) {
+        const opt = document.createElement('option');
+        opt.value = m + '월';
+        opt.textContent = m + '월';
+        monthSelect.appendChild(opt);
+      }
+
+      const daySelect = document.getElementById('day');
+      for (let d = 1; d <= 31; d++) {
+        const opt = document.createElement('option');
+        opt.value = d + '일';
+        opt.textContent = d + '일';
+        daySelect.appendChild(opt);
+      }
+    }
+
+    function openModal() {
+      // 모달 열 때마다 최신 localStorage 데이터 로드
+      const savedDataFromStorage = localStorage.getItem('fortuneUserData');
+      if (savedDataFromStorage) {
+        savedData = JSON.parse(savedDataFromStorage);
+        document.getElementById('gender').value = savedData.gender;
+        document.getElementById('calendarType').value = savedData.calendarType;
+        document.getElementById('year').value = savedData.year + '년';
+        document.getElementById('month').value = savedData.month + '월';
+        document.getElementById('day').value = savedData.day + '일';
+        document.getElementById('birthTime').value = savedData.birthTime;
+      }
+      
+      document.getElementById('sajuModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('sajuModal').classList.remove('active');
+    }
+
+    function saveSaju() {
+      // 모달 입력값 가져오기
+      savedData.gender = document.getElementById('gender').value;
+      savedData.calendarType = document.getElementById('calendarType').value;
+      savedData.year = document.getElementById('year').value.replace('년', '');
+      savedData.month = document.getElementById('month').value.replace('월', '');
+      savedData.day = document.getElementById('day').value.replace('일', '');
+      savedData.birthTime = document.getElementById('birthTime').value;
+
+      // localStorage에 저장
+      localStorage.setItem('fortuneUserData', JSON.stringify(savedData));
+      
+      // 화면 표시 업데이트
+      loadUserInfo();
+
+      alert('사주 정보가 저장되었습니다!');
+      closeModal();
+    }
+
+    function shareContent() {
+      if (navigator.share) {
+        navigator.share({
+          title: '꿈해몽 - 우리의 운세',
+          text: '당신의 꿈을 풀이합니다',
+          url: window.location.href
+        }).then(() => {
+          console.log('공유 성공');
+        }).catch((error) => {
+          console.log('공유 실패', error);
+          fallbackShare();
+        });
+      } else {
+        fallbackShare();
+      }
+    }
+
+    function fallbackShare() {
+      const url = window.location.href;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+          alert('링크가 복사되었습니다!\n원하는 곳에 붙여넣기 하세요.');
+        }).catch(() => {
+          alert('링크: ' + url);
+        });
+      } else {
+        alert('링크: ' + url);
+      }
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('sajuModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+
+    // DOM 요소
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const loading = document.getElementById('loading');
+    const noResults = document.getElementById('noResults');
+    const resultsSection = document.getElementById('resultsSection');
+
+    // 검색 버튼
+    searchBtn.addEventListener('click', () => {
+      const query = searchInput.value.trim();
+      if (query) {
+        currentQuery = query;
+        analyzeDream(query);
+      } else {
+        alert('꿈 내용을 입력해주세요.');
+      }
+    });
+
+    // Enter 키
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchBtn.click();
+      }
+    });
+
+    // 꿈 해석 함수 (임시 데이터)
+    async function analyzeDream(dreamText) {
+      showLoading();
+
+      // 검색창 숨기기
+      document.querySelector('.search-section').style.display = 'none';
+
+      // 2초 후 결과 표시 (로딩 시뮬레이션)
+      setTimeout(() => {
+        hideLoading();
+        showDreamResult(dreamText);
+      }, 2000);
+    }
+
+    // 꿈 해석 결과 표시
+    function showDreamResult(dreamText) {
+      // 입력한 꿈 내용
+      document.getElementById('userDreamText').textContent = dreamText;
+
+      // AI 해석 결과 (임시 데이터)
+      document.getElementById('interpretationText').innerHTML = `
+        <p>당신의 꿈은 내면의 감정과 현재 상황을 반영하고 있습니다. 
+        꿈에 나타난 상징들은 당신의 무의식이 전하는 메시지로, 
+        현재 겪고 있는 변화와 성장의 과정을 보여주고 있습니다.</p>
+        <p style="margin-top: 15px;">이 꿈은 새로운 시작과 기회를 암시하며, 
+        당신이 두려워하던 것들을 극복할 수 있는 힘이 내면에 있음을 알려줍니다.</p>
+      `;
+
+      // 주요 상징 (임시 데이터)
+      document.getElementById('symbolsList').innerHTML = `
+        <span class="symbol-tag">변화</span>
+        <span class="symbol-tag">성장</span>
+        <span class="symbol-tag">기회</span>
+        <span class="symbol-tag">도전</span>
+        <span class="symbol-tag">희망</span>
+      `;
+
+      // 길흉 판단 (임시 데이터)
+      document.getElementById('fortuneResult').innerHTML = `
+        <span class="fortune-badge-large 길몽">길몽</span>
+        <div class="fortune-description">
+          이 꿈은 좋은 일이 다가올 징조입니다. 
+          긍정적인 변화가 예상되며, 하고자 하는 일에 좋은 결과가 있을 것입니다.
+        </div>
+      `;
+
+      // 조언 (임시 데이터)
+      document.getElementById('adviceText').textContent = 
+        '지금은 새로운 도전을 시작하기에 좋은 시기입니다. ' +
+        '두려움을 내려놓고 자신감을 가지고 앞으로 나아가세요. ' +
+        '주변 사람들의 조언에 귀 기울이되, 최종 결정은 자신의 직관을 따르는 것이 좋습니다.';
+
+      // 결과 섹션 표시
+      resultsSection.classList.add('show');
+    }
+
+    // 다시 해석하기
+    function resetDream() {
+      // 입력창 초기화
+      searchInput.value = '';
+      
+      // 검색창 다시 표시
+      document.querySelector('.search-section').style.display = 'block';
+      
+      // 결과 섹션 숨기기
+      resultsSection.classList.remove('show');
+    }
+
+    // 결과 표시
+    function displayResults(data) {
+      totalResults = data.total;
+      resultCount.textContent = totalResults;
+
+      // 카드 생성
+      dreamCards.innerHTML = data.results.map(dream => `
+        <div class="dream-card" onclick="showDreamDetail(${dream.id})">
+          <div class="dream-header">
+            <div>
+              <div class="dream-title">${dream.title}</div>
+              <div class="dream-category">${dream.category}</div>
+            </div>
+            <span class="fortune-badge ${dream.fortune_type}">${dream.fortune_type}</span>
+          </div>
+          <div class="dream-meaning">💫 ${dream.meaning}</div>
+          <div class="dream-interpretation">${dream.interpretation}</div>
+          <div class="dream-keywords">
+            ${dream.keywords.slice(0, 5).map(kw => 
+              `<span class="keyword-tag">#${kw}</span>`
+            ).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      // 페이지네이션
+      renderPagination(data);
+
+      // 결과 섹션 표시
+      noResults.classList.remove('show');
+      resultsSection.classList.add('show');
+    }
+
+    // 페이지네이션 렌더링
+    function renderPagination(data) {
+      const totalPages = data.totalPages;
+      const currentPage = data.page;
+
+      let html = '';
+
+      // 이전 버튼
+      html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} 
+                onclick="searchDreams('${currentQuery}', ${currentPage - 1})">◀</button>`;
+
+      // 페이지 번호
+      for (let i = 1; i <= totalPages && i <= 5; i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" 
+                  onclick="searchDreams('${currentQuery}', ${i})">${i}</button>`;
+      }
+
+      // 다음 버튼
+      html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} 
+                onclick="searchDreams('${currentQuery}', ${currentPage + 1})">▶</button>`;
+
+      pagination.innerHTML = html;
+    }
+
+    // 꿈 상세보기
+    async function showDreamDetail(id) {
+      try {
+        const response = await fetch(`http://localhost:3000/api/dream/${id}`);
+        const data = await response.json();
+
+        if (data.success) {
+          const dream = data.dream;
+
+          modalTitle.textContent = dream.title;
+          
+          modalMeta.innerHTML = `
+            <span class="fortune-badge ${dream.fortune_type}">${dream.fortune_type}</span>
+            <span class="keyword-tag">${dream.category}</span>
+            <span class="keyword-tag">💫 ${dream.meaning}</span>
+          `;
+
+          modalInterpretation.textContent = dream.interpretation;
+
+          modalKeywords.innerHTML = dream.keywords.map(kw => 
+            `<span class="keyword-tag">#${kw}</span>`
+          ).join('');
+
+          if (dream.relatedDreams && dream.relatedDreams.length > 0) {
+            modalRelated.innerHTML = dream.relatedDreams.map(rd => `
+              <div class="related-dream-item" onclick="showDreamDetail(${rd.id})">
+                <div class="related-dream-title">${rd.title}</div>
+                <div class="related-dream-category">${rd.category} · ${rd.fortune_type}</div>
+              </div>
+            `).join('');
+          } else {
+            modalRelated.innerHTML = '<p style="color: #999;">관련 꿈이 없습니다</p>';
+          }
+
+          dreamModal.classList.add('show');
+        }
+      } catch (error) {
+        console.error('상세보기 오류:', error);
+        alert('꿈 정보를 불러오는 중 오류가 발생했습니다.');
+      }
+    }
+
+    function closeDreamModal() {
+      dreamModal.classList.remove('show');
+    }
+
+    // 랜덤 꿈
+    // UI 헬퍼 함수
+    function showLoading() {
+      loading.classList.add('show');
+      resultsSection.classList.remove('show');
+      noResults.classList.remove('show');
+    }
+
+    function hideLoading() {
+      loading.classList.remove('show');
+    }
+
+    function showNoResults() {
+      noResults.classList.add('show');
+      resultsSection.classList.remove('show');
+    }
+
+    // 페이지 로드 시
+    window.onload = function() {
+      initSelects();
+      loadUserInfo();
+    };
+
+    // 페이지가 다시 보일 때마다 사용자 정보 갱신 (오늘의 운세와 동일)
+    window.addEventListener('pageshow', function(event) {
+      const latestData = localStorage.getItem('fortuneUserData');
+      if (latestData) {
+        savedData = JSON.parse(latestData);
+        loadUserInfo();
+      }
+    });
+
+    window.addEventListener('focus', function() {
+      const latestData = localStorage.getItem('fortuneUserData');
+      if (latestData) {
+        savedData = JSON.parse(latestData);
+        loadUserInfo();
+      }
+    });
+  </script>
+</body>
+</html>

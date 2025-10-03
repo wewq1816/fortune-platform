@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>우리의 운세</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #333;
+      flex: 1;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .change-saju-btn,
+    .share-btn {
+      padding: 10px 20px;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .change-saju-btn:hover,
+    .share-btn:hover {
+      background: #f8f8f8;
+      border-color: #ff6b6b;
+    }
+
+    .user-info {
+      background: #fff9e6;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      text-align: center;
+      font-size: 16px;
+      color: #666;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .menu-item {
+      background: white;
+      border: 2px solid #f0f0f0;
+      border-radius: 12px;
+      padding: 10px 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .menu-item:hover {
+      border-color: #ff6b6b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,107,107,0.2);
+    }
+
+    .menu-icon {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 5px auto;
+      display: block;
+    }
+
+    .menu-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .form-select,
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #f0f0f0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .date-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      background: #ff5252;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>우리의 운세</h1>
+      <div class="header-buttons">
+        <button class="change-saju-btn" onclick="openModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+          </svg>
+          사주변경
+        </button>
+        <button class="share-btn" onclick="shareContent()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          공유하기
+        </button>
+      </div>
+    </div>
+
+    <div class="user-info" id="userInfo">
+      사주 정보 불러오는 중...
+    </div>
+
+    <div class="menu-grid">
+      <div class="menu-item" onclick="window.location.href='pages/daily-fortune.html'">
+        <img src="images/daily.png" alt="오늘의 운세" class="menu-icon">
+        <div class="menu-title">오늘의 운세</div>
+      </div>
+
+      <div class="menu-item" onclick="alert('타로 카드 준비중')">
+        <img src="images/tarot.png" alt="타로 카드" class="menu-icon">
+        <div class="menu-title">타로 카드</div>
+      </div>
+
+      <div class="menu-item" onclick="alert('사주 준비중')">
+        <img src="images/saju.png" alt="사주" class="menu-icon">
+        <div class="menu-title">사주</div>
+      </div>
+
+      <div class="menu-item" onclick="alert('토정비결 준비중')">
+        <img src="images/tojeong.png" alt="토정비결" class="menu-icon">
+        <div class="menu-title">토정비결</div>
+      </div>
+
+      <div class="menu-item" onclick="window.location.href='pages/dream.html'">
+        <img src="images/dream.png" alt="꿈 해몽" class="menu-icon">
+        <div class="menu-title">꿈 해몽</div>
+      </div>
+
+      <div class="menu-item" onclick="window.location.href='pages/horoscope.html'">
+        <img src="images/horoscope.png" alt="별자리 운세" class="menu-icon">
+        <div class="menu-title">별자리 운세</div>
+      </div>
+
+      <div class="menu-item" onclick="window.location.href='pages/lotto.html'">
+        <img src="images/lotto.png" alt="로또 번호 생성기" class="menu-icon">
+        <div class="menu-title">로또 번호 생성기</div>
+      </div>
+
+      <div class="menu-item" onclick="alert('궁합 준비중')">
+        <img src="images/compatibility.png" alt="궁합" class="menu-icon">
+        <div class="menu-title">궁합</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="modal" id="sajuModal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h2 class="modal-title">오늘의 운세를 확인하기 위해서는<br>아래 정보가 필요합니다.</h2>
+
+      <div class="form-group">
+        <label class="form-label">성별</label>
+        <select class="form-select" id="gender">
+          <option value="남성">남성</option>
+          <option value="여성">여성</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">양력/음력</label>
+        <select class="form-select" id="calendarType">
+          <option value="양력/음력">양력/음력</option>
+          <option value="음력(평달)">음력(평달)</option>
+          <option value="음력(윤달)">음력(윤달)</option>
+          <option value="양력">양력</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">생년월일</label>
+        <div class="date-inputs">
+          <select class="form-select" id="year"></select>
+          <select class="form-select" id="month"></select>
+          <select class="form-select" id="day"></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">태어난 시간</label>
+        <select class="form-select" id="birthTime">
+          <option value="태어난 시간">태어난 시간</option>
+          <option value="시간 모름">시간 모름</option>
+          <option value="子(00:00~01:30)">子(00:00~01:30)</option>
+          <option value="丑(01:31~03:30)">丑(01:31~03:30)</option>
+          <option value="寅(03:31~05:30)">寅(03:31~05:30)</option>
+          <option value="卯(05:31~07:30)">卯(05:31~07:30)</option>
+          <option value="辰(07:31~09:30)">辰(07:31~09:30)</option>
+          <option value="巳(09:31~11:30)">巳(09:31~11:30)</option>
+          <option value="午(11:31~13:30)">午(11:31~13:30)</option>
+          <option value="未(13:31~15:30)">未(13:31~15:30)</option>
+          <option value="申(15:31~17:30)">申(15:31~17:30)</option>
+          <option value="酉(17:31~19:30)">酉(17:31~19:30)</option>
+          <option value="戌(19:31~21:30)">戌(19:31~21:30)</option>
+          <option value="亥(21:31~23:30)">亥(21:31~23:30)</option>
+          <option value="子(23:31~23:59)">子(23:31~23:59)</option>
+        </select>
+      </div>
+
+      <button class="submit-btn" onclick="saveSaju()">저장하기</button>
+    </div>
+  </div>
+
+  <script>
+    // localStorage에서 사주 정보 불러오기 (없으면 기본값)
+    let savedData = JSON.parse(localStorage.getItem('fortuneUserData')) || {
+      gender: '남성',
+      calendarType: '음력(평달)',
+      year: '1984',
+      month: '7',
+      day: '7',
+      birthTime: '未(13:31~15:30)'
+    };
+
+    // 사주 정보 화면에 표시하는 함수
+    function updateUserInfoDisplay() {
+      const userInfoText = `${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType}) 태어난 시간 : ${savedData.birthTime}`;
+      document.getElementById('userInfo').textContent = userInfoText;
+    }
+
+    function initSelects() {
+      const yearSelect = document.getElementById('year');
+      for (let y = 1940; y <= 2025; y++) {
+        const opt = document.createElement('option');
+        opt.value = y + '년';
+        opt.textContent = y + '년';
+        yearSelect.appendChild(opt);
+      }
+
+      const monthSelect = document.getElementById('month');
+      for (let m = 1; m <= 12; m++) {
+        const opt = document.createElement('option');
+        opt.value = m + '월';
+        opt.textContent = m + '월';
+        monthSelect.appendChild(opt);
+      }
+
+      const daySelect = document.getElementById('day');
+      for (let d = 1; d <= 31; d++) {
+        const opt = document.createElement('option');
+        opt.value = d + '일';
+        opt.textContent = d + '일';
+        daySelect.appendChild(opt);
+      }
+    }
+
+    function openModal() {
+      // 모달 열 때마다 최신 localStorage 데이터 로드
+      const latestData = JSON.parse(localStorage.getItem('fortuneUserData'));
+      if (latestData) {
+        savedData = latestData;
+      }
+      
+      document.getElementById('gender').value = savedData.gender;
+      document.getElementById('calendarType').value = savedData.calendarType;
+      document.getElementById('year').value = savedData.year + '년';
+      document.getElementById('month').value = savedData.month + '월';
+      document.getElementById('day').value = savedData.day + '일';
+      document.getElementById('birthTime').value = savedData.birthTime;
+      
+      document.getElementById('sajuModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('sajuModal').classList.remove('active');
+    }
+
+    function shareContent() {
+      if (navigator.share) {
+        navigator.share({
+          title: '우리의 운세',
+          text: '오늘의 운세를 확인해보세요!',
+          url: window.location.href
+        }).then(() => {
+          console.log('공유 성공');
+        }).catch((error) => {
+          console.log('공유 실패', error);
+          fallbackShare();
+        });
+      } else {
+        fallbackShare();
+      }
+    }
+
+    function fallbackShare() {
+      const url = window.location.href;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+          alert('링크가 복사되었습니다!\n원하는 곳에 붙여넣기 하세요.');
+        }).catch(() => {
+          alert('링크: ' + url);
+        });
+      } else {
+        alert('링크: ' + url);
+      }
+    }
+
+    function saveSaju() {
+      savedData.gender = document.getElementById('gender').value;
+      savedData.calendarType = document.getElementById('calendarType').value;
+      savedData.year = document.getElementById('year').value.replace('년', '');
+      savedData.month = document.getElementById('month').value.replace('월', '');
+      savedData.day = document.getElementById('day').value.replace('일', '');
+      savedData.birthTime = document.getElementById('birthTime').value;
+
+      // localStorage에 저장
+      localStorage.setItem('fortuneUserData', JSON.stringify(savedData));
+      
+      // 화면 업데이트
+      updateUserInfoDisplay();
+
+      alert('사주 정보가 저장되었습니다!');
+      closeModal();
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('sajuModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+
+    window.onload = function() {
+      initSelects();
+      
+      // localStorage에서 사주 정보 불러오기
+      const storedData = localStorage.getItem('fortuneUserData');
+      if (storedData) {
+        savedData = JSON.parse(storedData);
+      } else {
+        // localStorage에 없으면 기본값 저장
+        localStorage.setItem('fortuneUserData', JSON.stringify(savedData));
+      }
+      
+      // 화면에 표시
+      updateUserInfoDisplay();
+    }
+    
+    // 페이지가 다시 보일 때마다 (뒤로가기 포함) localStorage에서 최신 정보 가져오기
+    window.addEventListener('pageshow', function(event) {
+      const latestData = localStorage.getItem('fortuneUserData');
+      if (latestData) {
+        savedData = JSON.parse(latestData);
+        updateUserInfoDisplay();
+      }
+    });
+
+    // focus 이벤트로도 확인 (탭 전환 시)
+    window.addEventListener('focus', function() {
+      const latestData = localStorage.getItem('fortuneUserData');
+      if (latestData) {
+        savedData = JSON.parse(latestData);
+        updateUserInfoDisplay();
+      }
+    });
+  </script>
+
+  <!-- 면책조항 -->
+  <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px; border-top: 2px solid #e9ecef;">
+    <p style="font-size: 12px; color: #999; line-height: 1.8; margin-bottom: 10px;">
+      ⚠️ <strong>면책조항</strong>
+    </p>
+    <p style="font-size: 11px; color: #666; line-height: 1.8; text-align: justify;">
+      본 서비스에서 제공하는 로또 번호, 운세, 사주, 별자리 등의 콘텐츠는 <strong>엔터테인먼트 및 참고 목적</strong>으로만 제공되며, 
+      어떠한 과학적·수학적·의학적·법적 근거나 보증을 제공하지 않습니다. 
+      본 서비스의 내용은 <strong>개인의 판단이나 의사결정의 유일한 근거로 사용되어서는 안 되며</strong>, 
+      중요한 결정은 반드시 전문가와 상담하시기 바랍니다. 
+      본 서비스 이용으로 인해 발생하는 어떠한 직접적·간접적 손해에 대해서도 
+      당사는 법적 책임을 지지 않습니다.
+    </p>
+    <p style="font-size: 10px; color: #999; margin-top: 10px; text-align: center;">
+      © 2025 우리의 운세. All rights reserved.
+    </p>
+  </div>
+
+</body>
+</html>

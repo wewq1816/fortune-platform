@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오늘의 운세 테스트</title>
+  <style>
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    h1 {
+      text-align: center;
+      color: #667eea;
+      margin-bottom: 30px;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      display: none;
+    }
+    .result.show {
+      display: block;
+    }
+    .fortune-item {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+    .fortune-item h3 {
+      margin: 0 0 10px 0;
+      color: #667eea;
+    }
+    .fortune-item p {
+      margin: 0;
+      line-height: 1.6;
+      color: #555;
+    }
+    .loading {
+      text-align: center;
+      padding: 20px;
+      display: none;
+    }
+    .loading.show {
+      display: block;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .info {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .info strong {
+      color: #1976d2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔮 오늘의 운세</h1>
+    
+    <form id="fortuneForm">
+      <div class="input-group">
+        <label>생년</label>
+        <input type="number" id="year" min="1940" max="2025" value="1990" required>
+      </div>
+      
+      <div class="input-group">
+        <label>생월</label>
+        <input type="number" id="month" min="1" max="12" value="3" required>
+      </div>
+      
+      <div class="input-group">
+        <label>생일</label>
+        <input type="number" id="day" min="1" max="31" value="15" required>
+      </div>
+      
+      <div class="input-group">
+        <label>태어난 시간</label>
+        <select id="hour" required>
+          <option value="0">자시 (23:00-01:00)</option>
+          <option value="1">축시 (01:00-03:00)</option>
+          <option value="3">인시 (03:00-05:00)</option>
+          <option value="5">묘시 (05:00-07:00)</option>
+          <option value="7" selected>진시 (07:00-09:00)</option>
+          <option value="9">사시 (09:00-11:00)</option>
+          <option value="11">오시 (11:00-13:00)</option>
+          <option value="13">미시 (13:00-15:00)</option>
+          <option value="15">신시 (15:00-17:00)</option>
+          <option value="17">유시 (17:00-19:00)</option>
+          <option value="19">술시 (19:00-21:00)</option>
+          <option value="21">해시 (21:00-23:00)</option>
+          <option value="12">시간 모름</option>
+        </select>
+      </div>
+      
+      <div class="input-group">
+        <label>음력/양력</label>
+        <select id="isLunar">
+          <option value="false">양력</option>
+          <option value="true">음력</option>
+        </select>
+      </div>
+      
+      <button type="submit">운세 보기</button>
+    </form>
+    
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>운세를 불러오는 중...</p>
+    </div>
+    
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    document.getElementById('fortuneForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const loading = document.getElementById('loading');
+      const result = document.getElementById('result');
+      const submitBtn = e.target.querySelector('button');
+      
+      // UI 상태 변경
+      loading.classList.add('show');
+      result.classList.remove('show');
+      submitBtn.disabled = true;
+      
+      // 폼 데이터 수집
+      const formData = {
+        year: parseInt(document.getElementById('year').value),
+        month: parseInt(document.getElementById('month').value),
+        day: parseInt(document.getElementById('day').value),
+        hour: parseInt(document.getElementById('hour').value),
+        isLunar: document.getElementById('isLunar').value === 'true'
+      };
+      
+      try {
+        // 실제로는 백엔드 API를 호출해야 하지만
+        // 지금은 Node.js 테스트 결과를 시뮬레이션
+        
+        // 시뮬레이션: 5초 대기
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // 예시 결과 (실제로는 API 응답)
+        const fortuneData = {
+          saju: {
+            string: "경오 기묘 기묘 갑자",
+            hanja: "庚午 己卯 己卯 甲子",
+            ilgan: "기",
+            ilganElement: "토"
+          },
+          today: {
+            ganzi: "갑오",
+            element: "목"
+          },
+          relationship: "피극",
+          score: 50,
+          level: "흉",
+          fortune: {
+            총운: "오늘의 전반적인 운세는 흉합니다. 하지만 긍정적인 마음가짐을 갖고 계신다면 어려움을 잘 극복하실 수 있을 것입니다.",
+            애정운: "가족분들과의 관계가 다소 불편할 수 있습니다. 서로를 이해하려 노력하고 화목한 분위기를 만들어나가는 것이 중요합니다.",
+            금전운: "금전적인 면에서 어려움이 있을 수 있습니다. 지출을 줄이고 저축에 힘쓰시길 권해드립니다.",
+            직장운: "직장 생활에서 원활한 대인관계를 유지하기 어려운 시기입니다. 상대방의 입장에서 생각하고 서로 배려하는 자세가 필요합니다.",
+            학업운: "자기계발 및 취미 활동에 대한 의지가 약해질 수 있습니다. 하지만 포기하지 마시고 꾸준히 노력하는 태도가 중요합니다.",
+            건강운: "건강관리에 힘써야 할 시기입니다. 규칙적인 생활 패턴을 갖고, 운동과 휴식을 균형 있게 취하세요."
+          }
+        };
+        
+        // 결과 표시
+        displayFortune(fortuneData);
+        
+      } catch (error) {
+        result.innerHTML = `
+          <div style="color: red; text-align: center;">
+            <h3>오류 발생</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+        result.classList.add('show');
+      } finally {
+        loading.classList.remove('show');
+        submitBtn.disabled = false;
+      }
+    });
+    
+    function displayFortune(data) {
+      const result = document.getElementById('result');
+      
+      result.innerHTML = `
+        <div class="info">
+          <strong>사주 8글자:</strong> ${data.saju.string} (${data.saju.hanja})<br>
+          <strong>일간:</strong> ${data.saju.ilgan}(${data.saju.ilganElement})<br>
+          <strong>오늘 일진:</strong> ${data.today.ganzi} (${data.today.element})<br>
+          <strong>오행 관계:</strong> ${data.relationship}<br>
+          <strong>점수:</strong> ${data.score}점 / <strong>등급:</strong> ${data.level}
+        </div>
+        
+        <div class="fortune-item">
+          <h3>📌 총운</h3>
+          <p>${data.fortune.총운}</p>
+        </div>
+        
+        <div class="fortune-item">
+          <h3>💕 애정운</h3>
+          <p>${data.fortune.애정운}</p>
+        </div>
+        
+        <div class="fortune-item">
+          <h3>💰 금전운</h3>
+          <p>${data.fortune.금전운}</p>
+        </div>
+        
+        <div class="fortune-item">
+          <h3>💼 직장운</h3>
+          <p>${data.fortune.직장운}</p>
+        </div>
+        
+        <div class="fortune-item">
+          <h3>📚 학업운</h3>
+          <p>${data.fortune.학업운}</p>
+        </div>
+        
+        <div class="fortune-item">
+          <h3>🏥 건강운</h3>
+          <p>${data.fortune.건강운}</p>
+        </div>
+      `;
+      
+      result.classList.add('show');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로또 번호 생성기 - 우리의 운세</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 15px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .back-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .top-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .top-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 15px;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .top-btn:hover {
+      background: #f8f8f8;
+      border-color: #667eea;
+    }
+
+    .user-info-display {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 18px;
+      background: #ff4757;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 30px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+    }
+
+    .generate-btn:hover {
+      background: #ff3838;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+    }
+
+    .generate-btn:active {
+      transform: translateY(0);
+    }
+
+    .result-container {
+      display: none;
+      animation: fadeIn 0.5s;
+    }
+
+    .result-container.show {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .lotto-balls {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .lotto-set {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      animation: fadeIn 0.5s;
+      position: relative;
+    }
+
+    .lotto-set.recommended {
+      background: linear-gradient(135deg, #fff9e6 0%, #ffe8b3 100%);
+      border: 2px solid #ffd700;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    }
+
+    .recommend-badge {
+      position: absolute;
+      top: -10px;
+      left: 15px;
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      color: #8B4513;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+      border: 1px solid #ffed4e;
+      z-index: 2;
+    }
+
+    /* 모달 스타일 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .form-select,
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #f0f0f0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .date-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      background: #ff5252;
+    }
+
+    .set-label {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .balls-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .lotto-ball {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      animation: popIn 0.5s ease-out;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .lotto-ball:nth-child(1) { background: #ffd700; }
+    .lotto-ball:nth-child(2) { background: #4169e1; }
+    .lotto-ball:nth-child(3) { background: #ff6347; }
+    .lotto-ball:nth-child(4) { background: #808080; }
+    .lotto-ball:nth-child(5) { background: #32cd32; }
+    .lotto-ball:nth-child(6) { background: #ff1493; }
+
+    .loading-container {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .loading-message {
+      font-size: 18px;
+      color: #ff4757;
+      font-weight: bold;
+      margin-bottom: 30px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .slot-machine {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .slot-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 12px;
+    }
+
+    .slot-label {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .slot-numbers {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .slot-number {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      background: #ddd;
+      animation: slotSpin 0.1s infinite;
+    }
+
+    @keyframes slotSpin {
+      0% { transform: translateY(-5px); }
+      50% { transform: translateY(5px); }
+      100% { transform: translateY(-5px); }
+    }
+
+    .slot-number.stopping {
+      animation: slotStop 0.5s ease-out forwards;
+    }
+
+    @keyframes slotStop {
+      0% { transform: translateY(5px); }
+      50% { transform: scale(1.2); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    .fortune-message {
+      text-align: center;
+      padding: 20px;
+      background: #fff9e6;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .fortune-message h3 {
+      color: #f39c12;
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    .fortune-message p {
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .action-btn:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 5px;
+      }
+
+      .container {
+        padding: 15px;
+        border-radius: 15px;
+      }
+
+      .header h1 {
+        font-size: 20px;
+      }
+
+      .header p {
+        font-size: 12px;
+      }
+
+      .generate-btn {
+        padding: 15px;
+        font-size: 16px;
+      }
+
+      .lotto-set {
+        gap: 6px;
+        padding: 10px;
+      }
+
+      .set-label {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+      }
+
+      .balls-row {
+        gap: 5px;
+      }
+
+      .lotto-ball {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .action-btn {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-buttons">
+      <a href="../index.html" class="back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        뒤로가기
+      </a>
+      <div class="header-buttons">
+        <button class="top-btn" onclick="openModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+          </svg>
+          사주변경
+        </button>
+        <button class="top-btn" onclick="shareContent()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          공유하기
+        </button>
+      </div>
+    </div>
+
+    <div class="header">
+      <h1>로또 번호 생성기</h1>
+      <p>당신의 생년월일로 행운의 번호를 만들어드립니다</p>
+    </div>
+
+    <div class="user-info-display" id="userInfoDisplay">
+      사주 정보를 불러오는 중...
+    </div>
+
+    <button class="generate-btn" onclick="generateLotto()">
+      행운의 번호 생성하기
+    </button>
+
+    <div class="result-container" id="resultContainer">
+      <div class="lotto-balls" id="lottoBalls"></div>
+      
+      <div class="fortune-message">
+        <h3>당신의 행운의 번호</h3>
+        <p id="fortuneMessage">이 번호들은 당신의 생년월일 에너지를 담고 있습니다. 행운을 빕니다!</p>
+      </div>
+
+      <div class="action-buttons">
+        <button class="action-btn" onclick="generateLotto()">다시 생성</button>
+        <button class="action-btn" onclick="copyNumbers()">번호 복사</button>
+      </div>
+    </div>
+
+    <!-- 페이지 하단 면책조항 -->
+    <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px; border-top: 2px solid #e9ecef;">
+      <p style="font-size: 12px; color: #999; line-height: 1.8; margin-bottom: 10px;">
+        ⚠️ <strong>면책조항</strong>
+      </p>
+      <p style="font-size: 11px; color: #666; line-height: 1.8; text-align: justify;">
+        본 서비스에서 제공하는 운세, 사주, 별자리 등의 콘텐츠는 <strong>엔터테인먼트 및 참고 목적</strong>으로만 제공되며, 
+        어떠한 과학적·의학적·법적 근거나 보증을 제공하지 않습니다. 
+        본 서비스는 쿠팡파트너스 활동의 일환으로 일정액의 수수료를 제공받습니다. 
+        본 서비스의 내용은 <strong>개인의 판단이나 의사결정의 유일한 근거로 사용되어서는 안 되며</strong>, 
+        중요한 결정은 반드시 전문가와 상담하시기 바랍니다. 
+        본 서비스 이용으로 인해 발생하는 어떠한 직접적·간접적 손해에 대해서도 
+        당사는 법적 책임을 지지 않습니다.
+      </p>
+      <p style="font-size: 10px; color: #999; margin-top: 10px; text-align: center;">
+        © 2025 우리의 운세. All rights reserved.
+      </p>
+    </div>
+  </div>
+
+  <!-- 사주 입력 모달 -->
+  <div class="modal" id="sajuModal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h2 class="modal-title">오늘의 운세를 확인하기 위해서는<br>아래 정보가 필요합니다.</h2>
+
+      <div class="form-group">
+        <label class="form-label">성별</label>
+        <select class="form-select" id="gender">
+          <option value="남성">남성</option>
+          <option value="여성">여성</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">양력/음력</label>
+        <select class="form-select" id="calendarType">
+          <option value="양력/음력">양력/음력</option>
+          <option value="음력(평달)">음력(평달)</option>
+          <option value="음력(윤달)">음력(윤달)</option>
+          <option value="양력">양력</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">생년월일</label>
+        <div class="date-inputs">
+          <select class="form-select" id="year"></select>
+          <select class="form-select" id="month"></select>
+          <select class="form-select" id="day"></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">태어난 시간</label>
+        <select class="form-select" id="birthTime">
+          <option value="태어난 시간">태어난 시간</option>
+          <option value="시간 모름">시간 모름</option>
+          <option value="子(00:00~01:30)">子(00:00~01:30)</option>
+          <option value="丑(01:31~03:30)">丑(01:31~03:30)</option>
+          <option value="寅(03:31~05:30)">寅(03:31~05:30)</option>
+          <option value="卯(05:31~07:30)">卯(05:31~07:30)</option>
+          <option value="辰(07:31~09:30)">辰(07:31~09:30)</option>
+          <option value="巳(09:31~11:30)">巳(09:31~11:30)</option>
+          <option value="午(11:31~13:30)">午(11:31~13:30)</option>
+          <option value="未(13:31~15:30)">未(13:31~15:30)</option>
+          <option value="申(15:31~17:30)">申(15:31~17:30)</option>
+          <option value="酉(17:31~19:30)">酉(17:31~19:30)</option>
+          <option value="戌(19:31~21:30)">戌(19:31~21:30)</option>
+          <option value="亥(21:31~23:30)">亥(21:31~23:30)</option>
+          <option value="子(23:31~23:59)">子(23:31~23:59)</option>
+        </select>
+      </div>
+
+      <button class="submit-btn" onclick="saveSaju()">저장하기</button>
+    </div>
+  </div>
+
+  <script>
+    let currentNumbers = [];
+    
+    // localStorage에서 사주 정보 가져오기 (없으면 기본값)
+    let savedData = JSON.parse(localStorage.getItem('fortuneUserData')) || {
+      gender: '남성',
+      calendarType: '음력(평달)',
+      year: '1984',
+      month: '7',
+      day: '7',
+      birthTime: '未(13:31~15:30)'
+    };
+
+    function loadUserInfo() {
+      const savedDataFromStorage = localStorage.getItem('fortuneUserData');
+      if (savedDataFromStorage) {
+        const data = JSON.parse(savedDataFromStorage);
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})`;
+        document.getElementById('userInfoDisplay').textContent = display;
+        return data;
+      } else {
+        document.getElementById('userInfoDisplay').textContent = '사주 정보가 없습니다. 메인 페이지에서 입력해주세요.';
+        return null;
+      }
+    }
+
+    function hashCode(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash);
+    }
+
+    function generateLottoNumbers(birthDate, setNumber) {
+      const timestamp = Date.now() + setNumber * 1000;
+      const seed = hashCode(birthDate + timestamp);
+      const numbers = [];
+      let random = seed;
+      
+      while (numbers.length < 6) {
+        random = (random * 1103515245 + 12345) & 0x7fffffff;
+        const num = (random % 45) + 1;
+        
+        if (!numbers.includes(num)) {
+          numbers.push(num);
+        }
+      }
+      
+      return numbers.sort((a, b) => a - b);
+    }
+
+    function generateMultipleSets(birthDate, count = 5) {
+      const sets = [];
+      for (let i = 0; i < count; i++) {
+        sets.push(generateLottoNumbers(birthDate, i));
+      }
+      return sets;
+    }
+
+    function generateLotto() {
+      const userData = loadUserInfo();
+      if (!userData) {
+        alert('사주 정보를 먼저 입력해주세요.');
+        openModal();
+        return;
+      }
+
+      const birthDate = `${userData.year}${userData.month}${userData.day}`;
+      currentNumbers = generateMultipleSets(birthDate, 5);
+
+      const randomRecommend = Math.floor(Math.random() * 5);
+
+      const ballsContainer = document.getElementById('lottoBalls');
+      ballsContainer.innerHTML = '';
+
+      // 로딩 메시지 표시
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'loading-container';
+      loadingDiv.innerHTML = '<div class="loading-message">행운의 번호를 찾는 중...</div>';
+      
+      // 슬롯머신 생성
+      const slotMachine = document.createElement('div');
+      slotMachine.className = 'slot-machine';
+      
+      for (let i = 0; i < 5; i++) {
+        const slotRow = document.createElement('div');
+        slotRow.className = 'slot-row';
+        
+        const label = document.createElement('div');
+        label.className = 'slot-label';
+        label.textContent = String.fromCharCode(65 + i);
+        slotRow.appendChild(label);
+        
+        const numbersDiv = document.createElement('div');
+        numbersDiv.className = 'slot-numbers';
+        
+        for (let j = 0; j < 6; j++) {
+          const slotNum = document.createElement('div');
+          slotNum.className = 'slot-number';
+          slotNum.textContent = Math.floor(Math.random() * 45) + 1;
+          slotNum.style.background = getRandomColor();
+          numbersDiv.appendChild(slotNum);
+        }
+        
+        slotRow.appendChild(numbersDiv);
+        slotMachine.appendChild(slotRow);
+      }
+      
+      loadingDiv.appendChild(slotMachine);
+      ballsContainer.appendChild(loadingDiv);
+      document.getElementById('resultContainer').classList.add('show');
+
+      // 숫자 빠르게 돌리기
+      const spinIntervals = [];
+      const allSlotNumbers = document.querySelectorAll('.slot-number');
+      
+      allSlotNumbers.forEach((slot) => {
+        const interval = setInterval(() => {
+          slot.textContent = Math.floor(Math.random() * 45) + 1;
+          slot.style.background = getRandomColor();
+        }, 100);
+        spinIntervals.push(interval);
+      });
+
+      // 2.5초 후 멈추기 시작
+      setTimeout(() => {
+        spinIntervals.forEach(interval => clearInterval(interval));
+        
+        // 하나씩 멈추면서 실제 번호 표시
+        let slotIndex = 0;
+        const stopInterval = setInterval(() => {
+          if (slotIndex >= allSlotNumbers.length) {
+            clearInterval(stopInterval);
+            
+            // 최종 결과 표시
+            setTimeout(() => {
+              showFinalResult(randomRecommend);
+            }, 500);
+            return;
+          }
+          
+          const rowIndex = Math.floor(slotIndex / 6);
+          const numIndex = slotIndex % 6;
+          const slot = allSlotNumbers[slotIndex];
+          
+          slot.textContent = currentNumbers[rowIndex][numIndex];
+          slot.style.background = getBallColor(numIndex);
+          slot.classList.add('stopping');
+          
+          slotIndex++;
+        }, 80);
+      }, 2500);
+    }
+
+    function showFinalResult(randomRecommend) {
+      const ballsContainer = document.getElementById('lottoBalls');
+      ballsContainer.innerHTML = '';
+
+      currentNumbers.forEach((setNumbers, setIndex) => {
+        const setDiv = document.createElement('div');
+        setDiv.className = 'lotto-set';
+        
+        if (setIndex === randomRecommend) {
+          setDiv.classList.add('recommended');
+          
+          const badge = document.createElement('div');
+          badge.className = 'recommend-badge';
+          badge.textContent = '추천';
+          setDiv.appendChild(badge);
+        }
+        
+        const setLabel = document.createElement('div');
+        setLabel.className = 'set-label';
+        setLabel.textContent = `${String.fromCharCode(65 + setIndex)}`;
+        setDiv.appendChild(setLabel);
+        
+        const ballsRow = document.createElement('div');
+        ballsRow.className = 'balls-row';
+        
+        setNumbers.forEach((num, numIndex) => {
+          const ball = document.createElement('div');
+          ball.className = 'lotto-ball';
+          ball.textContent = num;
+          ballsRow.appendChild(ball);
+        });
+        
+        setDiv.appendChild(ballsRow);
+        ballsContainer.appendChild(setDiv);
+      });
+    }
+
+    function getBallColor(index) {
+      const colors = ['#ffd700', '#4169e1', '#ff6347', '#808080', '#32cd32', '#ff1493'];
+      return colors[index];
+    }
+
+    function getRandomColor() {
+      const colors = ['#ffd700', '#4169e1', '#ff6347', '#808080', '#32cd32', '#ff1493'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    // 모달 관련 함수
+    function initializeSelects() {
+      const yearSelect = document.getElementById('year');
+      for (let y = 1940; y <= 2025; y++) {
+        const opt = document.createElement('option');
+        opt.value = y + '년';
+        opt.textContent = y + '년';
+        yearSelect.appendChild(opt);
+      }
+
+      const monthSelect = document.getElementById('month');
+      for (let m = 1; m <= 12; m++) {
+        const opt = document.createElement('option');
+        opt.value = m + '월';
+        opt.textContent = m + '월';
+        monthSelect.appendChild(opt);
+      }
+
+      const daySelect = document.getElementById('day');
+      for (let d = 1; d <= 31; d++) {
+        const opt = document.createElement('option');
+        opt.value = d + '일';
+        opt.textContent = d + '일';
+        daySelect.appendChild(opt);
+      }
+    }
+
+    function openModal() {
+      // localStorage에서 최신 데이터 다시 로드
+      const savedDataFromStorage = localStorage.getItem('fortuneUserData');
+      if (savedDataFromStorage) {
+        const data = JSON.parse(savedDataFromStorage);
+        document.getElementById('gender').value = data.gender;
+        document.getElementById('calendarType').value = data.calendarType;
+        document.getElementById('year').value = data.year + '년';
+        document.getElementById('month').value = data.month + '월';
+        document.getElementById('day').value = data.day + '일';
+        document.getElementById('birthTime').value = data.birthTime;
+      } else {
+        document.getElementById('gender').value = savedData.gender;
+        document.getElementById('calendarType').value = savedData.calendarType;
+        document.getElementById('year').value = savedData.year + '년';
+        document.getElementById('month').value = savedData.month + '월';
+        document.getElementById('day').value = savedData.day + '일';
+        document.getElementById('birthTime').value = savedData.birthTime;
+      }
+      
+      document.getElementById('sajuModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('sajuModal').classList.remove('active');
+    }
+
+    function saveSaju() {
+      // 모달 입력값 가져오기
+      savedData.gender = document.getElementById('gender').value;
+      savedData.calendarType = document.getElementById('calendarType').value;
+      savedData.year = document.getElementById('year').value.replace('년', '');
+      savedData.month = document.getElementById('month').value.replace('월', '');
+      savedData.day = document.getElementById('day').value.replace('일', '');
+      savedData.birthTime = document.getElementById('birthTime').value;
+
+      // localStorage에 저장
+      localStorage.setItem('fortuneUserData', JSON.stringify(savedData));
+
+      // 화면 표시 업데이트
+      const userInfoText = `${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType}) 태어난 시간 : ${savedData.birthTime}`;
+      document.getElementById('userInfoDisplay').textContent = userInfoText;
+
+      alert('사주 정보가 저장되었습니다!\n\n변경된 정보로 로또 번호를 다시 생성해주세요.');
+      closeModal();
+      
+      // 결과가 있다면 초기화 (새로 조회 필요)
+      const resultDiv = document.getElementById('result');
+      if (resultDiv && resultDiv.innerHTML.includes('set-container')) {
+        resultDiv.innerHTML = '';
+        document.querySelector('.generate-btn').style.display = 'block';
+      }
+    }
+
+    function copyNumbers() {
+      let text = '';
+      currentNumbers.forEach((setNumbers, index) => {
+        const label = String.fromCharCode(65 + index);
+        text += `${label}: ${setNumbers.join(', ')}\n`;
+      });
+      
+      navigator.clipboard.writeText(text).then(() => {
+        alert('5개 세트 번호가 복사되었습니다!\n\n' + text);
+      }).catch(() => {
+        alert('번호:\n' + text);
+      });
+    }
+
+    function shareContent() {
+      if (navigator.share) {
+        navigator.share({
+          title: '로또 번호 생성기 - 우리의 운세',
+          text: '나의 행운의 로또 번호를 확인하세요!',
+          url: window.location.href
+        }).then(() => {
+          console.log('공유 성공');
+        }).catch((error) => {
+          console.log('공유 실패', error);
+          fallbackShare();
+        });
+      } else {
+        fallbackShare();
+      }
+    }
+
+    function fallbackShare() {
+      const url = window.location.href;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+          alert('링크가 복사되었습니다!\n원하는 곳에 붙여넣기 하세요.');
+        }).catch(() => {
+          alert('링크: ' + url);
+        });
+      } else {
+        alert('링크: ' + url);
+      }
+    }
+
+    window.onload = function() {
+      initializeSelects();
+      loadUserInfo();
+    }
+
+    // 페이지 포커스 시 (다른 페이지에서 돌아오면) localStorage 다시 확인
+    window.addEventListener('focus', function() {
+      loadUserInfo();
+    });
+
+    // pageshow 이벤트로 브라우저 뒤로가기 감지
+    window.addEventListener('pageshow', function(event) {
+      // 브라우저 캐시에서 페이지가 복원된 경우
+      if (event.persisted) {
+        loadUserInfo();
+      }
+    });
+  </script>
+</body>
+</html>

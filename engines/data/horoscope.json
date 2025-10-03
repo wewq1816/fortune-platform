@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "name": "Aries",
+    "korean": "양자리",
+    "symbol": "양",
+    "startMonth": 3,
+    "startDay": 21,
+    "endMonth": 4,
+    "endDay": 19
+  },
+  {
+    "id": 2,
+    "name": "Taurus",
+    "korean": "황소자리",
+    "symbol": "황소",
+    "startMonth": 4,
+    "startDay": 20,
+    "endMonth": 5,
+    "endDay": 20
+  },
+  {
+    "id": 3,
+    "name": "Gemini",
+    "korean": "쌍둥이자리",
+    "symbol": "쌍둥이",
+    "startMonth": 5,
+    "startDay": 21,
+    "endMonth": 6,
+    "endDay": 21
+  },
+  {
+    "id": 4,
+    "name": "Cancer",
+    "korean": "게자리",
+    "symbol": "게",
+    "startMonth": 6,
+    "startDay": 22,
+    "endMonth": 7,
+    "endDay": 22
+  },
+  {
+    "id": 5,
+    "name": "Leo",
+    "korean": "사자자리",
+    "symbol": "사자",
+    "startMonth": 7,
+    "startDay": 23,
+    "endMonth": 8,
+    "endDay": 22
+  },
+  {
+    "id": 6,
+    "name": "Virgo",
+    "korean": "처녀자리",
+    "symbol": "처녀",
+    "startMonth": 8,
+    "startDay": 23,
+    "endMonth": 9,
+    "endDay": 23
+  },
+  {
+    "id": 7,
+    "name": "Libra",
+    "korean": "천칭자리",
+    "symbol": "천칭",
+    "startMonth": 9,
+    "startDay": 24,
+    "endMonth": 10,
+    "endDay": 22
+  },
+  {
+    "id": 8,
+    "name": "Scorpio",
+    "korean": "전갈자리",
+    "symbol": "전갈",
+    "startMonth": 10,
+    "startDay": 23,
+    "endMonth": 11,
+    "endDay": 22
+  },
+  {
+    "id": 9,
+    "name": "Sagittarius",
+    "korean": "사수자리",
+    "symbol": "궁수",
+    "startMonth": 11,
+    "startDay": 23,
+    "endMonth": 12,
+    "endDay": 24
+  },
+  {
+    "id": 10,
+    "name": "Capricorn",
+    "korean": "염소자리",
+    "symbol": "염소",
+    "startMonth": 12,
+    "startDay": 25,
+    "endMonth": 1,
+    "endDay": 19
+  },
+  {
+    "id": 11,
+    "name": "Aquarius",
+    "korean": "물병자리",
+    "symbol": "물병",
+    "startMonth": 1,
+    "startDay": 20,
+    "endMonth": 2,
+    "endDay": 18
+  },
+  {
+    "id": 12,
+    "name": "Pisces",
+    "korean": "물고기자리",
+    "symbol": "물고기",
+    "startMonth": 2,
+    "startDay": 19,
+    "endMonth": 3,
+    "endDay": 20
+  }
+]

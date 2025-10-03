@@ -1,0 +1,542 @@
+[
+  {
+    "index": 0,
+    "korean": "갑자",
+    "cheongan": "갑",
+    "jiji": "자",
+    "cheongganElement": "목",
+    "jijiElement": "수",
+    "zodiac": "쥐"
+  },
+  {
+    "index": 1,
+    "korean": "을축",
+    "cheongan": "을",
+    "jiji": "축",
+    "cheongganElement": "목",
+    "jijiElement": "토",
+    "zodiac": "소"
+  },
+  {
+    "index": 2,
+    "korean": "병인",
+    "cheongan": "병",
+    "jiji": "인",
+    "cheongganElement": "화",
+    "jijiElement": "목",
+    "zodiac": "호랑이"
+  },
+  {
+    "index": 3,
+    "korean": "정묘",
+    "cheongan": "정",
+    "jiji": "묘",
+    "cheongganElement": "화",
+    "jijiElement": "목",
+    "zodiac": "토끼"
+  },
+  {
+    "index": 4,
+    "korean": "무진",
+    "cheongan": "무",
+    "jiji": "진",
+    "cheongganElement": "토",
+    "jijiElement": "토",
+    "zodiac": "용"
+  },
+  {
+    "index": 5,
+    "korean": "기사",
+    "cheongan": "기",
+    "jiji": "사",
+    "cheongganElement": "토",
+    "jijiElement": "화",
+    "zodiac": "뱀"
+  },
+  {
+    "index": 6,
+    "korean": "경오",
+    "cheongan": "경",
+    "jiji": "오",
+    "cheongganElement": "금",
+    "jijiElement": "화",
+    "zodiac": "말"
+  },
+  {
+    "index": 7,
+    "korean": "신미",
+    "cheongan": "신",
+    "jiji": "미",
+    "cheongganElement": "금",
+    "jijiElement": "토",
+    "zodiac": "양"
+  },
+  {
+    "index": 8,
+    "korean": "임신",
+    "cheongan": "임",
+    "jiji": "신",
+    "cheongganElement": "수",
+    "jijiElement": "금",
+    "zodiac": "원숭이"
+  },
+  {
+    "index": 9,
+    "korean": "계유",
+    "cheongan": "계",
+    "jiji": "유",
+    "cheongganElement": "수",
+    "jijiElement": "금",
+    "zodiac": "닭"
+  },
+  {
+    "index": 10,
+    "korean": "갑술",
+    "cheongan": "갑",
+    "jiji": "술",
+    "cheongganElement": "목",
+    "jijiElement": "토",
+    "zodiac": "개"
+  },
+  {
+    "index": 11,
+    "korean": "을해",
+    "cheongan": "을",
+    "jiji": "해",
+    "cheongganElement": "목",
+    "jijiElement": "수",
+    "zodiac": "돼지"
+  },
+  {
+    "index": 12,
+    "korean": "병자",
+    "cheongan": "병",
+    "jiji": "자",
+    "cheongganElement": "화",
+    "jijiElement": "수",
+    "zodiac": "쥐"
+  },
+  {
+    "index": 13,
+    "korean": "정축",
+    "cheongan": "정",
+    "jiji": "축",
+    "cheongganElement": "화",
+    "jijiElement": "토",
+    "zodiac": "소"
+  },
+  {
+    "index": 14,
+    "korean": "무인",
+    "cheongan": "무",
+    "jiji": "인",
+    "cheongganElement": "토",
+    "jijiElement": "목",
+    "zodiac": "호랑이"
+  },
+  {
+    "index": 15,
+    "korean": "기묘",
+    "cheongan": "기",
+    "jiji": "묘",
+    "cheongganElement": "토",
+    "jijiElement": "목",
+    "zodiac": "토끼"
+  },
+  {
+    "index": 16,
+    "korean": "경진",
+    "cheongan": "경",
+    "jiji": "진",
+    "cheongganElement": "금",
+    "jijiElement": "토",
+    "zodiac": "용"
+  },
+  {
+    "index": 17,
+    "korean": "신사",
+    "cheongan": "신",
+    "jiji": "사",
+    "cheongganElement": "금",
+    "jijiElement": "화",
+    "zodiac": "뱀"
+  },
+  {
+    "index": 18,
+    "korean": "임오",
+    "cheongan": "임",
+    "jiji": "오",
+    "cheongganElement": "수",
+    "jijiElement": "화",
+    "zodiac": "말"
+  },
+  {
+    "index": 19,
+    "korean": "계미",
+    "cheongan": "계",
+    "jiji": "미",
+    "cheongganElement": "수",
+    "jijiElement": "토",
+    "zodiac": "양"
+  },
+  {
+    "index": 20,
+    "korean": "갑신",
+    "cheongan": "갑",
+    "jiji": "신",
+    "cheongganElement": "목",
+    "jijiElement": "금",
+    "zodiac": "원숭이"
+  },
+  {
+    "index": 21,
+    "korean": "을유",
+    "cheongan": "을",
+    "jiji": "유",
+    "cheongganElement": "목",
+    "jijiElement": "금",
+    "zodiac": "닭"
+  },
+  {
+    "index": 22,
+    "korean": "병술",
+    "cheongan": "병",
+    "jiji": "술",
+    "cheongganElement": "화",
+    "jijiElement": "토",
+    "zodiac": "개"
+  },
+  {
+    "index": 23,
+    "korean": "정해",
+    "cheongan": "정",
+    "jiji": "해",
+    "cheongganElement": "화",
+    "jijiElement": "수",
+    "zodiac": "돼지"
+  },
+  {
+    "index": 24,
+    "korean": "무자",
+    "cheongan": "무",
+    "jiji": "자",
+    "cheongganElement": "토",
+    "jijiElement": "수",
+    "zodiac": "쥐"
+  },
+  {
+    "index": 25,
+    "korean": "기축",
+    "cheongan": "기",
+    "jiji": "축",
+    "cheongganElement": "토",
+    "jijiElement": "토",
+    "zodiac": "소"
+  },
+  {
+    "index": 26,
+    "korean": "경인",
+    "cheongan": "경",
+    "jiji": "인",
+    "cheongganElement": "금",
+    "jijiElement": "목",
+    "zodiac": "호랑이"
+  },
+  {
+    "index": 27,
+    "korean": "신묘",
+    "cheongan": "신",
+    "jiji": "묘",
+    "cheongganElement": "금",
+    "jijiElement": "목",
+    "zodiac": "토끼"
+  },
+  {
+    "index": 28,
+    "korean": "임진",
+    "cheongan": "임",
+    "jiji": "진",
+    "cheongganElement": "수",
+    "jijiElement": "토",
+    "zodiac": "용"
+  },
+  {
+    "index": 29,
+    "korean": "계사",
+    "cheongan": "계",
+    "jiji": "사",
+    "cheongganElement": "수",
+    "jijiElement": "화",
+    "zodiac": "뱀"
+  },
+  {
+    "index": 30,
+    "korean": "갑오",
+    "cheongan": "갑",
+    "jiji": "오",
+    "cheongganElement": "목",
+    "jijiElement": "화",
+    "zodiac": "말"
+  },
+  {
+    "index": 31,
+    "korean": "을미",
+    "cheongan": "을",
+    "jiji": "미",
+    "cheongganElement": "목",
+    "jijiElement": "토",
+    "zodiac": "양"
+  },
+  {
+    "index": 32,
+    "korean": "병신",
+    "cheongan": "병",
+    "jiji": "신",
+    "cheongganElement": "화",
+    "jijiElement": "금",
+    "zodiac": "원숭이"
+  },
+  {
+    "index": 33,
+    "korean": "정유",
+    "cheongan": "정",
+    "jiji": "유",
+    "cheongganElement": "화",
+    "jijiElement": "금",
+    "zodiac": "닭"
+  },
+  {
+    "index": 34,
+    "korean": "무술",
+    "cheongan": "무",
+    "jiji": "술",
+    "cheongganElement": "토",
+    "jijiElement": "토",
+    "zodiac": "개"
+  },
+  {
+    "index": 35,
+    "korean": "기해",
+    "cheongan": "기",
+    "jiji": "해",
+    "cheongganElement": "토",
+    "jijiElement": "수",
+    "zodiac": "돼지"
+  },
+  {
+    "index": 36,
+    "korean": "경자",
+    "cheongan": "경",
+    "jiji": "자",
+    "cheongganElement": "금",
+    "jijiElement": "수",
+    "zodiac": "쥐"
+  },
+  {
+    "index": 37,
+    "korean": "신축",
+    "cheongan": "신",
+    "jiji": "축",
+    "cheongganElement": "금",
+    "jijiElement": "토",
+    "zodiac": "소"
+  },
+  {
+    "index": 38,
+    "korean": "임인",
+    "cheongan": "임",
+    "jiji": "인",
+    "cheongganElement": "수",
+    "jijiElement": "목",
+    "zodiac": "호랑이"
+  },
+  {
+    "index": 39,
+    "korean": "계묘",
+    "cheongan": "계",
+    "jiji": "묘",
+    "cheongganElement": "수",
+    "jijiElement": "목",
+    "zodiac": "토끼"
+  },
+  {
+    "index": 40,
+    "korean": "갑진",
+    "cheongan": "갑",
+    "jiji": "진",
+    "cheongganElement": "목",
+    "jijiElement": "토",
+    "zodiac": "용"
+  },
+  {
+    "index": 41,
+    "korean": "을사",
+    "cheongan": "을",
+    "jiji": "사",
+    "cheongganElement": "목",
+    "jijiElement": "화",
+    "zodiac": "뱀"
+  },
+  {
+    "index": 42,
+    "korean": "병오",
+    "cheongan": "병",
+    "jiji": "오",
+    "cheongganElement": "화",
+    "jijiElement": "화",
+    "zodiac": "말"
+  },
+  {
+    "index": 43,
+    "korean": "정미",
+    "cheongan": "정",
+    "jiji": "미",
+    "cheongganElement": "화",
+    "jijiElement": "토",
+    "zodiac": "양"
+  },
+  {
+    "index": 44,
+    "korean": "무신",
+    "cheongan": "무",
+    "jiji": "신",
+    "cheongganElement": "토",
+    "jijiElement": "금",
+    "zodiac": "원숭이"
+  },
+  {
+    "index": 45,
+    "korean": "기유",
+    "cheongan": "기",
+    "jiji": "유",
+    "cheongganElement": "토",
+    "jijiElement": "금",
+    "zodiac": "닭"
+  },
+  {
+    "index": 46,
+    "korean": "경술",
+    "cheongan": "경",
+    "jiji": "술",
+    "cheongganElement": "금",
+    "jijiElement": "토",
+    "zodiac": "개"
+  },
+  {
+    "index": 47,
+    "korean": "신해",
+    "cheongan": "신",
+    "jiji": "해",
+    "cheongganElement": "금",
+    "jijiElement": "수",
+    "zodiac": "돼지"
+  },
+  {
+    "index": 48,
+    "korean": "임자",
+    "cheongan": "임",
+    "jiji": "자",
+    "cheongganElement": "수",
+    "jijiElement": "수",
+    "zodiac": "쥐"
+  },
+  {
+    "index": 49,
+    "korean": "계축",
+    "cheongan": "계",
+    "jiji": "축",
+    "cheongganElement": "수",
+    "jijiElement": "토",
+    "zodiac": "소"
+  },
+  {
+    "index": 50,
+    "korean": "갑인",
+    "cheongan": "갑",
+    "jiji": "인",
+    "cheongganElement": "목",
+    "jijiElement": "목",
+    "zodiac": "호랑이"
+  },
+  {
+    "index": 51,
+    "korean": "을묘",
+    "cheongan": "을",
+    "jiji": "묘",
+    "cheongganElement": "목",
+    "jijiElement": "목",
+    "zodiac": "토끼"
+  },
+  {
+    "index": 52,
+    "korean": "병진",
+    "cheongan": "병",
+    "jiji": "진",
+    "cheongganElement": "화",
+    "jijiElement": "토",
+    "zodiac": "용"
+  },
+  {
+    "index": 53,
+    "korean": "정사",
+    "cheongan": "정",
+    "jiji": "사",
+    "cheongganElement": "화",
+    "jijiElement": "화",
+    "zodiac": "뱀"
+  },
+  {
+    "index": 54,
+    "korean": "무오",
+    "cheongan": "무",
+    "jiji": "오",
+    "cheongganElement": "토",
+    "jijiElement": "화",
+    "zodiac": "말"
+  },
+  {
+    "index": 55,
+    "korean": "기미",
+    "cheongan": "기",
+    "jiji": "미",
+    "cheongganElement": "토",
+    "jijiElement": "토",
+    "zodiac": "양"
+  },
+  {
+    "index": 56,
+    "korean": "경신",
+    "cheongan": "경",
+    "jiji": "신",
+    "cheongganElement": "금",
+    "jijiElement": "금",
+    "zodiac": "원숭이"
+  },
+  {
+    "index": 57,
+    "korean": "신유",
+    "cheongan": "신",
+    "jiji": "유",
+    "cheongganElement": "금",
+    "jijiElement": "금",
+    "zodiac": "닭"
+  },
+  {
+    "index": 58,
+    "korean": "임술",
+    "cheongan": "임",
+    "jiji": "술",
+    "cheongganElement": "수",
+    "jijiElement": "토",
+    "zodiac": "개"
+  },
+  {
+    "index": 59,
+    "korean": "계해",
+    "cheongan": "계",
+    "jiji": "해",
+    "cheongganElement": "수",
+    "jijiElement": "수",
+    "zodiac": "돼지"
+  }
+]
