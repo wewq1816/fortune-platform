@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>오늘의 운세 - 결과 테스트</title>
+  <title>오늘의 운세 테스트 - 우리의 운세</title>
   <style>
     * {
       margin: 0;
@@ -97,20 +97,72 @@
     }
 
     .user-info-display {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 20px;
-      border-radius: 15px;
-      margin-bottom: 25px;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
       text-align: center;
-      font-size: 15px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 18px;
+      background: #ff4757;
       color: white;
-      font-weight: 500;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 30px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+    }
+
+    .generate-btn:hover {
+      background: #ff3838;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+    }
+
+    .generate-btn:active {
+      transform: translateY(0);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      display: none;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .result-container {
-      display: block;
+      display: none;
       animation: fadeIn 0.5s;
+    }
+
+    .result-container.show {
+      display: block;
     }
 
     @keyframes fadeIn {
@@ -162,38 +214,8 @@
       margin-bottom: 18px;
       transition: all 0.3s;
       animation: fadeIn 0.5s;
-      border-left: 5px solid;
+      border-left: 5px solid #667eea;
       box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
-
-    .fortune-card.총운 {
-      border-left-color: #9b59b6;
-      background: linear-gradient(to right, rgba(155, 89, 182, 0.05) 0%, white 100%);
-    }
-
-    .fortune-card.애정운 {
-      border-left-color: #e74c3c;
-      background: linear-gradient(to right, rgba(231, 76, 60, 0.05) 0%, white 100%);
-    }
-
-    .fortune-card.금전운 {
-      border-left-color: #f39c12;
-      background: linear-gradient(to right, rgba(243, 156, 18, 0.05) 0%, white 100%);
-    }
-
-    .fortune-card.건강운 {
-      border-left-color: #27ae60;
-      background: linear-gradient(to right, rgba(39, 174, 96, 0.05) 0%, white 100%);
-    }
-
-    .fortune-card.가정운 {
-      border-left-color: #3498db;
-      background: linear-gradient(to right, rgba(52, 152, 219, 0.05) 0%, white 100%);
-    }
-
-    .fortune-card.여행운 {
-      border-left-color: #1abc9c;
-      background: linear-gradient(to right, rgba(26, 188, 156, 0.05) 0%, white 100%);
     }
 
     .fortune-card:hover {
@@ -202,31 +224,9 @@
     }
 
     .fortune-card h3 {
+      color: #667eea;
       margin-bottom: 15px;
       font-size: 19px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: bold;
-    }
-
-    .fortune-card.총운 h3 { color: #9b59b6; }
-    .fortune-card.애정운 h3 { color: #e74c3c; }
-    .fortune-card.금전운 h3 { color: #f39c12; }
-    .fortune-card.건강운 h3 { color: #27ae60; }
-    .fortune-card.가정운 h3 { color: #3498db; }
-    .fortune-card.여행운 h3 { color: #1abc9c; }
-
-    .fortune-card .number {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: currentColor;
-      color: white;
-      font-size: 13px;
       font-weight: bold;
     }
 
@@ -234,13 +234,20 @@
       color: #444;
       line-height: 1.9;
       font-size: 15px;
-      padding-left: 36px;
+    }
+
+    .error {
+      background: #ffe6e6;
+      padding: 20px;
+      border-radius: 12px;
+      color: #d32f2f;
+      text-align: center;
     }
 
     .action-buttons {
       display: flex;
       gap: 10px;
-      margin-top: 25px;
+      margin-top: 20px;
     }
 
     .action-btn {
@@ -263,32 +270,122 @@
       box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
 
+    /* 모달 스타일 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #f0f0f0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .date-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      background: #ff5252;
+    }
+
     @media (max-width: 480px) {
       body {
         padding: 5px;
       }
 
       .container {
-        padding: 20px;
+        padding: 15px;
         border-radius: 15px;
       }
 
       .header h1 {
-        font-size: 24px;
+        font-size: 20px;
       }
 
       .header p {
-        font-size: 13px;
+        font-size: 12px;
       }
 
-      .fortune-card p {
-        padding-left: 0;
-        margin-top: 10px;
+      .generate-btn {
+        padding: 15px;
+        font-size: 16px;
       }
 
       .action-buttons {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
+      }
+
+      .action-btn {
+        padding: 12px;
       }
     }
   </style>
@@ -296,20 +393,20 @@
 <body>
   <div class="container">
     <div class="top-buttons">
-      <a href="daily-fortune.html" class="back-btn">
+      <a href="../index.html" class="back-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
         뒤로가기
       </a>
       <div class="header-buttons">
-        <button class="top-btn" onclick="alert('사주변경')">
+        <button class="top-btn" onclick="openModal()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
           </svg>
           사주변경
         </button>
-        <button class="top-btn" onclick="alert('공유하기')">
+        <button class="top-btn" onclick="shareContent()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="18" cy="5" r="3"/>
             <circle cx="6" cy="12" r="3"/>
@@ -324,78 +421,493 @@
 
     <div class="header">
       <h1>오늘의 운세</h1>
-      <p>당신의 생년월일로 행운의 번호를 만들어드립니다</p>
+      <p style="background: #667eea; color: white; padding: 5px 15px; border-radius: 15px; display: inline-block; font-size: 12px; margin-top: 5px;">테스트 버전</p>
     </div>
 
-    <div class="user-info-display">
-      남성 1984. 7. 7 (음력 평달)
+    <div class="user-info-display" id="userInfoDisplay">
+      사주 정보를 불러오는 중...
     </div>
 
-    <!-- 결과 화면 (테스트용) -->
-    <div class="result-container">
-      <div class="saju-info">
-        <h3>사주 8글자</h3>
-        <div class="saju-row">
-          <span class="saju-label">사주:</span>
-          <span class="saju-value">경오 기묘 기묘 갑자</span>
-        </div>
-        <div class="saju-row">
-          <span class="saju-label">한자:</span>
-          <span class="saju-value">庚午 己卯 己卯 甲子</span>
-        </div>
-        <div class="saju-row">
-          <span class="saju-label">일간:</span>
-          <span class="saju-value">기(토)</span>
-        </div>
-        <div class="saju-row">
-          <span class="saju-label">오늘 일진:</span>
-          <span class="saju-value">갑오 (목)</span>
-        </div>
-        <div class="saju-row">
-          <span class="saju-label">오행 관계:</span>
-          <span class="saju-value">피극 (목극토)</span>
-        </div>
-        <div class="saju-row">
-          <span class="saju-label">운세 점수:</span>
-          <span class="saju-value">50점 / 흉</span>
-        </div>
-      </div>
+    <button class="generate-btn" onclick="getDailyFortune()">
+      운세 보기
+    </button>
 
-      <div class="fortune-card 총운">
-        <h3><span class="number">1</span>총운</h3>
-        <p>오늘의 전반적인 운세는 흉합니다. 하지만 긍정적인 마음가짐을 갖고 계신다면 어려움을 잘 극복하실 수 있을 것입니다. 마음을 편하게 가지시고 실수를 두려워하지 마세요. 주변 분들의 조언을 귀담아 듣고, 천천히 하나씩 해결해 나가는 것이 좋겠습니다.</p>
-      </div>
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>운세를 불러오는 중입니다...</p>
+      <p style="color: #999; font-size: 14px; margin-top: 10px;">약 5-10초 소요됩니다</p>
+    </div>
 
-      <div class="fortune-card 애정운">
-        <h3><span class="number">2</span>애정운</h3>
-        <p>배우자와의 관계가 다소 불편할 수 있습니다. 서로를 이해하려 노력하고 화목한 분위기를 만들어나가는 것이 중요합니다. 부부 사이에도 서로를 존중하고 대화하는 습관을 들이시면 좋을 것 같습니다.</p>
-      </div>
+    <div class="result-container" id="resultContainer"></div>
 
-      <div class="fortune-card 금전운">
-        <h3><span class="number">3</span>금전운</h3>
-        <p>금전적인 면에서 어려움이 있을 수 있습니다. 지출을 줄이고 저축에 힘쓰시길 권해드립니다. 큰 돈을 들이는 투자나 지출은 삼가시고, 현재의 상황에 만족하며 천천히 이루어나가는 것이 좋겠습니다.</p>
-      </div>
-
-      <div class="fortune-card 건강운">
-        <h3><span class="number">4</span>건강운</h3>
-        <p>건강관리에 힘써야 할 시기입니다. 규칙적인 생활 패턴을 갖고, 운동과 휴식을 균형 있게 취하세요. 스트레스 관리에도 힘써주시길 바랍니다. 몸과 마음의 건강을 함께 돌보시면 좋을 것 같습니다.</p>
-      </div>
-
-      <div class="fortune-card 가정운">
-        <h3><span class="number">5</span>가정운</h3>
-        <p>가족분들과의 관계가 원만합니다. 자녀분들과의 대화를 통해 고민을 함께 해결해나가세요. 손주들과 좋은 시간을 보내시면 활력이 생길 것입니다. 집안 분위기가 화목해지도록 노력해보세요.</p>
-      </div>
-
-      <div class="fortune-card 여행운">
-        <h3><span class="number">6</span>여행운</h3>
-        <p>가까운 곳으로 나들이를 다녀오시면 좋겠습니다. 친구분들과 만나 차 한잔 나누며 담소를 즐기시는 것도 좋습니다. 새로운 곳을 방문하면 기분 전환에 도움이 될 것입니다.</p>
-      </div>
-
-      <div class="action-buttons">
-        <button class="action-btn" onclick="alert('다시 보기')">다시 보기</button>
-        <button class="action-btn" onclick="alert('운세 복사')">운세 복사</button>
-      </div>
+    <!-- 면책조항 -->
+    <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px; border-top: 2px solid #e9ecef;">
+      <p style="font-size: 12px; color: #999; line-height: 1.8; margin-bottom: 10px;">
+        ⚠️ <strong>면책조항</strong>
+      </p>
+      <p style="font-size: 11px; color: #666; line-height: 1.8; text-align: justify;">
+        본 서비스에서 제공하는 운세, 사주, 별자리 등의 콘텐츠는 <strong>엔터테인먼트 및 참고 목적</strong>으로만 제공되며, 
+        어떠한 과학적·의학적·법적 근거나 보증을 제공하지 않습니다. 
+        본 서비스는 쿠팡파트너스 활동의 일환으로 일정액의 수수료를 제공받습니다. 
+        본 서비스의 내용은 <strong>개인의 판단이나 의사결정의 유일한 근거로 사용되어서는 안 되며</strong>, 
+        중요한 결정은 반드시 전문가와 상담하시기 바랍니다. 
+        본 서비스 이용으로 인해 발생하는 어떠한 직접적·간접적 손해에 대해서도 
+        당사는 법적 책임을 지지 않습니다.
+      </p>
+      <p style="font-size: 10px; color: #999; margin-top: 10px; text-align: center;">
+        © 2025 우리의 운세. All rights reserved.
+      </p>
     </div>
   </div>
+
+  <!-- 사주 변경 모달 -->
+  <div class="modal" id="sajuModal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h2 class="modal-title">오늘의 운세를 확인하기 위해서는<br>아래 정보가 필요합니다.</h2>
+
+      <div class="form-group">
+        <label class="form-label">성별</label>
+        <select class="form-select" id="gender">
+          <option value="남성">남성</option>
+          <option value="여성">여성</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">양력/음력</label>
+        <select class="form-select" id="calendarType">
+          <option value="양력/음력">양력/음력</option>
+          <option value="음력(평달)">음력(평달)</option>
+          <option value="음력(윤달)">음력(윤달)</option>
+          <option value="양력">양력</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">생년월일</label>
+        <div class="date-inputs">
+          <select class="form-select" id="year"></select>
+          <select class="form-select" id="month"></select>
+          <select class="form-select" id="day"></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">태어난 시간</label>
+        <select class="form-select" id="birthTime">
+          <option value="태어난 시간">태어난 시간</option>
+          <option value="시간 모름">시간 모름</option>
+          <option value="子(00:00~01:30)">子(00:00~01:30)</option>
+          <option value="丑(01:31~03:30)">丑(01:31~03:30)</option>
+          <option value="寅(03:31~05:30)">寅(03:31~05:30)</option>
+          <option value="卯(05:31~07:30)">卯(05:31~07:30)</option>
+          <option value="辰(07:31~09:30)">辰(07:31~09:30)</option>
+          <option value="巳(09:31~11:30)">巳(09:31~11:30)</option>
+          <option value="午(11:31~13:30)">午(11:31~13:30)</option>
+          <option value="未(13:31~15:30)">未(13:31~15:30)</option>
+          <option value="申(15:31~17:30)">申(15:31~17:30)</option>
+          <option value="酉(17:31~19:30)">酉(17:31~19:30)</option>
+          <option value="戌(19:31~21:30)">戌(19:31~21:30)</option>
+          <option value="亥(21:31~23:30)">亥(21:31~23:30)</option>
+          <option value="子(23:31~23:59)">子(23:31~23:59)</option>
+        </select>
+      </div>
+
+      <button class="submit-btn" onclick="saveSaju()">저장하기</button>
+    </div>
+  </div>
+
+  <script>
+    // localStorage에서 사주 정보 가져오기 (없으면 기본값)
+    let savedData = JSON.parse(localStorage.getItem('fortuneUserData')) || {
+      gender: '남성',
+      calendarType: '음력(평달)',
+      year: '1984',
+      month: '7',
+      day: '7',
+      birthTime: '未(13:31~15:30)'
+    };
+
+    function loadUserInfo() {
+      const savedDataFromStorage = localStorage.getItem('fortuneUserData');
+      if (savedDataFromStorage) {
+        const data = JSON.parse(savedDataFromStorage);
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})`;
+        document.getElementById('userInfoDisplay').textContent = display;
+        return data;
+      } else {
+        document.getElementById('userInfoDisplay').textContent = '사주 정보가 없습니다. 메인 페이지에서 입력해주세요.';
+        return null;
+      }
+    }
+
+    function initSelects() {
+      const yearSelect = document.getElementById('year');
+      for (let y = 1940; y <= 2025; y++) {
+        const opt = document.createElement('option');
+        opt.value = y + '년';
+        opt.textContent = y + '년';
+        yearSelect.appendChild(opt);
+      }
+
+      const monthSelect = document.getElementById('month');
+      for (let m = 1; m <= 12; m++) {
+        const opt = document.createElement('option');
+        opt.value = m + '월';
+        opt.textContent = m + '월';
+        monthSelect.appendChild(opt);
+      }
+
+      const daySelect = document.getElementById('day');
+      for (let d = 1; d <= 31; d++) {
+        const opt = document.createElement('option');
+        opt.value = d + '일';
+        opt.textContent = d + '일';
+        daySelect.appendChild(opt);
+      }
+    }
+
+    function openModal() {
+      // 모달 열 때마다 최신 localStorage 데이터 로드
+      const savedDataFromStorage = localStorage.getItem('fortuneUserData');
+      if (savedDataFromStorage) {
+        savedData = JSON.parse(savedDataFromStorage);
+        document.getElementById('gender').value = savedData.gender;
+        document.getElementById('calendarType').value = savedData.calendarType;
+        document.getElementById('year').value = savedData.year + '년';
+        document.getElementById('month').value = savedData.month + '월';
+        document.getElementById('day').value = savedData.day + '일';
+        document.getElementById('birthTime').value = savedData.birthTime;
+      }
+      
+      document.getElementById('sajuModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('sajuModal').classList.remove('active');
+    }
+
+    function saveSaju() {
+      // 모달 입력값 가져오기
+      savedData.gender = document.getElementById('gender').value;
+      savedData.calendarType = document.getElementById('calendarType').value;
+      savedData.year = document.getElementById('year').value.replace('년', '');
+      savedData.month = document.getElementById('month').value.replace('월', '');
+      savedData.day = document.getElementById('day').value.replace('일', '');
+      savedData.birthTime = document.getElementById('birthTime').value;
+
+      // localStorage에 저장
+      localStorage.setItem('fortuneUserData', JSON.stringify(savedData));
+      
+      // 화면 표시 업데이트
+      loadUserInfo();
+
+      alert('사주 정보가 저장되었습니다!\n\n변경된 정보로 운세를 다시 확인해주세요.');
+      closeModal();
+      
+      // 결과가 있다면 초기화 (새로 조회 필요)
+      const resultContainer = document.getElementById('resultContainer');
+      if (resultContainer.classList.contains('show')) {
+        resultContainer.classList.remove('show');
+        resultContainer.innerHTML = '';
+        document.querySelector('.generate-btn').style.display = 'block';
+      }
+    }
+
+    function shareContent() {
+      if (navigator.share) {
+        navigator.share({
+          title: '오늘의 운세 - 우리의 운세',
+          text: '오늘의 운세를 확인해보세요!',
+          url: window.location.href
+        }).then(() => {
+          console.log('공유 성공');
+        }).catch((error) => {
+          console.log('공유 실패', error);
+          fallbackShare();
+        });
+      } else {
+        fallbackShare();
+      }
+    }
+
+    function fallbackShare() {
+      const url = window.location.href;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+          alert('링크가 복사되었습니다!\n원하는 곳에 붙여넣기 하세요.');
+        }).catch(() => {
+          alert('링크: ' + url);
+        });
+      } else {
+        alert('링크: ' + url);
+      }
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('sajuModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+
+    // ========================================
+    // Mock API (지금 사용) ⭐
+    // ========================================
+    async function getMockDailyFortune() {
+      // 0.5초 딜레이 (실제 API처럼)
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // 임시 데이터 반환
+      return {
+        success: true,
+        saju: {
+          string: "갑자 을축 병인 정묘",
+          hanja: "甲子 乙丑 丙寅 丁卯",
+          ilgan: "병인",
+          ilganElement: "화(火)"
+        },
+        today: {
+          ganzi: "무술",
+          element: "토(土)"
+        },
+        relationship: "피생(被生) - 화생토",
+        score: 85,
+        level: "상",
+        fortune: {
+          총운: "오늘은 전반적으로 좋은 기운이 흐르는 날입니다. 화(火)의 기운이 토(土)를 생하여 안정적이고 균형잡힌 에너지가 흐릅니다. 새로운 시작을 준비하기에 좋은 날이며, 주변 사람들과의 관계도 원만할 것입니다.",
+          애정운: "연인이나 배우자와의 관계가 더욱 돈독해질 수 있는 날입니다. 작은 관심과 배려가 큰 감동으로 다가갈 것입니다. 솔직한 대화를 나누면 서로를 더 깊이 이해할 수 있습니다.",
+          금전운: "재물운이 좋은 편입니다. 예상치 못한 수입이 생길 수 있으니 작은 기회도 놓치지 마세요. 하지만 큰 투자나 지출은 신중하게 결정하는 것이 좋습니다.",
+          건강운: "전반적으로 건강한 하루가 될 것입니다. 다만 과로는 피하고 적당한 휴식을 취하는 것이 중요합니다. 가벼운 운동이나 산책이 도움이 될 것입니다.",
+          가정운: "가족과의 관계가 화목한 날입니다. 함께 시간을 보내거나 대화를 나누면 더욱 좋습니다. 작은 배려와 관심이 가정의 행복을 더합니다.",
+          여행운: "짧은 여행이나 외출이 기분 전환에 도움이 될 것입니다. 새로운 장소를 방문하면 좋은 경험과 인연을 만날 수 있습니다."
+        }
+      };
+    }
+
+    // ========================================
+    // 실제 API (나중에 사용) 🔐
+    // ========================================
+    async function callRealDailyFortuneAPI(requestData) {
+      const response = await fetch('http://localhost:3000/api/daily-fortune', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      if (!response.ok) {
+        throw new Error('API 호출 실패');
+      }
+
+      return await response.json();
+    }
+
+    // ========================================
+    // 메인 함수 (전환 스위치) 🎛️
+    // ========================================
+    async function getDailyFortuneData(requestData) {
+      // 지금은 Mock 사용 ⭐
+      return await getMockDailyFortune();
+      
+      // API 등록 후 아래 줄의 주석을 해제하고 위 줄을 주석 처리하세요! 🚀
+      // return await callRealDailyFortuneAPI(requestData);
+    }
+
+    async function getDailyFortune() {
+      const userData = loadUserInfo();
+      if (!userData) {
+        alert('사주 정보를 먼저 입력해주세요.');
+        openModal();
+        return;
+      }
+
+      // 버튼 숨기기, 로딩 표시
+      document.querySelector('.generate-btn').style.display = 'none';
+      document.getElementById('loading').classList.add('show');
+
+      // 시간 파싱
+      const birthTimeText = savedData.birthTime;
+      let hour = 12;
+      
+      if (birthTimeText.includes('子')) hour = 0;
+      else if (birthTimeText.includes('丑')) hour = 1;
+      else if (birthTimeText.includes('寅')) hour = 3;
+      else if (birthTimeText.includes('卯')) hour = 5;
+      else if (birthTimeText.includes('辰')) hour = 7;
+      else if (birthTimeText.includes('巳')) hour = 9;
+      else if (birthTimeText.includes('午')) hour = 11;
+      else if (birthTimeText.includes('未')) hour = 13;
+      else if (birthTimeText.includes('申')) hour = 15;
+      else if (birthTimeText.includes('酉')) hour = 17;
+      else if (birthTimeText.includes('戌')) hour = 19;
+      else if (birthTimeText.includes('亥')) hour = 21;
+      
+      const isLunar = savedData.calendarType.includes('음력');
+      
+      const requestData = {
+        year: parseInt(savedData.year),
+        month: parseInt(savedData.month),
+        day: parseInt(savedData.day),
+        hour: hour,
+        isLunar: isLunar
+      };
+
+      try {
+        // Mock API 또는 Real API 호출
+        const data = await getDailyFortuneData(requestData);
+
+        if (data.success) {
+          showFortuneResult(data);
+        } else {
+          showError(data.error || '운세를 불러올 수 없습니다.');
+        }
+      } catch (error) {
+        console.error('오류:', error);
+        showError('서버 연결 실패: ' + error.message);
+      }
+    }
+
+    function showFortuneResult(data) {
+      const { saju, today, relationship, score, level, fortune } = data;
+
+      document.getElementById('loading').classList.remove('show');
+      
+      const resultDiv = document.getElementById('resultContainer');
+      resultDiv.innerHTML = `
+        <div class="saju-info">
+          <h3>사주 8글자</h3>
+          <div class="saju-row">
+            <span class="saju-label">사주:</span>
+            <span class="saju-value">${saju.string} (${saju.hanja})</span>
+          </div>
+          <div class="saju-row">
+            <span class="saju-label">일간:</span>
+            <span class="saju-value">${saju.ilgan}(${saju.ilganElement})</span>
+          </div>
+          <div class="saju-row">
+            <span class="saju-label">오늘 일진:</span>
+            <span class="saju-value">${today.ganzi} (${today.element})</span>
+          </div>
+          <div class="saju-row">
+            <span class="saju-label">오행 관계:</span>
+            <span class="saju-value">${relationship}</span>
+          </div>
+          <div class="saju-row">
+            <span class="saju-label">운세 점수:</span>
+            <span class="saju-value">${score}점 / ${level}</span>
+          </div>
+        </div>
+
+        <div class="fortune-card">
+          <h3>총운</h3>
+          <p>${fortune.총운 || fortune.원문 || '운세 정보를 불러올 수 없습니다.'}</p>
+        </div>
+
+        <div class="fortune-card">
+          <h3>애정운</h3>
+          <p>${fortune.애정운 || '오늘의 애정운을 불러오는 중입니다...'}</p>
+        </div>
+
+        <div class="fortune-card">
+          <h3>금전운</h3>
+          <p>${fortune.금전운 || '오늘의 금전운을 불러오는 중입니다...'}</p>
+        </div>
+
+        <div class="fortune-card">
+          <h3>건강운</h3>
+          <p>${fortune.건강운 || '오늘의 건강운을 불러오는 중입니다...'}</p>
+        </div>
+
+        <div class="fortune-card">
+          <h3>가정운</h3>
+          <p>${fortune.가정운 || '오늘의 가정운을 불러오는 중입니다...'}</p>
+        </div>
+
+        <div class="fortune-card">
+          <h3>여행운</h3>
+          <p>${fortune.여행운 || '오늘의 여행운을 불러오는 중입니다...'}</p>
+        </div>
+
+        <div class="action-buttons">
+          <button class="action-btn" onclick="location.reload()">다시 보기</button>
+          <button class="action-btn" onclick="copyFortune()">운세 복사</button>
+        </div>
+      `;
+      
+      resultDiv.classList.add('show');
+    }
+
+    function showError(message) {
+      document.getElementById('loading').classList.remove('show');
+      
+      const resultDiv = document.getElementById('resultContainer');
+      resultDiv.innerHTML = `
+        <div class="error">
+          <h3>❌ 오류 발생</h3>
+          <p>${message}</p>
+        </div>
+        <div class="action-buttons">
+          <button class="action-btn" onclick="location.reload()">다시 시도</button>
+        </div>
+      `;
+      resultDiv.classList.add('show');
+    }
+
+    function copyFortune() {
+      const fortuneText = document.getElementById('resultContainer').innerText;
+      navigator.clipboard.writeText(fortuneText).then(() => {
+        alert('운세가 복사되었습니다!');
+      }).catch(() => {
+        alert('복사 실패');
+      });
+    }
+
+    window.onload = function() {
+      initSelects();
+      loadUserInfo();
+    }
+    
+    // 페이지가 다시 보일 때마다 (뒤로가기 포함) localStorage에서 최신 정보 가져오기
+    window.addEventListener('pageshow', function(event) {
+      const latestData = localStorage.getItem('fortuneUserData');
+      if (latestData) {
+        savedData = JSON.parse(latestData);
+        loadUserInfo();
+      }
+    });
+
+    // focus 이벤트로도 확인 (탭 전환 시)
+    window.addEventListener('focus', function() {
+      const latestData = localStorage.getItem('fortuneUserData');
+      if (latestData) {
+        savedData = JSON.parse(latestData);
+        loadUserInfo();
+      }
+    });
+
+    // 페이지 포커스 시 (다른 페이지에서 돌아오면) localStorage 다시 확인
+    window.addEventListener('focus', function() {
+      const latestData = localStorage.getItem('fortuneUserData');
+      if (latestData) {
+        savedData = JSON.parse(latestData);
+        loadUserInfo();
+      }
+    });
+
+    // pageshow 이벤트로 브라우저 뒤로가기 감지
+    window.addEventListener('pageshow', function(event) {
+      // 브라우저 캐시에서 페이지가 복원된 경우
+      if (event.persisted) {
+        const latestData = localStorage.getItem('fortuneUserData');
+        if (latestData) {
+          savedData = JSON.parse(latestData);
+          loadUserInfo();
+        }
+      }
+    });
+  </script>
 </body>
 </html>
