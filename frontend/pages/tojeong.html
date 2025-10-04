@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>토정비결 - 우리의 운세</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 15px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .back-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .top-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .top-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 15px;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .top-btn:hover {
+      background: #f8f8f8;
+      border-color: #667eea;
+    }
+
+    .user-info-display {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .year-selector {
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 16px;
+      width: 100%;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    .year-selector:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 30px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    }
+
+    .generate-btn:hover {
+      background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+    }
+
+    .generate-btn:active {
+      transform: translateY(0);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      display: none;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .result-section {
+      display: none;
+    }
+
+    .result-section.show {
+      display: block;
+    }
+
+    .year-info {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      color: white;
+      padding: 35px 25px;
+      border-radius: 20px;
+      text-align: center;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .year-info::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.3; }
+    }
+
+    .year-info h2 {
+      font-size: 28px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .year-info p {
+      font-size: 16px;
+      opacity: 0.95;
+      position: relative;
+      z-index: 1;
+      font-weight: 400;
+    }
+
+    .gua-info {
+      background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+      padding: 30px 25px;
+      border-radius: 20px;
+      margin-bottom: 25px;
+      text-align: center;
+      border: none;
+      box-shadow: 0 4px 20px rgba(253, 203, 110, 0.3);
+    }
+
+    .gua-name {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2d3436;
+      margin: 15px 0 10px;
+      letter-spacing: 2px;
+    }
+
+    .gua-level {
+      display: inline-block;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+      color: white;
+      border-radius: 25px;
+      font-size: 16px;
+      margin: 12px 0;
+      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
+      text-transform: uppercase;
+    }
+
+    .gua-description {
+      font-size: 16px;
+      color: #2d3436;
+      margin-top: 15px;
+      line-height: 1.8;
+      font-weight: 500;
+    }
+
+    .fortune-section {
+      margin-bottom: 30px;
+    }
+
+    .fortune-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .fortune-text {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      line-height: 1.8;
+      color: #333;
+      font-size: 15px;
+    }
+
+    .monthly-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .month-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 15px;
+      transition: all 0.3s;
+    }
+
+    .month-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+
+    .month-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .month-text {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .reset-btn {
+      width: 100%;
+      padding: 15px;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #333;
+      transition: all 0.3s;
+    }
+
+    .reset-btn:hover {
+      background: #f8f8f8;
+      border-color: #667eea;
+    }
+
+    .disclaimer {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #856404;
+      line-height: 1.6;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-buttons">
+      <a href="../index.html" class="back-btn">홈으로</a>
+      <div class="header-buttons">
+        <button class="top-btn" onclick="openSajuModal()">사주변경</button>
+      </div>
+    </div>
+
+    <div class="header">
+      <h1>토정비결</h1>
+      <p>토정 이지함의 144괘로 보는 한 해 운세</p>
+    </div>
+
+    <div id="inputSection">
+      <div id="userInfoDisplay" class="user-info-display">
+        생년월일을 먼저 입력해주세요 (사주변경 버튼 클릭)
+      </div>
+
+      <label for="targetYear" style="display: block; margin-bottom: 10px; color: #666; font-size: 14px;">
+        운세를 보고 싶은 연도:
+      </label>
+      <select id="targetYear" class="year-selector">
+        <option value="2024">2024년</option>
+        <option value="2025" selected>2025년</option>
+        <option value="2026">2026년</option>
+        <option value="2027">2027년</option>
+        <option value="2028">2028년</option>
+      </select>
+
+      <button class="generate-btn" onclick="getTojeong()">토정비결 보기</button>
+
+      <div class="disclaimer">
+        이 서비스는 전통 토정비결 144괘 시스템을 바탕으로 하며, AI가 현대적으로 해석한 내용입니다. 
+        참고용으로만 활용하시고, 중요한 결정은 신중히 하시기 바랍니다.
+      </div>
+    </div>
+
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>토정 이지함의 지혜를 불러오는 중...</p>
+      <p style="font-size: 12px; color: #999; margin-top: 10px;">12개월 운세를 생성 중입니다</p>
+    </div>
+
+    <div id="result" class="result-section">
+      <div class="year-info">
+        <h2 id="resultYear"></h2>
+        <p id="resultGanzi"></p>
+      </div>
+
+      <div class="gua-info">
+        <div class="gua-name" id="guaName"></div>
+        <div class="gua-level" id="guaLevel"></div>
+        <div class="gua-description" id="guaDescription"></div>
+      </div>
+
+      <div class="fortune-section">
+        <div class="fortune-title">종합 운세</div>
+        <div class="fortune-text" id="overallFortune"></div>
+      </div>
+
+      <div class="fortune-section">
+        <div class="fortune-title">월별 운세</div>
+        <div id="monthlyFortune" class="monthly-grid"></div>
+      </div>
+
+      <button class="reset-btn" onclick="resetForm()">다시 하기</button>
+
+      <div class="disclaimer">
+        이 서비스는 전통 토정비결 144괘 시스템을 바탕으로 하며, AI가 현대적으로 해석한 내용입니다. 
+        참고용으로만 활용하시고, 중요한 결정은 신중히 하시기 바랍니다.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 페이지 로드 시 사용자 정보 표시
+    window.addEventListener('DOMContentLoaded', function() {
+      displayUserInfo();
+    });
+
+    // 사용자 정보 표시
+    function displayUserInfo() {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const display = document.getElementById('userInfoDisplay');
+      
+      if (userInfo.year && userInfo.month && userInfo.day) {
+        const calendarType = userInfo.isLunar ? '음력' : '양력';
+        display.textContent = `${userInfo.year}년 ${userInfo.month}월 ${userInfo.day}일 (${calendarType})`;
+        display.style.background = '#e8f5e9';
+        display.style.color = '#2e7d32';
+      } else {
+        display.textContent = '생년월일을 먼저 입력해주세요 (사주변경 버튼 클릭)';
+        display.style.background = '#fff3cd';
+        display.style.color = '#856404';
+      }
+    }
+
+    // 사주 변경 모달 열기 (메인 페이지로 이동)
+    function openSajuModal() {
+      if (confirm('사주 정보를 변경하시겠습니까? 메인 페이지로 이동합니다.')) {
+        window.location.href = '../index.html';
+      }
+    }
+
+    // 토정비결 생성
+    async function getTojeong() {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      
+      // 사용자 정보 확인
+      if (!userInfo.year || !userInfo.month || !userInfo.day) {
+        alert('생년월일을 먼저 입력해주세요. 메인 페이지에서 사주를 입력해주세요.');
+        return;
+      }
+
+      const targetYear = parseInt(document.getElementById('targetYear').value);
+
+      // UI 전환
+      document.getElementById('inputSection').classList.add('hidden');
+      document.getElementById('loading').classList.add('show');
+
+      try {
+        // API 호출
+        const response = await fetch('http://localhost:3000/api/tojeong', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            year: parseInt(userInfo.year),
+            month: parseInt(userInfo.month),
+            day: parseInt(userInfo.day),
+            isLunar: userInfo.isLunar || false,
+            targetYear: targetYear
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          displayResult(data);
+        } else {
+          throw new Error(data.error || '토정비결 생성에 실패했습니다.');
+        }
+
+      } catch (error) {
+        console.error('토정비결 오류:', error);
+        alert('토정비결 생성 중 오류가 발생했습니다: ' + error.message);
+        
+        // UI 복원
+        document.getElementById('loading').classList.remove('show');
+        document.getElementById('inputSection').classList.remove('hidden');
+      }
+    }
+
+    // 결과 표시
+    function displayResult(data) {
+      // 연도 정보
+      document.getElementById('resultYear').textContent = data.year + '년 운세';
+      document.getElementById('resultGanzi').textContent = data.yearGanzi + '년 / ' + data.age + '세';
+
+      // 괘 정보
+      document.getElementById('guaName').textContent = data.mainGua.name;
+      document.getElementById('guaLevel').textContent = data.mainGua.level;
+      document.getElementById('guaDescription').textContent = data.mainGua.description;
+
+      // 종합 운세
+      document.getElementById('overallFortune').textContent = data.fortune.종합운세 || '종합 운세를 불러올 수 없습니다.';
+
+      // 월별 운세
+      const monthlyContainer = document.getElementById('monthlyFortune');
+      monthlyContainer.innerHTML = '';
+
+      const monthlyFortune = data.fortune.월별운세 || {};
+      for (let i = 1; i <= 12; i++) {
+        const monthKey = i + '월';
+        const card = document.createElement('div');
+        card.className = 'month-card';
+        card.innerHTML = `
+          <div class="month-title">${monthKey}</div>
+          <div class="month-text">${monthlyFortune[monthKey] || '운세 정보 없음'}</div>
+        `;
+        monthlyContainer.appendChild(card);
+      }
+
+      // UI 전환
+      document.getElementById('loading').classList.remove('show');
+      document.getElementById('result').classList.add('show');
+    }
+
+    // 폼 리셋
+    function resetForm() {
+      document.getElementById('result').classList.remove('show');
+      document.getElementById('inputSection').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

@@ -10,6 +10,10 @@ const { generateHoroscopePrompt } = require('./engines/prompts/horoscope-prompt'
 const DreamEngine = require('./engines/core/dream-engine');
 const { calculateCompatibility } = require('./engines/core/compatibility-engine');
 const { generateCompatibilityPrompt } = require('./engines/prompts/compatibility-prompt');
+const { calculateTojeong } = require('./engines/core/tojeong-engine');
+const { generateTojeongPrompt } = require('./engines/prompts/tojeong-prompt');
+const SajuEngine = require('./engines/core/saju-engine');
+const { getSajuPrompt } = require('./backend/prompts/saju-prompt');
 
 const app = express();
 const PORT = 3000;
@@ -420,6 +424,171 @@ app.post('/api/compatibility', async (req, res) => {
   }
 });
 
+// 토정비결 API
+app.post('/api/tojeong', async (req, res) => {
+  try {
+    const { year, month, day, isLunar, targetYear } = req.body;
+    
+    console.log('토정비결 요청:', { year, month, day, isLunar, targetYear });
+    
+    // 1. 엔진 계산
+    const tojeongData = calculateTojeong(
+      { year, month, day, isLunar },
+      targetYear
+    );
+    
+    if (!tojeongData.success) {
+      return res.status(400).json({ 
+        success: false,
+        error: tojeongData.error || '토정비결 계산 실패' 
+      });
+    }
+    
+    // 2. 프롬프트 생성
+    const prompt = generateTojeongPrompt(tojeongData);
+    
+    // 3. Claude API 호출
+    console.log('Claude API 호출 중...');
+    const message = await anthropic.messages.create({
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 5000,
+      messages: [{
+        role: 'user',
+        content: prompt
+      }]
+    });
+    
+    // 4. 응답 파싱
+    const responseText = message.content[0].text;
+    console.log('Claude 응답:', responseText.substring(0, 200) + '...');
+    
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    let fortuneResult;
+    
+    if (jsonMatch) {
+      fortuneResult = JSON.parse(jsonMatch[0]);
+    } else {
+      fortuneResult = { 
+        종합운세: responseText,
+        월별운세: {}
+      };
+    }
+    
+    // 5. 결과 반환
+    res.json({
+      success: true,
+      year: tojeongData.year,
+      yearGanzi: tojeongData.yearGanzi,
+      age: tojeongData.age,
+      mainGua: tojeongData.mainGua,
+      monthlyFortune: tojeongData.monthlyFortune,
+      fortune: fortuneResult,
+      cost: (
+        message.usage.input_tokens / 1000 * 0.00025 + 
+        message.usage.output_tokens / 1000 * 0.00125
+      ).toFixed(6)
+    });
+    
+    console.log('토정비결 생성 완료!');
+    
+  } catch (error) {
+    console.error('토정비결 오류:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
+    });
+  }
+});
+
+// 사주팔자 API ⭐ 새로 추가!
+app.post('/api/saju', async (req, res) => {
+  try {
+    const { year, month, day, hour, isLunar, gender, category } = req.body;
+    
+    console.log('사주팔자 요청:', { year, month, day, hour, gender, category });
+    
+    // 1. 사주 엔진 계산
+    const sajuEngine = new SajuEngine();
+    const saju = sajuEngine.calculateSaju({ year, month, day, hour, isLunar });
+    const elements = sajuEngine.calculateElements(saju);
+    const strength = sajuEngine.calculateStrength(saju, elements);
+    const yongsin = sajuEngine.findYongsin(strength, elements, saju.ilgan);
+    const tenStars = sajuEngine.calculateTenStars(saju);
+    
+    const engineResult = {
+      saju,
+      ilgan: saju.ilgan,
+      elements,
+      strength,
+      yongsin,
+      tenStars
+    };
+    
+    console.log('엔진 계산 완료:', engineResult);
+    
+    // 2. 프롬프트 생성
+    const prompt = getSajuPrompt(category, engineResult, { gender });
+    console.log('프롬프트 생성 완료');
+    
+    // 3. Claude API 호출 (Mock - 나중에 실제 연동)
+    // TODO: 실제 Claude API 연동 시 아래 주석 해제
+    /*
+    const message = await anthropic.messages.create({
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 1000,
+      messages: [{
+        role: 'user',
+        content: prompt
+      }]
+    });
+    const interpretation = message.content[0].text;
+    const cost = (
+      message.usage.input_tokens / 1000 * 0.00025 + 
+      message.usage.output_tokens / 1000 * 0.00125
+    ).toFixed(6);
+    */
+    
+    // Mock 응답 (테스트용)
+    const mockInterpretations = {
+      total: `일간이 ${saju.ilgan}인 사람은 특별한 성격을 가지고 있습니다. ${strength} 사주로, ${yongsin} 오행이 용신입니다. 오행 분포는 목${elements.목}개, 화${elements.화}개, 토${elements.토}개, 금${elements.금}개, 수${elements.수}개로 나타납니다. 이는 당신의 인생에서 균형과 조화를 의미하며, 용신인 ${yongsin}을 활용하면 더욱 풍요로운 삶을 살 수 있습니다.`,
+      wealth: `재성이 적절히 배치되어 있어 재물운이 안정적입니다. ${strength} 사주는 ${strength === '신강' ? '적극적인 투자보다는 안정적인 저축' : '꾸준한 노력으로 재물을 모을 수 있음'}을 의미합니다.`,
+      love: gender === '여성' 
+        ? `관성(남편)의 배치를 보면 ${strength === '신강' ? '강한 성격으로 배우자와 조화를 이루려 노력이 필요' : '부드러운 성격으로 좋은 배우자운'}합니다. 용신 ${yongsin}을 고려한 상대를 만나면 좋습니다.`
+        : `재성(아내)의 배치를 보면 안정적인 가정을 꾸릴 수 있습니다. ${strength} 사주는 배우자에게 ${strength === '신강' ? '리더십' : '배려심'}을 발휘하게 됩니다.`,
+      health: `오행 분포를 보면 ${Object.entries(elements).sort((a,b) => b[1]-a[1])[0][0]} 기운이 강하고 ${Object.entries(elements).sort((a,b) => a[1]-b[1])[0][0]} 기운이 약합니다. 균형을 맞추기 위해 ${yongsin} 기운을 보충하는 것이 좋습니다.`
+    };
+    
+    const interpretation = mockInterpretations[category] || mockInterpretations.total;
+    
+    // 4. 결과 반환
+    res.json({
+      success: true,
+      saju: {
+        year: saju.year,
+        month: saju.month,
+        day: saju.day,
+        hour: saju.hour,
+        ilgan: saju.ilgan
+      },
+      elements,
+      strength,
+      yongsin,
+      tenStars,
+      interpretation,
+      cost: '0.000000' // Mock이므로 비용 0
+    });
+    
+    console.log('사주팔자 응답 완료!');
+    
+  } catch (error) {
+    console.error('사주팔자 오류:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log('='.repeat(70));
   console.log(`🔮 운세 플랫폼 서버 실행 중!`);
@@ -428,7 +597,9 @@ app.listen(PORT, () => {
   console.log('\n📋 API 엔드포인트:');
   console.log('  • POST /api/daily-fortune - 오늘의 운세');
   console.log('  • POST /api/horoscope - 별자리 운세');
-  console.log('  • POST /api/compatibility - 궁합 보기 ⭐ 새로 추가!');
+  console.log('  • POST /api/compatibility - 궁합 보기');
+  console.log('  • POST /api/tojeong - 토정비결');
+  console.log('  • POST /api/saju - 사주팔자 ⭐ 새로 추가!');
   console.log('  • GET  /api/dream?q=검색어 - 꿈 검색');
   console.log('  • GET  /api/dream/:id - 특정 꿈 조회');
   console.log('  • GET  /api/dream/categories/list - 카테고리 목록');

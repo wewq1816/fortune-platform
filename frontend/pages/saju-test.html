@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사주팔자 - 우리의 운세</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 15px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .back-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .top-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .user-info-display {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .input-section {
+      display: block;
+    }
+
+    .input-section.hidden {
+      display: none;
+    }
+
+    .category-selector {
+      margin-bottom: 25px;
+    }
+
+    .category-selector h3 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .category-btn {
+      padding: 12px;
+      border: 2px solid #dee2e6;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .category-btn:hover {
+      border-color: #FFCBA4;
+      background: #FFF5F0;
+    }
+
+    .category-btn.active {
+      border-color: #FF6B6B;
+      background: #FF6B6B;
+      color: white;
+      font-weight: bold;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 18px;
+      background: #ff4757;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 30px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+    }
+
+    .generate-btn:hover {
+      background: #ff3838;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+    }
+
+    .generate-btn:active {
+      transform: translateY(0);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      display: none;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .result-container {
+      display: none;
+      animation: fadeIn 0.5s;
+    }
+
+    .result-container.show {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .saju-info {
+      background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+      padding: 30px 25px;
+      border-radius: 20px;
+      margin-bottom: 25px;
+      text-align: center;
+      border: none;
+      box-shadow: 0 4px 20px rgba(253, 203, 110, 0.3);
+    }
+
+    .saju-pillars {
+      display: flex;
+      justify-content: space-around;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .pillar {
+      background: white;
+      border-radius: 12px;
+      padding: 15px 10px;
+      text-align: center;
+      flex: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .pillar-label {
+      font-size: 12px;
+      color: #636e72;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    .pillar-char {
+      font-size: 22px;
+      font-weight: bold;
+      color: #2d3436;
+    }
+
+    .pillar-star {
+      font-size: 11px;
+      color: #6c5ce7;
+      margin-top: 5px;
+      font-weight: bold;
+    }
+
+    .ilgan-display {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 2px solid rgba(255,255,255,0.5);
+      font-size: 16px;
+      color: #2d3436;
+    }
+
+    .ilgan-display strong {
+      font-size: 20px;
+      color: #e17055;
+    }
+
+    .ten-stars-summary {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 15px;
+      border: 2px solid #e8daef;
+    }
+
+    .ten-stars-summary h4 {
+      font-size: 14px;
+      color: #6c5ce7;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .ten-stars-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .ten-star-item {
+      text-align: center;
+      padding: 8px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .ten-star-item.has-star {
+      background: #e8daef;
+      color: #6c5ce7;
+      font-weight: bold;
+    }
+
+    .elements-info {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .elements-info h3 {
+      font-size: 18px;
+      color: #2d3436;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .element-bar {
+      margin-bottom: 12px;
+    }
+
+    .element-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #636e72;
+    }
+
+    .bar {
+      height: 20px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.5s;
+    }
+
+    .element-목 { background: linear-gradient(90deg, #55efc4, #00b894); }
+    .element-화 { background: linear-gradient(90deg, #ff7675, #d63031); }
+    .element-토 { background: linear-gradient(90deg, #fdcb6e, #e17055); }
+    .element-금 { background: linear-gradient(90deg, #dfe6e9, #b2bec3); }
+    .element-수 { background: linear-gradient(90deg, #74b9ff, #0984e3); }
+
+    .strength-yongsin {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .strength-yongsin div {
+      text-align: center;
+    }
+
+    .strength-yongsin strong {
+      font-size: 16px;
+      color: #e17055;
+    }
+
+    .fortune-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+      animation: fadeIn 0.5s;
+      border-left: 5px solid #667eea;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .fortune-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+
+    .fortune-card h3 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 19px;
+      font-weight: bold;
+    }
+
+    .fortune-card p {
+      color: #444;
+      line-height: 1.9;
+      font-size: 15px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 14px;
+      border: 2px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .action-btn:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 5px;
+      }
+
+      .container {
+        padding: 15px;
+        border-radius: 15px;
+      }
+
+      .header h1 {
+        font-size: 20px;
+      }
+
+      .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-buttons">
+      <a href="../index.html" class="back-btn">뒤로가기</a>
+    </div>
+
+    <div class="header">
+      <h1>사주팔자</h1>
+      <p>당신의 사주를 21개 카테고리로 상세 분석</p>
+    </div>
+
+    <div class="input-section" id="inputSection">
+      <div class="user-info-display" id="userInfoDisplay">
+        사주 정보를 불러오는 중...
+      </div>
+
+      <div class="category-selector">
+        <h3>🎯 어떤 운세를 보고 싶으신가요?</h3>
+        <div class="category-grid">
+          <button class="category-btn" data-category="total" onclick="selectCategory('total')">📊 총운</button>
+          <button class="category-btn" data-category="personality" onclick="selectCategory('personality')">😊 성격</button>
+          <button class="category-btn" data-category="daeun" onclick="selectCategory('daeun')">🌟 대운</button>
+          <button class="category-btn" data-category="wealth" onclick="selectCategory('wealth')">💰 재물운</button>
+          <button class="category-btn" data-category="love" onclick="selectCategory('love')">💕 애정운</button>
+          <button class="category-btn" data-category="health" onclick="selectCategory('health')">🏥 건강운</button>
+          <button class="category-btn" data-category="career" onclick="selectCategory('career')">💼 직업운</button>
+          <button class="category-btn" data-category="study" onclick="selectCategory('study')">📚 학업운</button>
+          <button class="category-btn" data-category="promotion" onclick="selectCategory('promotion')">📈 승진운</button>
+          <button class="category-btn" data-category="move" onclick="selectCategory('move')">🚚 이동운</button>
+          <button class="category-btn" data-category="travel" onclick="selectCategory('travel')">✈️ 여행운</button>
+          <button class="category-btn" data-category="parents" onclick="selectCategory('parents')">👴 부모운</button>
+          <button class="category-btn" data-category="siblings" onclick="selectCategory('siblings')">👫 형제운</button>
+          <button class="category-btn" data-category="children" onclick="selectCategory('children')">👶 자녀운</button>
+          <button class="category-btn" data-category="spouse" onclick="selectCategory('spouse')">💑 배우자운</button>
+          <button class="category-btn" data-category="social" onclick="selectCategory('social')">🤝 대인관계</button>
+          <button class="category-btn" data-category="aptitude" onclick="selectCategory('aptitude')">🎯 적성</button>
+          <button class="category-btn" data-category="job" onclick="selectCategory('job')">👔 직업</button>
+          <button class="category-btn" data-category="business" onclick="selectCategory('business')">🏢 사업</button>
+          <button class="category-btn" data-category="sinsal" onclick="selectCategory('sinsal')">⭐ 신살</button>
+          <button class="category-btn" data-category="taekil" onclick="selectCategory('taekil')">📅 택일</button>
+        </div>
+      </div>
+
+      <button class="generate-btn" id="generateBtn" onclick="generateSaju()" disabled>
+        운세 보러 가기
+      </button>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>사주를 분석하고 있습니다...</p>
+      <p style="color: #999; font-size: 14px; margin-top: 10px;">잠시만 기다려주세요</p>
+    </div>
+
+    <div id="resultContainer" class="result-container"></div>
+
+    <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px; border-top: 2px solid #e9ecef;">
+      <p style="font-size: 12px; color: #999; line-height: 1.8; margin-bottom: 10px;">
+        ⚠️ <strong>면책조항</strong>
+      </p>
+      <p style="font-size: 11px; color: #666; line-height: 1.8; text-align: justify;">
+        본 서비스에서 제공하는 사주팔자, 운세 등의 콘텐츠는 <strong>엔터테인먼트 및 참고 목적</strong>으로만 제공되며, 
+        어떠한 과학적·의학적·법적 근거나 보증을 제공하지 않습니다. 
+        중요한 결정은 반드시 전문가와 상담하시기 바랍니다.
+      </p>
+    </div>
+  </div>
+
+  <script src="ten-stars-calculator.js"></script>
+  <script src="saju-basic-calculator.js"></script>
+  <script src="saju-extended-calculator.js"></script>
+  <script src="saju-interpretations.js"></script>
+  <script src="saju-ui-controller.js"></script>
+  <script src="saju-main.js"></script>
+</body>
+</html>
