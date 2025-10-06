@@ -822,7 +822,7 @@
       const savedDataFromStorage = localStorage.getItem('fortuneUserData');
       if (savedDataFromStorage) {
         const data = JSON.parse(savedDataFromStorage);
-        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})`;
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType}) 태어난 시간 : ${data.birthTime}`;
         document.getElementById('userInfoDisplay').textContent = display;
         return data;
       } else {
@@ -958,57 +958,82 @@
       }
     });
 
-    // 꿈 해석 함수 (임시 데이터)
+    // 꿈 해석 함수 (DB 기반 AI 해석)
     async function analyzeDream(dreamText) {
       showLoading();
 
       // 검색창 숨기기
       document.querySelector('.search-section').style.display = 'none';
 
-      // 2초 후 결과 표시 (로딩 시뮬레이션)
-      setTimeout(() => {
+      try {
+        // DB 기반 AI 해석 API 호출
+        const response = await fetch('http://localhost:3000/api/dream/interpret', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ query: dreamText })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // AI 해석 결과 표시
+          showDreamResult(dreamText, data);
+        } else {
+          alert('꿈 해석 중 오류가 발생했습니다: ' + data.message);
+          resetDream();
+        }
+
+      } catch (error) {
+        console.error('AI 해석 오류:', error);
+        alert('서버와 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+        resetDream();
+      } finally {
         hideLoading();
-        showDreamResult(dreamText);
-      }, 2000);
+      }
     }
 
-    // 꿈 해석 결과 표시
-    function showDreamResult(dreamText) {
+    // 꿈 해석 결과 표시 (DB 기반 AI 데이터)
+    function showDreamResult(dreamText, data) {
       // 입력한 꿈 내용
       document.getElementById('userDreamText').textContent = dreamText;
 
-      // AI 해석 결과 (임시 데이터)
+      const interpretation = data.interpretation;
+
+      // AI 해석 결과
       document.getElementById('interpretationText').innerHTML = `
-        <p>당신의 꿈은 내면의 감정과 현재 상황을 반영하고 있습니다. 
-        꿈에 나타난 상징들은 당신의 무의식이 전하는 메시지로, 
-        현재 겪고 있는 변화와 성장의 과정을 보여주고 있습니다.</p>
-        <p style="margin-top: 15px;">이 꿈은 새로운 시작과 기회를 암시하며, 
-        당신이 두려워하던 것들을 극복할 수 있는 힘이 내면에 있음을 알려줍니다.</p>
+        <p>${interpretation.interpretation || '해석 내용이 없습니다.'}</p>
+        ${data.usedDB ? '<p style="margin-top: 15px; font-size: 14px; color: #666;">💡 전통 꿈해몽 DB ' + data.dbResultsCount + '개 정보를 참고하여 해석했습니다.</p>' : ''}
       `;
 
-      // 주요 상징 (임시 데이터)
-      document.getElementById('symbolsList').innerHTML = `
-        <span class="symbol-tag">변화</span>
-        <span class="symbol-tag">성장</span>
-        <span class="symbol-tag">기회</span>
-        <span class="symbol-tag">도전</span>
-        <span class="symbol-tag">희망</span>
-      `;
+      // 주요 상징
+      const symbols = interpretation.meaning ? 
+        interpretation.meaning.split(',').map(s => s.trim()) : 
+        ['변화', '성장'];
+        
+      document.getElementById('symbolsList').innerHTML = symbols.map(symbol => 
+        `<span class="symbol-tag">${symbol}</span>`
+      ).join('');
 
-      // 길흉 판단 (임시 데이터)
+      // 길흉 판단
+      const fortuneType = interpretation.fortune_type || '중립';
+      const fortuneDescriptions = {
+        '길몽': '이 꿈은 좋은 일이 다가올 징조입니다. 긍정적인 변화가 예상되며, 하고자 하는 일에 좋은 결과가 있을 것입니다.',
+        '흉몽': '이 꿈은 조심해야 할 일이 있음을 알려줍니다. 신중하게 행동하고, 위험한 상황을 피하세요.',
+        '중립': '이 꿈은 현재 상황을 반영하고 있습니다. 특별한 길흉은 없으나, 자신의 선택에 따라 결과가 달라질 수 있습니다.'
+      };
+
       document.getElementById('fortuneResult').innerHTML = `
-        <span class="fortune-badge-large 길몽">길몽</span>
+        <span class="fortune-badge-large ${fortuneType}">${fortuneType}</span>
         <div class="fortune-description">
-          이 꿈은 좋은 일이 다가올 징조입니다. 
-          긍정적인 변화가 예상되며, 하고자 하는 일에 좋은 결과가 있을 것입니다.
+          ${fortuneDescriptions[fortuneType]}
         </div>
       `;
 
-      // 조언 (임시 데이터)
+      // 조언
       document.getElementById('adviceText').textContent = 
-        '지금은 새로운 도전을 시작하기에 좋은 시기입니다. ' +
-        '두려움을 내려놓고 자신감을 가지고 앞으로 나아가세요. ' +
-        '주변 사람들의 조언에 귀 기울이되, 최종 결정은 자신의 직관을 따르는 것이 좋습니다.';
+        interpretation.advice || '자신의 직관을 믿고 신중하게 결정하세요.';
 
       // 결과 섹션 표시
       resultsSection.classList.add('show');

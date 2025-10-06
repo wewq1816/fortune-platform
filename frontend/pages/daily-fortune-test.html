@@ -533,7 +533,7 @@
       const savedDataFromStorage = localStorage.getItem('fortuneUserData');
       if (savedDataFromStorage) {
         const data = JSON.parse(savedDataFromStorage);
-        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})`;
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType}) 태어난 시간 : ${data.birthTime}`;
         document.getElementById('userInfoDisplay').textContent = display;
         return data;
       } else {

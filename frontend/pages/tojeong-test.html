@@ -658,7 +658,7 @@
         ⚠️ <strong>면책조항</strong>
       </p>
       <p style="font-size: 11px; color: #666; line-height: 1.8; text-align: justify;">
-        본 서비스에서 제공하는 토정비결, 운세, 사주 등의 콘텐츠는 <strong>엔터테인먼트 및 참고 목적</strong>으로만 제공되며, 
+        본 서비스에서 제공하는 운세, 사주, 별자리 등의 콘텐츠는 <strong>엔터테인먼트 및 참고 목적</strong>으로만 제공되며, 
         어떠한 과학적·의학적·법적 근거나 보증을 제공하지 않습니다. 
         본 서비스는 쿠팡파트너스 활동의 일환으로 일정액의 수수료를 제공받습니다. 
         본 서비스의 내용은 <strong>개인의 판단이나 의사결정의 유일한 근거로 사용되어서는 안 되며</strong>, 
@@ -763,7 +763,7 @@
       const savedDataFromStorage = localStorage.getItem('fortuneUserData');
       if (savedDataFromStorage) {
         const data = JSON.parse(savedDataFromStorage);
-        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})`;
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType}) 태어난 시간 : ${data.birthTime}`;
         document.getElementById('userInfoDisplay').textContent = display;
         return data;
       } else {
@@ -1122,6 +1122,10 @@
       }
 
       resultDiv.innerHTML = `
+        <div class="user-info-display" style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; font-size: 14px; color: #666;">
+          ${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType}) ${savedData.birthTime}
+        </div>
+
         <div class="year-info">
           <h2>${year}년 ${title}</h2>
           <p>${yearGanzi}년 / ${age}세</p>

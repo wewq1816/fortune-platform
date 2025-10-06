@@ -14,6 +14,8 @@ const { calculateTojeong } = require('./engines/core/tojeong-engine');
 const { generateTojeongPrompt } = require('./engines/prompts/tojeong-prompt');
 const SajuEngine = require('./engines/core/saju-engine');
 const { getSajuPrompt } = require('./backend/prompts/saju-prompt');
+const { TarotEngine } = require('./engines/core/tarot-engine');
+const { generateTarotPrompt } = require('./backend/prompts/tarot-prompt');
 
 const app = express();
 const PORT = 3000;
@@ -30,6 +32,98 @@ const anthropic = new Anthropic({
 
 // 꿈해몽 엔진 초기화
 const dreamEngine = new DreamEngine();
+
+// 타로 엔진 세션 저장소 (메모리)
+const tarotSessions = new Map();
+
+// 타로 카드 API
+// 1. 시작 - 3장 카드 제시
+app.post('/api/tarot/start', async (req, res) => {
+  try {
+    const { category } = req.body;
+    
+    const engine = new TarotEngine();
+    const result = engine.startNewSession(category);
+    
+    // 세션 ID 생성 (간단하게 타임스탬프 사용)
+    const sessionId = Date.now().toString();
+    tarotSessions.set(sessionId, engine);
+    
+    res.json({
+      success: true,
+      sessionId,
+      ...result
+    });
+  } catch (error) {
+    console.error('타로 시작 오류:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 2. 카드 선택 - 다음 단계 진행
+app.post('/api/tarot/next', async (req, res) => {
+  try {
+    const { sessionId, selectedCard } = req.body;
+    
+    const engine = tarotSessions.get(sessionId);
+    if (!engine) {
+      return res.status(404).json({ error: '세션을 찾을 수 없습니다.' });
+    }
+    
+    const result = engine.selectCard(selectedCard);
+    
+    res.json(result);
+  } catch (error) {
+    console.error('타로 선택 오류:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 3. 최종 해석 - Claude Haiku 호출
+app.post('/api/tarot/interpret', async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    
+    const engine = tarotSessions.get(sessionId);
+    if (!engine) {
+      return res.status(404).json({ error: '세션을 찾을 수 없습니다.' });
+    }
+    
+    const result = engine.generateFinalResult();
+    
+    // 프롬프트 생성
+    const prompt = generateTarotPrompt(result.meanings, result.category);
+    
+    // Claude Haiku 호출
+    console.log('Claude Haiku 호출 중...');
+    const message = await anthropic.messages.create({
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 1000,
+      messages: [{
+        role: 'user',
+        content: prompt
+      }]
+    });
+    
+    const interpretation = message.content[0].text;
+    
+    // 세션 정리
+    tarotSessions.delete(sessionId);
+    
+    res.json({
+      success: true,
+      ...result,
+      interpretation,
+      usage: {
+        input_tokens: message.usage.input_tokens,
+        output_tokens: message.usage.output_tokens
+      }
+    });
+  } catch (error) {
+    console.error('타로 해석 오류:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // 오늘의 운세 API
 app.post('/api/daily-fortune', async (req, res) => {
@@ -93,12 +187,12 @@ app.post('/api/daily-fortune', async (req, res) => {
 // 별자리 운세 API
 app.post('/api/horoscope', async (req, res) => {
   try {
-    const { month, day } = req.body;
+    const { year, month, day, hour, minute } = req.body;
     
-    console.log('별자리 운세 요청:', { month, day });
+    console.log('별자리 운세 요청:', { year, month, day, hour, minute });
     
-    // 1. 별자리 운세 계산
-    const fortuneData = getHoroscopeFortune(month, day);
+    // 1. 별자리 운세 계산 (정밀 판정)
+    const fortuneData = getHoroscopeFortune(month, day, year, hour, minute);
     
     if (!fortuneData.success) {
       return res.status(400).json({ error: '별자리 계산 실패' });
@@ -226,6 +320,70 @@ app.get('/api/dream/categories/list', (req, res) => {
     
   } catch (error) {
     console.error('카테고리 목록 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * AI 꿈해몽 (DB에 없을 때 사용)
+ * POST /api/dream/ai-interpret
+ * Body: { query: "유튜브" }
+ */
+app.post('/api/dream/ai-interpret', async (req, res) => {
+  try {
+    const { query } = req.body;
+    
+    console.log('AI 꿈해몽 요청:', query);
+    
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: '검색어(query)를 입력해주세요'
+      });
+    }
+    
+    // AI 해석 실행
+    const result = await dreamEngine.interpretWithAI(query);
+    
+    res.json(result);
+    
+  } catch (error) {
+    console.error('AI 꿈해몽 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * DB 기반 AI 꿈해몽 (메인 기능!)
+ * POST /api/dream/interpret
+ * Body: { query: "용이 하늘을 나는 꿈" }
+ */
+app.post('/api/dream/interpret', async (req, res) => {
+  try {
+    const { query } = req.body;
+    
+    console.log('DB 기반 AI 꿈해몽 요청:', query);
+    
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: '꿈 내용(query)을 입력해주세요'
+      });
+    }
+    
+    // DB 검색 + AI 해석 (하이브리드)
+    const result = await dreamEngine.interpretWithDB(query);
+    
+    res.json(result);
+    
+  } catch (error) {
+    console.error('DB 기반 AI 꿈해몽 오류:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -600,6 +758,9 @@ app.listen(PORT, () => {
   console.log('  • POST /api/compatibility - 궁합 보기');
   console.log('  • POST /api/tojeong - 토정비결');
   console.log('  • POST /api/saju - 사주팔자 ⭐ 새로 추가!');
+  console.log('  • POST /api/tarot/start - 타로 시작 🎴');
+  console.log('  • POST /api/tarot/next - 타로 다음 단계 🎴');
+  console.log('  • POST /api/tarot/interpret - 타로 해석 🎴');
   console.log('  • GET  /api/dream?q=검색어 - 꿈 검색');
   console.log('  • GET  /api/dream/:id - 특정 꿈 조회');
   console.log('  • GET  /api/dream/categories/list - 카테고리 목록');

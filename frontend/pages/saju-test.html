@@ -73,6 +73,29 @@
       gap: 10px;
     }
 
+    .header-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .top-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 15px;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .top-btn:hover {
+      background: #f8f8f8;
+      border-color: #667eea;
+    }
+
     .user-info-display {
       background: #f8f9fa;
       padding: 15px;
@@ -406,6 +429,92 @@
       box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
 
+    /* 모달 스타일 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #f0f0f0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .date-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      background: #ff5252;
+    }
+
     @media (max-width: 480px) {
       body {
         padding: 5px;
@@ -429,7 +538,30 @@
 <body>
   <div class="container">
     <div class="top-buttons">
-      <a href="../index.html" class="back-btn">뒤로가기</a>
+      <a href="../index.html" class="back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        뒤로가기
+      </a>
+      <div class="header-buttons">
+        <button class="top-btn" onclick="openModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+          </svg>
+          사주변경
+        </button>
+        <button class="top-btn" onclick="shareContent()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          공유하기
+        </button>
+      </div>
     </div>
 
     <div class="header">
@@ -487,10 +619,75 @@
         ⚠️ <strong>면책조항</strong>
       </p>
       <p style="font-size: 11px; color: #666; line-height: 1.8; text-align: justify;">
-        본 서비스에서 제공하는 사주팔자, 운세 등의 콘텐츠는 <strong>엔터테인먼트 및 참고 목적</strong>으로만 제공되며, 
+        본 서비스에서 제공하는 운세, 사주, 별자리 등의 콘텐츠는 <strong>엔터테인먼트 및 참고 목적</strong>으로만 제공되며, 
         어떠한 과학적·의학적·법적 근거나 보증을 제공하지 않습니다. 
-        중요한 결정은 반드시 전문가와 상담하시기 바랍니다.
+        본 서비스는 쿠팡파트너스 활동의 일환으로 일정액의 수수료를 제공받습니다. 
+        본 서비스의 내용은 <strong>개인의 판단이나 의사결정의 유일한 근거로 사용되어서는 안 되며</strong>, 
+        중요한 결정은 반드시 전문가와 상담하시기 바랍니다. 
+        본 서비스 이용으로 인해 발생하는 어떠한 직접적·간접적 손해에 대해서도 
+        당사는 법적 책임을 지지 않습니다.
       </p>
+      <p style="font-size: 10px; color: #999; margin-top: 10px; text-align: center;">
+        © 2025 우리의 운세. All rights reserved.
+      </p>
+    </div>
+  </div>
+
+  <!-- 사주 변경 모달 -->
+  <div class="modal" id="sajuModal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h2 class="modal-title">사주팔자를 확인하기 위해서는<br>아래 정보가 필요합니다.</h2>
+
+      <div class="form-group">
+        <label class="form-label">성별</label>
+        <select class="form-select" id="gender">
+          <option value="남성">남성</option>
+          <option value="여성">여성</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">양력/음력</label>
+        <select class="form-select" id="calendarType">
+          <option value="양력/음력">양력/음력</option>
+          <option value="음력(평달)">음력(평달)</option>
+          <option value="음력(윤달)">음력(윤달)</option>
+          <option value="양력">양력</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">생년월일</label>
+        <div class="date-inputs">
+          <select class="form-select" id="year"></select>
+          <select class="form-select" id="month"></select>
+          <select class="form-select" id="day"></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">태어난 시간</label>
+        <select class="form-select" id="birthTime">
+          <option value="태어난 시간">태어난 시간</option>
+          <option value="시간 모름">시간 모름</option>
+          <option value="子(00:00~01:30)">子(00:00~01:30)</option>
+          <option value="丑(01:31~03:30)">丑(01:31~03:30)</option>
+          <option value="寅(03:31~05:30)">寅(03:31~05:30)</option>
+          <option value="卯(05:31~07:30)">卯(05:31~07:30)</option>
+          <option value="辰(07:31~09:30)">辰(07:31~09:30)</option>
+          <option value="巳(09:31~11:30)">巳(09:31~11:30)</option>
+          <option value="午(11:31~13:30)">午(11:31~13:30)</option>
+          <option value="未(13:31~15:30)">未(13:31~15:30)</option>
+          <option value="申(15:31~17:30)">申(15:31~17:30)</option>
+          <option value="酉(17:31~19:30)">酉(17:31~19:30)</option>
+          <option value="戌(19:31~21:30)">戌(19:31~21:30)</option>
+          <option value="亥(21:31~23:30)">亥(21:31~23:30)</option>
+          <option value="子(23:31~23:59)">子(23:31~23:59)</option>
+        </select>
+      </div>
+
+      <button class="submit-btn" onclick="saveSaju()">저장하기</button>
     </div>
   </div>
 

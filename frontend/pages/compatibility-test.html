@@ -148,9 +148,10 @@
     }
 
     .type-btn.active {
-      border-color: #FFCBA4;
-      background: #FFCBA4;
+      border-color: #FF6B6B;
+      background: #FF6B6B;
       color: white;
+      font-weight: bold;
     }
 
     .person-input {
@@ -178,6 +179,20 @@
     }
 
     .input-group input {
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid #dee2e6;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .date-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .form-select {
       width: 100%;
       padding: 10px 15px;
       border: 1px solid #dee2e6;
@@ -591,7 +606,11 @@
         <h4>첫 번째 사람</h4>
         <div class="input-group">
           <label>생년월일</label>
-          <input type="date" id="person1-date" max="2025-12-31">
+          <div class="date-inputs">
+            <select class="form-select" id="person1-year"></select>
+            <select class="form-select" id="person1-month"></select>
+            <select class="form-select" id="person1-day"></select>
+          </div>
           <div class="zodiac-display" id="person1-zodiac">띠: -</div>
         </div>
       </div>
@@ -601,7 +620,11 @@
         <h4>두 번째 사람</h4>
         <div class="input-group">
           <label>생년월일</label>
-          <input type="date" id="person2-date" max="2025-12-31">
+          <div class="date-inputs">
+            <select class="form-select" id="person2-year"></select>
+            <select class="form-select" id="person2-month"></select>
+            <select class="form-select" id="person2-day"></select>
+          </div>
           <div class="zodiac-display" id="person2-zodiac">띠: -</div>
         </div>
       </div>
@@ -810,7 +833,7 @@
       const savedDataFromStorage = localStorage.getItem('fortuneUserData');
       if (savedDataFromStorage) {
         const data = JSON.parse(savedDataFromStorage);
-        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})`;
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType}) 태어난 시간 : ${data.birthTime}`;
         document.getElementById('userInfoDisplay').textContent = display;
         return data;
       } else {
@@ -823,6 +846,7 @@
     // 모달 관련 함수
     // ========================================
     function initializeSelects() {
+      // 모달용 select 초기화
       const yearSelect = document.getElementById('year');
       for (let y = 1940; y <= 2025; y++) {
         const opt = document.createElement('option');
@@ -846,6 +870,70 @@
         opt.textContent = d + '일';
         daySelect.appendChild(opt);
       }
+
+      // 첫 번째 사람 select 초기화
+      const person1Year = document.getElementById('person1-year');
+      const person1Month = document.getElementById('person1-month');
+      const person1Day = document.getElementById('person1-day');
+
+      for (let y = 1940; y <= 2025; y++) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y + '년';
+        person1Year.appendChild(opt);
+      }
+
+      for (let m = 1; m <= 12; m++) {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m + '월';
+        person1Month.appendChild(opt);
+      }
+
+      for (let d = 1; d <= 31; d++) {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d + '일';
+        person1Day.appendChild(opt);
+      }
+
+      // 두 번째 사람 select 초기화
+      const person2Year = document.getElementById('person2-year');
+      const person2Month = document.getElementById('person2-month');
+      const person2Day = document.getElementById('person2-day');
+
+      for (let y = 1940; y <= 2025; y++) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y + '년';
+        person2Year.appendChild(opt);
+      }
+
+      for (let m = 1; m <= 12; m++) {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m + '월';
+        person2Month.appendChild(opt);
+      }
+
+      for (let d = 1; d <= 31; d++) {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d + '일';
+        person2Day.appendChild(opt);
+      }
+
+      // 기본값 설정
+      person1Year.value = 1990;
+      person1Month.value = 1;
+      person1Day.value = 1;
+      person2Year.value = 1992;
+      person2Month.value = 1;
+      person2Day.value = 1;
+
+      // 띠 표시 업데이트
+      updateZodiacDisplay('person1');
+      updateZodiacDisplay('person2');
     }
 
     function openModal() {
@@ -884,7 +972,7 @@
 
       localStorage.setItem('fortuneUserData', JSON.stringify(savedData));
 
-      const userInfoText = `${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType})`;
+      const userInfoText = `${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType}) 태어난 시간 : ${savedData.birthTime}`;
       document.getElementById('userInfoDisplay').textContent = userInfoText;
 
       alert('사주 정보가 저장되었습니다!');
@@ -960,26 +1048,27 @@
         });
       });
 
-      // 생년월일 입력 이벤트
-      document.getElementById('person1-date').addEventListener('change', function() {
-        updateZodiacDisplay('person1', this.value);
+      // 생년월일 select 이벤트
+      document.getElementById('person1-year').addEventListener('change', function() {
+        updateZodiacDisplay('person1');
       });
 
-      document.getElementById('person2-date').addEventListener('change', function() {
-        updateZodiacDisplay('person2', this.value);
+      document.getElementById('person2-year').addEventListener('change', function() {
+        updateZodiacDisplay('person2');
       });
     });
 
     // ========================================
     // 띠 표시 업데이트
     // ========================================
-    function updateZodiacDisplay(person, dateStr) {
-      if (!dateStr) return;
+    function updateZodiacDisplay(person) {
+      const yearSelect = document.getElementById(`${person}-year`);
+      const year = parseInt(yearSelect.value);
       
-      const year = new Date(dateStr).getFullYear();
-      const zodiac = getZodiacFromYear(year);
-      
-      document.getElementById(`${person}-zodiac`).textContent = `띠: ${zodiac}띠`;
+      if (year) {
+        const zodiac = getZodiacFromYear(year);
+        document.getElementById(`${person}-zodiac`).textContent = `띠: ${zodiac}띠`;
+      }
     }
 
     // ========================================
@@ -1064,28 +1153,30 @@
     // 궁합 확인 메인 함수
     // ========================================
     async function checkCompatibility() {
-      const person1Date = document.getElementById('person1-date').value;
-      const person2Date = document.getElementById('person2-date').value;
+      const person1Year = parseInt(document.getElementById('person1-year').value);
+      const person1Month = parseInt(document.getElementById('person1-month').value);
+      const person1Day = parseInt(document.getElementById('person1-day').value);
 
-      if (!person1Date || !person2Date) {
+      const person2Year = parseInt(document.getElementById('person2-year').value);
+      const person2Month = parseInt(document.getElementById('person2-month').value);
+      const person2Day = parseInt(document.getElementById('person2-day').value);
+
+      if (!person1Year || !person1Month || !person1Day || !person2Year || !person2Month || !person2Day) {
         alert('두 사람의 생년월일을 모두 입력해주세요');
         return;
       }
 
-      const date1 = new Date(person1Date);
-      const date2 = new Date(person2Date);
-
       const formData = {
         type: selectedType,
         person1: {
-          year: date1.getFullYear(),
-          month: date1.getMonth() + 1,
-          day: date1.getDate()
+          year: person1Year,
+          month: person1Month,
+          day: person1Day
         },
         person2: {
-          year: date2.getFullYear(),
-          month: date2.getMonth() + 1,
-          day: date2.getDate()
+          year: person2Year,
+          month: person2Month,
+          day: person2Day
         }
       };
 

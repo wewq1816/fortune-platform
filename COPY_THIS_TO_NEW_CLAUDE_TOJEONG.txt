@@ -1,0 +1,36 @@
+너는 운세 플랫폼의 토정비결 엔진을 수정하는 역할이야.
+
+## 프로젝트 정보
+- 경로: C:\xampp\htdocs\mysite\운세플랫폼
+- 언어: Node.js
+- 절대 규칙: 코드에 이모지 사용 금지
+
+## 필수 문서 읽기 (순서대로)
+1. C:\xampp\htdocs\mysite\운세플랫폼\docs\TOJEONG_INSPECTION_REPORT.md (점검 보고서)
+2. C:\xampp\htdocs\mysite\운세플랫폼\docs\TOJEONG_FIX_GUIDE.md (수정 가이드)
+3. C:\xampp\htdocs\mysite\docs\운세_플랫폼_폴더구조.md (프로젝트 구조)
+
+위 3개 문서를 먼저 읽고, 이해했다고 말해줘.
+
+## 현재 상황
+토정비결 엔진에 **4가지 치명적 계산 오류**가 발견됨:
+1. 태세수 계산 오류 (60간지 → 12개만 반복)
+2. 월건수 계산 오류 (고정 매핑 → 간지 기반 필요)
+3. 일진수 계산 오류 (천간만 → 간지 전체 필요)
+4. 음력 변환 미구현 (양력으로 계산중)
+
+## 해결 방법
+lunar-javascript 라이브러리를 사용하여 전면 재작성
+
+## 수정 대상 파일
+C:\xampp\htdocs\mysite\운세플랫폼\engines\core\tojeong-engine.js
+
+## 작업 원칙
+1. 점검 보고서와 수정 가이드를 철저히 따를 것
+2. 수정 전에 백업 파일 생성 (tojeong-engine-backup.js)
+3. 이모지 절대 사용 금지
+4. 수정 후 테스트 필수
+
+## 시작 방법
+문서를 읽은 후, 나에게 물어봐:
+"토정비결 수정을 시작할까요?"

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>AI 꿈해몽 테스트</title>
+</head>
+<body>
+  <h1>AI 꿈해몽 테스트</h1>
+  <div>
+    <textarea id="dreamInput" placeholder="꿈 내용을 입력하세요" style="width: 400px; height: 100px;">용이 하늘을 나는 꿈</textarea><br><br>
+    <button onclick="testAI()">AI 해석 요청</button>
+  </div>
+  
+  <h2>결과:</h2>
+  <pre id="result"></pre>
+  
+  <script>
+    async function testAI() {
+      const dreamText = document.getElementById('dreamInput').value;
+      const resultEl = document.getElementById('result');
+      
+      resultEl.textContent = '요청 중...';
+      
+      try {
+        const response = await fetch('http://localhost:3000/api/dream/ai-interpret', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ query: dreamText })
+        });
+        
+        const data = await response.json();
+        resultEl.textContent = JSON.stringify(data, null, 2);
+        
+      } catch (error) {
+        resultEl.textContent = '오류: ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -15,12 +15,12 @@ class SajuEngine {
    * 사주 8글자 계산
    */
   calculateSaju(birthInfo) {
-    const { year, month, day, hour } = birthInfo;
+    const { year, month, day, hour, minute = 0 } = birthInfo;
 
     const yearPillar = sajuCalculator.calculateYearPillar(year);
     const monthPillar = sajuCalculator.calculateMonthPillar(year, month);
     const dayPillar = sajuCalculator.calculateDayPillar(year, month, day);
-    const hourPillar = sajuCalculator.calculateHourPillar(dayPillar.cheongan, hour);
+    const hourPillar = sajuCalculator.calculateHourPillar(dayPillar.cheongan, hour, minute);
 
     return {
       year: yearPillar,

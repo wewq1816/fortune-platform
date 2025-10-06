@@ -812,7 +812,7 @@
       const savedDataFromStorage = localStorage.getItem('fortuneUserData');
       if (savedDataFromStorage) {
         const data = JSON.parse(savedDataFromStorage);
-        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})`;
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType}) 태어난 시간 : ${data.birthTime}`;
         document.getElementById('userInfoDisplay').textContent = display;
         return data;
       } else {
@@ -942,11 +942,25 @@
       document.querySelector('.generate-btn').style.display = 'none';
       document.getElementById('loading').classList.add('show');
 
-      // 사주 정보에서 월/일 추출
+      // 사주 정보에서 연도/월/일/시간 추출
+      const year = parseInt(savedData.year);
       const month = parseInt(savedData.month);
       const day = parseInt(savedData.day);
+      const birthTime = savedData.birthTime || '시간 모름';
+      
+      // 시간 파싱 (예: "午(11:31~13:30)" -> hour: 12, minute: 30)
+      let hour = 12; // 기본값
+      let minute = 0; // 기본값
+      
+      if (birthTime !== '시간 모름' && birthTime !== '태어난 시간') {
+        const timeMatch = birthTime.match(/\((\d{2}):(\d{2})~/);
+        if (timeMatch) {
+          hour = parseInt(timeMatch[1]);
+          minute = parseInt(timeMatch[2]);
+        }
+      }
 
-      // 별자리 계산 (간단한 로직)
+      // 별자리 계산 (간단한 로직 - 테스트용)
       const zodiacData = getZodiacSign(month, day);
 
       // 테스트용 더미 데이터 (API 연동 전까지 사용)
@@ -977,7 +991,7 @@
         const response = await fetch('http://localhost:3000/api/horoscope', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ month, day })
+          body: JSON.stringify({ year, month, day, hour, minute })
         });
 
         const data = await response.json();

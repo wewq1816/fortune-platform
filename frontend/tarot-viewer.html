@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타로 카드 뷰어 - 78장</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-item .label {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 25px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .card-item {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .card-item img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .card-item .card-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .card-item .card-name-ko {
+            color: #999;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            line-height: 40px;
+            text-align: center;
+        }
+
+        .modal-card-image {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto 30px;
+            display: block;
+            border-radius: 15px;
+        }
+
+        .modal-title {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .modal-subtitle {
+            font-size: 1.2em;
+            color: #999;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .meaning-section {
+            margin-bottom: 30px;
+        }
+
+        .meaning-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .keyword-tag {
+            background: #f0f0f0;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .meaning-text {
+            color: #555;
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        .upright {
+            color: #27ae60;
+        }
+
+        .reversed {
+            color: #e74c3c;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: white;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎴 타로 카드 뷰어</h1>
+            <p>Rider-Waite Tarot - 78장 전체</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="number" id="totalCards">0</div>
+                    <div class="label">전체 카드</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">22</div>
+                    <div class="label">메이저 아르카나</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">56</div>
+                    <div class="label">마이너 아르카나</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">전체 (78장)</button>
+            <button class="filter-btn" data-filter="major">메이저 아르카나</button>
+            <button class="filter-btn" data-filter="wands">완드</button>
+            <button class="filter-btn" data-filter="cups">컵</button>
+            <button class="filter-btn" data-filter="swords">소드</button>
+            <button class="filter-btn" data-filter="pentacles">펜타클</button>
+        </div>
+
+        <div class="loading" id="loading">카드 데이터 로딩 중...</div>
+        <div class="cards-grid" id="cardsGrid"></div>
+    </div>
+
+    <!-- 모달 -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <img class="modal-card-image" id="modalImage" src="" alt="">
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <p class="modal-subtitle" id="modalSubtitle"></p>
+
+            <div class="meaning-section">
+                <h3 class="upright">✅ 정방향 (Upright)</h3>
+                <div class="keywords" id="keywordsUpright"></div>
+                <p class="meaning-text" id="meaningUpright"></p>
+            </div>
+
+            <div class="meaning-section">
+                <h3 class="reversed">🔄 역방향 (Reversed)</h3>
+                <div class="keywords" id="keywordsReversed"></div>
+                <p class="meaning-text" id="meaningReversed"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allCards = [];
+        let currentFilter = 'all';
+
+        // 카드 데이터 로드
+        async function loadCards() {
+            try {
+                const response = await fetch('../engines/data/tarot-cards-complete.json');
+                const data = await response.json();
+                allCards = data.cards;
+                
+                document.getElementById('totalCards').textContent = allCards.length;
+                document.getElementById('loading').style.display = 'none';
+                
+                displayCards(allCards);
+            } catch (error) {
+                console.error('카드 로드 실패:', error);
+                document.getElementById('loading').textContent = '카드 로드 실패!';
+            }
+        }
+
+        // 카드 표시
+        function displayCards(cards) {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+
+            cards.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card-item';
+                cardElement.innerHTML = `
+                    <img src="${card.image}" alt="${card.name}">
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-name-ko">${card.name_ko}</div>
+                `;
+                cardElement.onclick = () => showCardDetail(card);
+                grid.appendChild(cardElement);
+            });
+        }
+
+        // 카드 상세 정보 표시
+        function showCardDetail(card) {
+            document.getElementById('modalImage').src = card.image;
+            document.getElementById('modalTitle').textContent = card.name;
+            document.getElementById('modalSubtitle').textContent = card.name_ko;
+
+            // 정방향 키워드
+            const keywordsUpright = document.getElementById('keywordsUpright');
+            keywordsUpright.innerHTML = '';
+            card.keywords_upright.forEach(keyword => {
+                const tag = document.createElement('span');
+                tag.className = 'keyword-tag';
+                tag.textContent = keyword;
+                keywordsUpright.appendChild(tag);
+            });
+
+            // 역방향 키워드
+            const keywordsReversed = document.getElementById('keywordsReversed');
+            keywordsReversed.innerHTML = '';
+            card.keywords_reversed.forEach(keyword => {
+                const tag = document.createElement('span');
+                tag.className = 'keyword-tag';
+                tag.textContent = keyword;
+                keywordsReversed.appendChild(tag);
+            });
+
+            // 의미
+            document.getElementById('meaningUpright').textContent = card.meaning_upright;
+            document.getElementById('meaningReversed').textContent = card.meaning_reversed;
+
+            // 모달 표시
+            document.getElementById('modal').classList.add('active');
+        }
+
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // 필터링
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 활성화 상태 변경
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const filter = this.dataset.filter;
+                let filteredCards = [];
+
+                if (filter === 'all') {
+                    filteredCards = allCards;
+                } else if (filter === 'major') {
+                    filteredCards = allCards.filter(card => card.arcana_type === 'major');
+                } else {
+                    filteredCards = allCards.filter(card => card.suit === filter);
+                }
+
+                displayCards(filteredCards);
+            });
+        });
+
+        // 모달 외부 클릭시 닫기
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // 페이지 로드시 카드 로드
+        window.addEventListener('load', loadCards);
+    </script>
+</body>
+</html>

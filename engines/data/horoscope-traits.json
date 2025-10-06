@@ -1,0 +1,170 @@
+[
+  {
+    "sign": "양자리",
+    "element": "불",
+    "quality": "활동적",
+    "baseScore": 75,
+    "volatility": "높음",
+    "luckyDays": [1, 9, 15, 21],
+    "luckyNumbers": [1, 8, 17],
+    "personality": ["열정적", "도전적", "적극적", "리더십"],
+    "strengths": ["용감함", "결단력", "진취적"],
+    "weeklyPattern": {
+      "월": 5, "화": 10, "수": 3, "목": 7, "금": 6, "토": 4, "일": 8
+    }
+  },
+  {
+    "sign": "황소자리",
+    "element": "흙",
+    "quality": "고정적",
+    "baseScore": 72,
+    "volatility": "낮음",
+    "luckyDays": [6, 14, 22, 28],
+    "luckyNumbers": [2, 6, 15],
+    "personality": ["안정적", "인내심", "실용적", "신중함"],
+    "strengths": ["끈기", "성실함", "신뢰성"],
+    "weeklyPattern": {
+      "월": 4, "화": 3, "수": 6, "목": 8, "금": 10, "토": 5, "일": 7
+    }
+  },
+  {
+    "sign": "쌍둥이자리",
+    "element": "공기",
+    "quality": "변동적",
+    "baseScore": 78,
+    "volatility": "높음",
+    "luckyDays": [5, 14, 23, 27],
+    "luckyNumbers": [3, 5, 12],
+    "personality": ["호기심", "재치", "사교적", "다재다능"],
+    "strengths": ["의사소통", "적응력", "유연성"],
+    "weeklyPattern": {
+      "월": 7, "화": 5, "수": 10, "목": 6, "금": 8, "토": 3, "일": 4
+    }
+  },
+  {
+    "sign": "게자리",
+    "element": "물",
+    "quality": "활동적",
+    "baseScore": 70,
+    "volatility": "중간",
+    "luckyDays": [2, 11, 20, 29],
+    "luckyNumbers": [2, 7, 11],
+    "personality": ["감성적", "보호적", "공감능력", "가족적"],
+    "strengths": ["직관력", "배려심", "충성심"],
+    "weeklyPattern": {
+      "월": 8, "화": 4, "수": 5, "목": 7, "금": 6, "토": 9, "일": 10
+    }
+  },
+  {
+    "sign": "사자자리",
+    "element": "불",
+    "quality": "고정적",
+    "baseScore": 80,
+    "volatility": "중간",
+    "luckyDays": [1, 10, 19, 28],
+    "luckyNumbers": [1, 4, 10],
+    "personality": ["카리스마", "열정적", "관대함", "자신감"],
+    "strengths": ["리더십", "창의성", "용기"],
+    "weeklyPattern": {
+      "월": 6, "화": 8, "수": 7, "목": 5, "금": 9, "토": 4, "일": 10
+    }
+  },
+  {
+    "sign": "처녀자리",
+    "element": "흙",
+    "quality": "변동적",
+    "baseScore": 73,
+    "volatility": "낮음",
+    "luckyDays": [5, 14, 23, 30],
+    "luckyNumbers": [5, 14, 23],
+    "personality": ["완벽주의", "분석적", "실용적", "꼼꼼함"],
+    "strengths": ["세심함", "책임감", "효율성"],
+    "weeklyPattern": {
+      "월": 9, "화": 6, "수": 10, "목": 7, "금": 5, "토": 4, "일": 3
+    }
+  },
+  {
+    "sign": "천칭자리",
+    "element": "공기",
+    "quality": "활동적",
+    "baseScore": 76,
+    "volatility": "중간",
+    "luckyDays": [6, 15, 24, 27],
+    "luckyNumbers": [6, 9, 15],
+    "personality": ["균형", "공정함", "외교적", "사교적"],
+    "strengths": ["조화", "협력", "심미안"],
+    "weeklyPattern": {
+      "월": 5, "화": 7, "수": 6, "목": 8, "금": 10, "토": 9, "일": 4
+    }
+  },
+  {
+    "sign": "전갈자리",
+    "element": "물",
+    "quality": "고정적",
+    "baseScore": 74,
+    "volatility": "높음",
+    "luckyDays": [9, 18, 27, 30],
+    "luckyNumbers": [8, 11, 18],
+    "personality": ["열정적", "집중력", "통찰력", "신비로움"],
+    "strengths": ["결단력", "충성심", "직관력"],
+    "weeklyPattern": {
+      "월": 6, "화": 10, "수": 4, "목": 7, "금": 5, "토": 8, "일": 9
+    }
+  },
+  {
+    "sign": "사수자리",
+    "element": "불",
+    "quality": "변동적",
+    "baseScore": 77,
+    "volatility": "높음",
+    "luckyDays": [3, 12, 21, 30],
+    "luckyNumbers": [3, 9, 12],
+    "personality": ["낙천적", "모험적", "철학적", "자유로움"],
+    "strengths": ["긍정성", "지혜", "모험심"],
+    "weeklyPattern": {
+      "월": 7, "화": 5, "수": 8, "목": 10, "금": 6, "토": 4, "일": 9
+    }
+  },
+  {
+    "sign": "염소자리",
+    "element": "흙",
+    "quality": "활동적",
+    "baseScore": 71,
+    "volatility": "낮음",
+    "luckyDays": [8, 17, 26, 30],
+    "luckyNumbers": [4, 8, 13],
+    "personality": ["책임감", "목표지향", "실용적", "인내심"],
+    "strengths": ["끈기", "성실함", "현실감"],
+    "weeklyPattern": {
+      "월": 8, "화": 6, "수": 5, "목": 9, "금": 4, "토": 10, "일": 3
+    }
+  },
+  {
+    "sign": "물병자리",
+    "element": "공기",
+    "quality": "고정적",
+    "baseScore": 75,
+    "volatility": "중간",
+    "luckyDays": [4, 13, 22, 31],
+    "luckyNumbers": [4, 7, 11],
+    "personality": ["독립적", "창의적", "인도주의", "혁신적"],
+    "strengths": ["독창성", "진보성", "열린마음"],
+    "weeklyPattern": {
+      "월": 6, "화": 4, "수": 9, "목": 7, "금": 8, "토": 10, "일": 5
+    }
+  },
+  {
+    "sign": "물고기자리",
+    "element": "물",
+    "quality": "변동적",
+    "baseScore": 69,
+    "volatility": "중간",
+    "luckyDays": [3, 12, 21, 30],
+    "luckyNumbers": [3, 7, 12],
+    "personality": ["감성적", "직관적", "공감능력", "예술적"],
+    "strengths": ["상상력", "공감", "영적감수성"],
+    "weeklyPattern": {
+      "월": 5, "화": 6, "수": 4, "목": 10, "금": 7, "토": 8, "일": 9
+    }
+  }
+]

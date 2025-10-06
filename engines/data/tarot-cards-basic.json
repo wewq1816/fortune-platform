@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "description": "Rider-Waite Tarot 78 Cards - Basic Information",
+  "cards": [
+    {
+      "id": "major_00",
+      "number": 0,
+      "name": "The Fool",
+      "name_ko": "바보",
+      "arcana_type": "major",
+      "image": "/images/tarot/00-TheFool.png",
+      "keywords_upright": ["새로운 시작", "순수함", "자유", "모험", "순진무구"],
+      "keywords_reversed": ["무모함", "경솔함", "리스크", "준비 부족", "방황"],
+      "meaning_upright": "새로운 여정의 시작입니다. 두려움 없이 앞으로 나아가세요. 순수한 마음으로 세상을 바라보며, 모험을 즐기는 시기입니다.",
+      "meaning_reversed": "무모한 결정이나 준비 없는 행동을 조심하세요. 현실을 직시하지 못하고 있거나, 경솔한 선택으로 인해 어려움을 겪을 수 있습니다.",
+      "element": "Air",
+      "astrology": "Uranus"
+    },
+    {
+      "id": "major_01",
+      "number": 1,
+      "name": "The Magician",
+      "name_ko": "마법사",
+      "arcana_type": "major",
+      "image": "/images/tarot/01-TheMagician.png",
+      "keywords_upright": ["창조력", "의지력", "기술", "자원 활용", "실행력"],
+      "keywords_reversed": ["조작", "속임수", "재능 낭비", "우유부단", "무기력"],
+      "meaning_upright": "목표를 이룰 모든 도구와 능력이 있습니다. 창조적 에너지가 넘치고 의지력이 강한 시기입니다. 계획을 실행에 옮기세요.",
+      "meaning_reversed": "재능을 낭비하거나 능력을 잘못된 방향으로 사용하고 있습니다. 타인을 조종하려 들지 마세요. 진정한 목적을 재확인하세요.",
+      "element": "Air",
+      "astrology": "Mercury"
+    },
+    {
+      "id": "major_02",
+      "number": 2,
+      "name": "The High Priestess",
+      "name_ko": "여사제",
+      "arcana_type": "major",
+      "image": "/images/tarot/02-TheHighPriestess.png",
+      "keywords_upright": ["직관", "잠재의식", "신비", "내면의 지혜", "비밀"],
+      "keywords_reversed": ["무시된 직관", "표면적 지식", "감춰진 동기", "비밀의 폭로"],
+      "meaning_upright": "내면의 목소리에 귀 기울이세요. 직관과 잠재의식이 답을 알고 있습니다. 신비롭고 깊은 지혜를 탐구하는 시기입니다.",
+      "meaning_reversed": "직관을 무시하고 겉으로 드러난 것만 보고 있습니다. 내면의 목소리를 들어야 할 때입니다. 감춰진 진실이 곧 드러날 것입니다.",
+      "element": "Water",
+      "astrology": "Moon"
+    },

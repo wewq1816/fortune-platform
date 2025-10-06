@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>타로 카드 - 우리의 운세</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 16px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 10px 20px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .back-btn:hover {
+      background: #e0e0e0;
+    }
+
+    /* 카테고리 선택 */
+    .category-section {
+      margin-bottom: 40px;
+    }
+
+    .category-title {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 12px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .category-btn {
+      padding: 15px;
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 15px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .category-btn:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .category-btn.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .category-emoji {
+      font-size: 24px;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* 카드 선택 영역 */
+    .card-selection-section {
+      display: none;
+      margin-bottom: 40px;
+    }
+
+    .card-selection-section.active {
+      display: block;
+    }
+
+    .step-indicator {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .step-title {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .step-subtitle {
+      font-size: 16px;
+      color: #666;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .tarot-card {
+      background: #f8f9fa;
+      border: 3px solid #e9ecef;
+      border-radius: 15px;
+      padding: 20px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tarot-card:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+      border-color: #667eea;
+    }
+
+    /* 중복 클릭 방지 */
+    .tarot-card.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .cards-grid.selecting {
+      pointer-events: none;
+    }
+
+    .tarot-card.reversed {
+      transform: rotate(180deg);
+    }
+
+    .tarot-card.reversed:hover {
+      transform: rotate(180deg) translateY(-10px) scale(1.05);
+    }
+
+    .card-back {
+      width: 100%;
+      height: 150px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    .card-name {
+      font-size: 14px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    /* 결과 표시 */
+    .result-section {
+      display: none;
+      margin-top: 40px;
+    }
+
+    .result-section.active {
+      display: block;
+    }
+
+    .result-title {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 30px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .selected-cards-display {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .selected-card {
+      text-align: center;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+
+    .selected-card-position {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .selected-card-name {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .meanings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .meaning-card {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 15px;
+      border-left: 4px solid #667eea;
+    }
+
+    .meaning-position {
+      font-size: 16px;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .meaning-text {
+      font-size: 14px;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* 버튼 */
+    .action-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* 로딩 */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 16px;
+      color: #666;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 반응형 */
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+
+      .category-grid {
+        grid-template-columns: repeat(3, 1fr);
+        max-height: 400px;
+      }
+
+      .cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      }
+
+      .selected-cards-display {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../index.html" class="back-btn">
+      ← 홈으로
+    </a>
+
+    <div class="header">
+      <h1>🎴 타로 카드</h1>
+      <p>카테고리를 선택하고 5장의 카드를 골라보세요</p>
+    </div>
+
+    <!-- 1. 카테고리 선택 -->
+    <div class="category-section" id="categorySection">
+      <div class="category-title">운세 카테고리 선택</div>
+      <div class="category-grid" id="categoryGrid">
+        <!-- JavaScript로 동적 생성 -->
+      </div>
+    </div>
+
+    <!-- 2. 카드 선택 -->
+    <div class="card-selection-section" id="cardSelectionSection">
+      <div class="step-indicator">
+        <div class="step-title" id="stepTitle">1단계: 핵심 카드</div>
+        <div class="step-subtitle" id="stepSubtitle">3장 중 1장을 선택하세요</div>
+      </div>
+      <div class="cards-grid" id="cardsGrid">
+        <!-- JavaScript로 동적 생성 -->
+      </div>
+    </div>
+
+    <!-- 3. 결과 표시 -->
+    <div class="result-section" id="resultSection">
+      <div class="result-title">🔮 타로 리딩 결과</div>
+      
+      <div class="selected-cards-display" id="selectedCardsDisplay">
+        <!-- JavaScript로 동적 생성 -->
+      </div>
+
+      <div class="meanings-list" id="meaningsList">
+        <!-- JavaScript로 동적 생성 -->
+      </div>
+
+      <button class="action-btn" onclick="resetTarot()">
+        다시 시작하기
+      </button>
+    </div>
+
+    <!-- 로딩 -->
+    <div class="loading" id="loadingDiv" style="display: none;">
+      <div class="spinner"></div>
+      <div>타로 카드를 준비하는 중...</div>
+    </div>
+  </div>
+
+  <script>
+    // ========================================
+    // 전역 변수
+    // ========================================
+    let currentStep = 0;
+    let selectedCategory = null;
+    let selectedCards = [];
+    let currentCards = [];
+    let sessionId = null; // 세션 ID 추가
+    let isSelecting = false; // 중복 클릭 방지 플래그
+
+    // 21개 카테고리 정의
+    const CATEGORIES = [
+      { id: 'total', emoji: '📊', name: '총운' },
+      { id: 'personality', emoji: '😊', name: '성격' },
+      { id: 'daeun', emoji: '🌟', name: '대운' },
+      { id: 'wealth', emoji: '💰', name: '재물운' },
+      { id: 'love', emoji: '💕', name: '애정운' },
+      { id: 'parents', emoji: '👴', name: '부모운' },
+      { id: 'siblings', emoji: '👫', name: '형제운' },
+      { id: 'children', emoji: '👶', name: '자녀운' },
+      { id: 'spouse', emoji: '💑', name: '배우자운' },
+      { id: 'social', emoji: '🤝', name: '대인관계' },
+      { id: 'health', emoji: '🏥', name: '건강운' },
+      { id: 'career', emoji: '💼', name: '직업운' },
+      { id: 'study', emoji: '📚', name: '학업운' },
+      { id: 'promotion', emoji: '📈', name: '승진운' },
+      { id: 'aptitude', emoji: '🎯', name: '적성' },
+      { id: 'job', emoji: '👔', name: '직업추천' },
+      { id: 'business', emoji: '🏢', name: '사업운' },
+      { id: 'move', emoji: '🚚', name: '이동운' },
+      { id: 'travel', emoji: '✈️', name: '여행운' },
+      { id: 'taekil', emoji: '📅', name: '택일' },
+      { id: 'sinsal', emoji: '⭐', name: '신살' }
+    ];
+
+    // ========================================
+    // 초기화
+    // ========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCategories();
+    });
+
+    // 카테고리 렌더링
+    function renderCategories() {
+      const grid = document.getElementById('categoryGrid');
+      grid.innerHTML = CATEGORIES.map(cat => `
+        <div class="category-btn" onclick="selectCategory('${cat.id}')">
+          <span class="category-emoji">${cat.emoji}</span>
+          <div>${cat.name}</div>
+        </div>
+      `).join('');
+    }
+
+    // ========================================
+    // 카테고리 선택
+    // ========================================
+    async function selectCategory(categoryId) {
+      selectedCategory = categoryId;
+      currentStep = 1;
+      selectedCards = [];
+
+      // UI 전환
+      document.getElementById('categorySection').style.display = 'none';
+      document.getElementById('cardSelectionSection').classList.add('active');
+      document.getElementById('loadingDiv').style.display = 'block';
+
+      try {
+        // API 호출: 1단계 카드 3장 가져오기
+        const response = await fetch('/api/tarot/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ category: categoryId })
+        });
+
+        const data = await response.json();
+        
+        // ✅ API 응답 철저 검증
+        if (!data || !data.success) {
+          throw new Error(data?.error || 'API 응답 오류');
+        }
+        
+        if (!data.sessionId) {
+          throw new Error('세션 ID가 없습니다');
+        }
+        
+        if (!data.cards || !Array.isArray(data.cards) || data.cards.length === 0) {
+          throw new Error('카드 데이터가 없습니다');
+        }
+        
+        sessionId = data.sessionId;
+        currentCards = data.cards;
+        renderCards(data.cards, 3);
+        updateStepIndicator(1, '3장 중 1장을 선택하세요 (핵심 카드)');
+      } catch (error) {
+        console.error('Error:', error);
+        alert('카드를 불러오는데 실패했습니다.');
+      } finally {
+        document.getElementById('loadingDiv').style.display = 'none';
+      }
+    }
+
+    // ========================================
+    // 카드 렌더링
+    // ========================================
+    function renderCards(cards, count) {
+      const grid = document.getElementById('cardsGrid');
+      
+      // ✅ 입력 검증
+      if (!cards || !Array.isArray(cards) || cards.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;color:#999;">카드를 불러올 수 없습니다.</p>';
+        return;
+      }
+      
+      grid.innerHTML = cards.slice(0, count).map((card, index) => {
+        // ✅ 각 카드 검증
+        if (!card || !card.orientation) {
+          return ''; // 유효하지 않은 카드는 건너뜀
+        }
+        
+        return `
+          <div class="tarot-card ${card.orientation === 'reversed' ? 'reversed' : ''}" 
+               onclick="selectCard(${index})">
+            <div class="card-back">🎴</div>
+            <div class="card-name">${card.orientation === 'reversed' ? '역방향' : '정방향'}</div>
+          </div>
+        `;
+      }).filter(html => html).join(''); // 빈 문자열 제거
+    }
+
+    // 단계 표시 업데이트
+    function updateStepIndicator(step, subtitle) {
+      const titles = ['', '1단계: 핵심 카드', '2단계: 과거 카드', '3단계: 미래 카드', '4단계: 조언 카드', '5단계: 결과 카드'];
+      document.getElementById('stepTitle').textContent = titles[step];
+      document.getElementById('stepSubtitle').textContent = subtitle;
+    }
+
+    // ========================================
+    // 카드 선택
+    // ========================================
+    async function selectCard(cardIndex) {
+      // ⭐ 중복 클릭 방지
+      if (isSelecting) {
+        console.log('이미 카드 선택 중입니다...');
+        return;
+      }
+
+      // ✅ 상태 검증
+      if (!sessionId) {
+        alert('세션이 유효하지 않습니다. 다시 시작해주세요.');
+        resetTarot();
+        return;
+      }
+      
+      if (!currentCards || cardIndex >= currentCards.length) {
+        alert('카드를 찾을 수 없습니다.');
+        return;
+      }
+      
+      const selectedCard = currentCards[cardIndex];
+      
+      // ✅ 카드 검증
+      if (!selectedCard || !selectedCard.id || !selectedCard.orientation) {
+        alert('유효하지 않은 카드입니다.');
+        return;
+      }
+
+      // ⭐ 선택 시작 - 플래그 설정 및 UI 비활성화
+      isSelecting = true;
+      const cardsGrid = document.getElementById('cardsGrid');
+      cardsGrid.classList.add('selecting');
+      
+      selectedCards.push(selectedCard);
+      currentStep++;
+
+      // 로딩 표시
+      document.getElementById('loadingDiv').style.display = 'block';
+
+      try {
+        // 5단계 완료 확인
+        if (currentStep > 5) {
+          await showFinalResult();
+          return;
+        }
+
+        // 다음 단계 카드 가져오기
+        const response = await fetch('/api/tarot/next', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: sessionId,
+            selectedCard: selectedCard  // 전체 객체 전송 (orientation 포함)
+          })
+        });
+
+        const data = await response.json();
+
+        // ✅ API 응답 검증
+        if (!data || !data.success) {
+          throw new Error(data?.message || data?.error || 'API 응답 오류');
+        }
+        
+        if (!data.cards || !Array.isArray(data.cards)) {
+          throw new Error('카드 데이터가 없습니다');
+        }
+        
+        currentCards = data.cards;
+        renderCards(data.cards, 5);
+        
+        const subtitles = ['', '', '5장 중 1장을 선택하세요 (과거)', '5장 중 1장을 선택하세요 (미래)', 
+                          '5장 중 1장을 선택하세요 (조언)', '5장 중 1장을 선택하세요 (최종 결과)'];
+        updateStepIndicator(currentStep, subtitles[currentStep]);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('카드를 불러오는데 실패했습니다.');
+      } finally {
+        // ⭐ 선택 완료 - 플래그 해제 및 UI 활성화
+        document.getElementById('loadingDiv').style.display = 'none';
+        isSelecting = false;
+        const cardsGrid = document.getElementById('cardsGrid');
+        if (cardsGrid) {
+          cardsGrid.classList.remove('selecting');
+        }
+      }
+    }
+
+    // ========================================
+    // 최종 결과 표시
+    // ========================================
+    async function showFinalResult() {
+      try {
+        // AI 해석 요청
+        const response = await fetch('/api/tarot/interpret', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: sessionId
+          })
+        });
+
+        const data = await response.json();
+
+        // ✅ API 응답 검증
+        if (!data || !data.success) {
+          throw new Error(data?.error || '결과를 가져올 수 없습니다');
+        }
+        
+        if (!data.meanings || !Array.isArray(data.meanings) || data.meanings.length !== 5) {
+          throw new Error('결과 데이터가 올바르지 않습니다');
+        }
+        
+        if (!data.interpretation) {
+          console.warn('AI 해석이 없습니다');
+        }
+        
+        // UI 전환
+        document.getElementById('cardSelectionSection').classList.remove('active');
+        document.getElementById('resultSection').classList.add('active');
+
+        // 선택된 카드 표시
+        renderSelectedCards(data.meanings);
+
+        // AI 해석 표시 (있는 경우만)
+        if (data.interpretation) {
+          renderInterpretation(data.interpretation);
+        }
+
+        // 의미 표시
+        renderMeanings(data.meanings);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('결과를 불러오는데 실패했습니다.');
+      } finally {
+        document.getElementById('loadingDiv').style.display = 'none';
+      }
+    }
+
+    // ========================================
+    // 결과 렌더링
+    // ========================================
+    function renderSelectedCards(meanings) {
+      const display = document.getElementById('selectedCardsDisplay');
+      const positions = ['핵심', '과거', '미래', '조언', '결과'];
+      
+      // ✅ 입력 검증
+      if (!meanings || !Array.isArray(meanings) || meanings.length === 0) {
+        display.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1;">결과를 표시할 수 없습니다.</p>';
+        return;
+      }
+      
+      display.innerHTML = meanings.map((m, i) => {
+        // ✅ 각 의미 검증
+        if (!m || !m.card || !m.card.name_ko) {
+          return `
+            <div class="selected-card">
+              <div class="selected-card-position">${positions[i] || '?'}</div>
+              <div class="selected-card-name">-</div>
+            </div>
+          `;
+        }
+        
+        return `
+          <div class="selected-card">
+            <div class="selected-card-position">${positions[i]}</div>
+            <div class="selected-card-name">${m.card.name_ko}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderMeanings(meanings) {
+      const list = document.getElementById('meaningsList');
+      
+      // ✅ 입력 검증
+      if (!meanings || !Array.isArray(meanings) || meanings.length === 0) {
+        list.innerHTML = '<p style="text-align:center;color:#999;">의미를 표시할 수 없습니다.</p>';
+        return;
+      }
+      
+      list.innerHTML = meanings.map(m => {
+        // ✅ 각 의미 검증
+        if (!m || !m.card || !m.meaning) {
+          return ''; // 유효하지 않은 의미는 건너뜀
+        }
+        
+        return `
+          <div class="meaning-card">
+            <div class="meaning-position">${m.position_ko || m.position || '?'}: ${m.card.name_ko || '알 수 없음'}</div>
+            <div class="meaning-text">${m.meaning}</div>
+          </div>
+        `;
+      }).filter(html => html).join(''); // 빈 문자열 제거
+    }
+
+    function renderInterpretation(interpretation) {
+      const list = document.getElementById('meaningsList');
+      
+      // ✅ 입력 검증
+      if (!interpretation || typeof interpretation !== 'string' || interpretation.trim() === '') {
+        console.warn('AI 해석이 비어있습니다');
+        return;
+      }
+      
+      // AI 해석을 맨 위에 추가
+      list.insertAdjacentHTML('afterbegin', `
+        <div class="meaning-card" style="border-left: 4px solid #764ba2; background: linear-gradient(135deg, #f8f9fa 0%, #fff5f7 100%);">
+          <div class="meaning-position" style="color: #764ba2;">🔮 AI 종합 해석</div>
+          <div class="meaning-text" style="font-size: 15px; line-height: 1.8;">${interpretation}</div>
+        </div>
+      `);
+    }
+
+    // ========================================
+    // 초기화
+    // ========================================
+    function resetTarot() {
+      currentStep = 0;
+      selectedCategory = null;
+      selectedCards = [];
+      currentCards = [];
+      sessionId = null; // 세션 ID 초기화
+      isSelecting = false; // 플래그 초기화
+
+      document.getElementById('categorySection').style.display = 'block';
+      document.getElementById('cardSelectionSection').classList.remove('active');
+      document.getElementById('resultSection').classList.remove('active');
+
+      renderCategories();
+    }
+  </script>
+</body>
+</html>

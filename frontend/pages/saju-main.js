@@ -10,7 +10,7 @@ function loadUserInfo() {
   if (data) {
     savedData = JSON.parse(data);
     const display = document.getElementById('userInfoDisplay');
-    display.textContent = `${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType}) ${savedData.birthTime}`;
+    display.textContent = `${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType}) 태어난 시간 : ${savedData.birthTime}`;
   } else {
     savedData = {
       gender: '여성',
@@ -20,7 +20,7 @@ function loadUserInfo() {
       day: '7',
       birthTime: '未(13:31~15:30)'
     };
-    document.getElementById('userInfoDisplay').textContent = `${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType}) ${savedData.birthTime}`;
+    document.getElementById('userInfoDisplay').textContent = `${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType}) 태어난 시간 : ${savedData.birthTime}`;
   }
 }
 
@@ -95,6 +95,10 @@ function displaySajuBasicInfo(result) {
   }
 
   resultDiv.innerHTML = `
+    <div class="user-info-display" style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; font-size: 14px; color: #666;">
+      ${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType}) ${savedData.birthTime}
+    </div>
+
     <div class="saju-info">
       <div class="saju-pillars">${pillarsHTML}</div>
       <div class="ilgan-display">
@@ -297,5 +301,131 @@ function copySaju() {
 
 // 페이지 로드 시 실행
 window.onload = function() {
+  initSelects();
   loadUserInfo();
 };
+
+// 페이지가 다시 보일 때마다 (뒤로가기 포함) localStorage에서 최신 정보 가져오기
+window.addEventListener('pageshow', function(event) {
+  const latestData = localStorage.getItem('fortuneUserData');
+  if (latestData) {
+    savedData = JSON.parse(latestData);
+    loadUserInfo();
+  }
+});
+
+// focus 이벤트로도 확인 (탭 전환 시)
+window.addEventListener('focus', function() {
+  const latestData = localStorage.getItem('fortuneUserData');
+  if (latestData) {
+    savedData = JSON.parse(latestData);
+    loadUserInfo();
+  }
+});
+
+// 공유하기 기능
+function shareContent() {
+  if (navigator.share) {
+    navigator.share({
+      title: '사주팔자 - 우리의 운세',
+      text: '사주팔자 21개 카테고리 상세 분석!',
+      url: window.location.href
+    }).then(() => {
+      console.log('공유 성공');
+    }).catch((error) => {
+      console.log('공유 실패', error);
+      fallbackShare();
+    });
+  } else {
+    fallbackShare();
+  }
+}
+
+function fallbackShare() {
+  const url = window.location.href;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => {
+      alert('링크가 복사되었습니다!\n원하는 곳에 붙여넣기 하세요.');
+    }).catch(() => {
+      alert('링크: ' + url);
+    });
+  } else {
+    alert('링크: ' + url);
+  }
+}
+
+// 사주 변경 모달 열기/닫기
+function openModal() {
+  const savedDataFromStorage = localStorage.getItem('fortuneUserData');
+  if (savedDataFromStorage) {
+    savedData = JSON.parse(savedDataFromStorage);
+    document.getElementById('gender').value = savedData.gender;
+    document.getElementById('calendarType').value = savedData.calendarType;
+    document.getElementById('year').value = savedData.year + '년';
+    document.getElementById('month').value = savedData.month + '월';
+    document.getElementById('day').value = savedData.day + '일';
+    document.getElementById('birthTime').value = savedData.birthTime;
+  }
+  
+  document.getElementById('sajuModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('sajuModal').classList.remove('active');
+}
+
+function saveSaju() {
+  savedData.gender = document.getElementById('gender').value;
+  savedData.calendarType = document.getElementById('calendarType').value;
+  savedData.year = document.getElementById('year').value.replace('년', '');
+  savedData.month = document.getElementById('month').value.replace('월', '');
+  savedData.day = document.getElementById('day').value.replace('일', '');
+  savedData.birthTime = document.getElementById('birthTime').value;
+
+  localStorage.setItem('fortuneUserData', JSON.stringify(savedData));
+  
+  loadUserInfo();
+
+  alert('사주 정보가 저장되었습니다!\n\n변경된 정보로 운세를 다시 확인해주세요.');
+  closeModal();
+  
+  const resultContainer = document.getElementById('resultContainer');
+  if (resultContainer.classList.contains('show')) {
+    resultContainer.classList.remove('show');
+    resultContainer.innerHTML = '';
+    document.getElementById('inputSection').classList.remove('hidden');
+  }
+}
+
+function initSelects() {
+  const yearSelect = document.getElementById('year');
+  for (let y = 1940; y <= 2025; y++) {
+    const opt = document.createElement('option');
+    opt.value = y + '년';
+    opt.textContent = y + '년';
+    yearSelect.appendChild(opt);
+  }
+
+  const monthSelect = document.getElementById('month');
+  for (let m = 1; m <= 12; m++) {
+    const opt = document.createElement('option');
+    opt.value = m + '월';
+    opt.textContent = m + '월';
+    monthSelect.appendChild(opt);
+  }
+
+  const daySelect = document.getElementById('day');
+  for (let d = 1; d <= 31; d++) {
+    const opt = document.createElement('option');
+    opt.value = d + '일';
+    opt.textContent = d + '일';
+    daySelect.appendChild(opt);
+  }
+}
+
+window.onclick = function(event) {
+  const modal = document.getElementById('sajuModal');
+  if (event.target === modal) {
+    closeModal();
+  }
+}
