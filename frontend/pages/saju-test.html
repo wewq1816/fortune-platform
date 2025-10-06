@@ -601,7 +601,7 @@
         </div>
       </div>
 
-      <button class="generate-btn" id="generateBtn" onclick="generateSaju()" disabled>
+      <button class="generate-btn" id="generateBtn" onclick="checkTicketAndGenerateSaju()" disabled>
         운세 보러 가기
       </button>
     </div>
@@ -697,5 +697,63 @@
   <script src="saju-interpretations.js"></script>
   <script src="saju-ui-controller.js"></script>
   <script src="saju-main.js"></script>
+
+  <!-- 🎫 이용권 시스템 스크립트 -->
+  <script src="../utils/ticket-system.js"></script>
+  <script src="../components/common/TicketModal.jsx"></script>
+
+  <script>
+    // 🎫 페이지 로드 시 마스터 모드 체크
+    checkMasterModeFromURL();
+
+    // 🎫 이용권 체크 후 사주 생성
+    function checkTicketAndGenerateSaju() {
+      console.log('🎯 사주 생성 클릭');
+      
+      if (isMasterMode()) {
+        console.log('🔓 Master Mode - 바로 실행');
+        generateSaju();
+        return;
+      }
+      
+      const check = canUseFortune();
+      console.log('이용권 체크 결과:', check);
+      
+      if (check.reason === 'has_tickets') {
+        showUseTicketModal(check.tickets, () => {
+          const result = useTicket();
+          if (result.success) {
+            console.log('✅ 이용권 소모 성공:', result);
+            generateSaju();
+          } else {
+            alert('⚠️ 이용권 소모 실패: ' + result.error);
+          }
+        }, () => {
+          console.log('❌ 사용 취소');
+        });
+      } else if (check.reason === 'need_charge') {
+        showChargeTicketModal(() => {
+          console.log('✅ 쿠팡 방문 동의');
+          const chargeResult = chargeTickets();
+          if (chargeResult.success) {
+            console.log('✅ 이용권 충전 완료:', chargeResult);
+            const COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform";
+            window.open(COUPANG_LINK, '_blank');
+            setTimeout(() => {
+              alert('🎫 이용권 2개가 충전되었습니다!\n이제 다시 "사주 보기"를 눌러주세요.');
+            }, 500);
+          } else {
+            alert('⚠️ ' + chargeResult.error);
+          }
+        }, () => {
+          console.log('❌ 쿠팡 방문 거부');
+        });
+      } else if (check.reason === 'already_used') {
+        showComeTomorrowModal(() => {
+          console.log('✅ 내일 다시 오세요 확인');
+        });
+      }
+    }
+  </script>
 </body>
 </html>

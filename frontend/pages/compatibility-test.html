@@ -833,7 +833,7 @@
       const savedDataFromStorage = localStorage.getItem('fortuneUserData');
       if (savedDataFromStorage) {
         const data = JSON.parse(savedDataFromStorage);
-        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType}) 태어난 시간 : ${data.birthTime}`;
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})`;
         document.getElementById('userInfoDisplay').textContent = display;
         return data;
       } else {
@@ -972,7 +972,7 @@
 
       localStorage.setItem('fortuneUserData', JSON.stringify(savedData));
 
-      const userInfoText = `${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType}) 태어난 시간 : ${savedData.birthTime}`;
+      const userInfoText = `${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType})`;
       document.getElementById('userInfoDisplay').textContent = userInfoText;
 
       alert('사주 정보가 저장되었습니다!');
@@ -1150,9 +1150,9 @@
     }
 
     // ========================================
-    // 궁합 확인 메인 함수
+    // 궁합 확인 메인 함수 (내부 실행용)
     // ========================================
-    async function checkCompatibility() {
+    async function checkCompatibilityCore() {
       const person1Year = parseInt(document.getElementById('person1-year').value);
       const person1Month = parseInt(document.getElementById('person1-month').value);
       const person1Day = parseInt(document.getElementById('person1-day').value);
@@ -1196,6 +1196,45 @@
         console.error('궁합 분석 오류:', error);
         alert('오류가 발생했습니다: ' + error.message);
         resetForm();
+      }
+    }
+
+    // ========================================
+    // 🎫 이용권 체크 후 궁합 확인 (래퍼 함수)
+    // ========================================
+    function checkCompatibility() {
+      // 마스터 모드는 바로 실행
+      if (isMasterMode()) {
+        checkCompatibilityCore();
+        return;
+      }
+
+      // 이용권 확인
+      const check = canUseFortune();
+
+      if (check.reason === 'has_tickets') {
+        // 이용권 있음 - 소모 확인 모달
+        showUseTicketModal(check.tickets, () => {
+          const result = useTicket();
+          if (result.success) {
+            checkCompatibilityCore();
+          } else {
+            alert('⚠️ 이용권 소모 실패: ' + result.error);
+          }
+        });
+      } else if (check.reason === 'need_charge') {
+        // 이용권 없음 - 충전 유도 모달
+        showChargeTicketModal(() => {
+          const chargeResult = chargeTickets();
+          if (chargeResult.success) {
+            window.open("https://www.coupang.com/?src=fortune-platform", '_blank');
+            setTimeout(() => {
+              alert('🎫 이용권 2개 충전 완료! 다시 "궁합 보기"를 눌러주세요.');
+            }, 500);
+          }
+        });
+      } else if (check.reason === 'already_used') {
+        showComeTomorrowModal();
       }
     }
 
@@ -1259,6 +1298,14 @@
         loadUserInfo();
       }
     });
+  </script>
+
+  <!-- 🎫 이용권 시스템 -->
+  <script src="../utils/ticket-system.js"></script>
+  <script src="../components/common/TicketModal.jsx"></script>
+  <script>
+    // 페이지 로드 시 마스터 모드 체크
+    checkMasterModeFromURL();
   </script>
 </body>
 </html>

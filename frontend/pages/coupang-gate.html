@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>쿠팡 방문하기 - 이용권 충전</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: white;
+    }
+    
+    .gate-container {
+      text-align: center;
+      max-width: 600px;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .gate-icon {
+      font-size: 100px;
+      margin-bottom: 30px;
+      animation: bounce 2s infinite;
+    }
+    
+    .gate-title {
+      font-size: 36px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    
+    .gate-subtitle {
+      font-size: 20px;
+      margin-bottom: 40px;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+    
+    .timer-container {
+      margin: 40px 0;
+    }
+    
+    .timer {
+      font-size: 72px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    
+    .timer-label {
+      font-size: 18px;
+      opacity: 0.8;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 30px;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: white;
+      animation: progress 5s linear forwards;
+    }
+    
+    .btn-container {
+      margin-top: 40px;
+    }
+    
+    .btn {
+      padding: 18px 50px;
+      font-size: 20px;
+      font-weight: bold;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+      color: #667eea;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.4);
+    }
+    
+    .ticket-info {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      font-size: 16px;
+      line-height: 1.8;
+    }
+    
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+    
+    @keyframes progress {
+      from {
+        width: 0%;
+      }
+      to {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="gate-container">
+    <div class="gate-icon">🎁</div>
+    <div class="gate-title">쿠팡 방문하기</div>
+    <div class="gate-subtitle">
+      잠시만 기다려주세요!<br>
+      5초 후 쿠팡으로 자동 이동합니다.
+    </div>
+    
+    <div class="timer-container">
+      <div class="timer" id="timer">5</div>
+      <div class="timer-label">초</div>
+    </div>
+    
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+    
+    <div class="btn-container">
+      <button class="btn" id="skipBtn">바로가기</button>
+    </div>
+    
+    <div class="ticket-info">
+      ✅ 쿠팡 방문 후 돌아오면<br>
+      <strong>이용권 2개</strong>가 자동으로 충전됩니다!
+    </div>
+  </div>
+
+  <script src="../utils/ticket-system.js"></script>
+  <script>
+    // ============================================
+    // 🎯 쿠팡 링크 (나중에 실제 링크로 변경)
+    // ============================================
+    const COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform";
+    
+    // ============================================
+    // ⏱️ 카운트다운 타이머
+    // ============================================
+    let countdown = 5;
+    const timerElement = document.getElementById('timer');
+    
+    const timer = setInterval(() => {
+      countdown--;
+      timerElement.textContent = countdown;
+      
+      if (countdown <= 0) {
+        clearInterval(timer);
+        goToCoupang();
+      }
+    }, 1000);
+    
+    // ============================================
+    // 🔗 쿠팡으로 이동
+    // ============================================
+    function goToCoupang() {
+      console.log('🛒 쿠팡으로 이동 중...');
+      
+      // 쿠팡 방문 기록 저장
+      localStorage.setItem('coupang_visited', 'true');
+      
+      // 돌아올 페이지 저장
+      const returnUrl = localStorage.getItem('return_url') || '../index.html';
+      localStorage.setItem('return_url', returnUrl);
+      
+      // 쿠팡으로 이동
+      window.location.href = COUPANG_LINK;
+    }
+    
+    // ============================================
+    // 🎯 바로가기 버튼
+    // ============================================
+    document.getElementById('skipBtn').addEventListener('click', () => {
+      clearInterval(timer);
+      goToCoupang();
+    });
+    
+    // ============================================
+    // 🔙 뒤로가기 감지 (브라우저 뒤로가기 버튼)
+    // ============================================
+    window.addEventListener('pageshow', (event) => {
+      // bfcache에서 복원되었을 때 (쿠팡에서 뒤로가기로 돌아왔을 때)
+      if (event.persisted || performance.navigation.type === 2) {
+        console.log('🔙 쿠팡에서 돌아왔습니다!');
+        
+        // 쿠팡 방문 기록 확인
+        const visited = localStorage.getItem('coupang_visited');
+        
+        if (visited === 'true') {
+          // 이용권 충전
+          const result = chargeTickets();
+          
+          if (result.success) {
+            console.log('✅ 이용권 충전 완료!', result);
+            
+            // 충전 완료 알림
+            alert('🎫 이용권 2개가 충전되었습니다!');
+            
+            // 쿠팡 방문 기록 삭제
+            localStorage.removeItem('coupang_visited');
+            
+            // 원래 페이지로 복귀
+            const returnUrl = localStorage.getItem('return_url') || '../index.html';
+            window.location.href = returnUrl;
+          } else {
+            alert('⚠️ ' + result.error);
+            
+            // 원래 페이지로 복귀
+            const returnUrl = localStorage.getItem('return_url') || '../index.html';
+            window.location.href = returnUrl;
+          }
+        }
+      }
+    });
+    
+    // ============================================
+    // 📝 페이지 로드 시 로그
+    // ============================================
+    console.log('🎁 쿠팡 게이트 페이지 로드');
+    console.log('⏱️ 5초 카운트다운 시작');
+  </script>
+</body>
+</html>

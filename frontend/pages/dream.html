@@ -642,7 +642,7 @@
           placeholder="기억나는 꿈을 간단하게 적어주세요"
           autocomplete="off"
         >
-        <button class="search-btn" id="searchBtn">검색</button>
+        <button class="search-btn" onclick="searchDream()">검색</button>
       </div>
     </div>
 
@@ -822,7 +822,7 @@
       const savedDataFromStorage = localStorage.getItem('fortuneUserData');
       if (savedDataFromStorage) {
         const data = JSON.parse(savedDataFromStorage);
-        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType}) 태어난 시간 : ${data.birthTime}`;
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})`;
         document.getElementById('userInfoDisplay').textContent = display;
         return data;
       } else {
@@ -935,28 +935,61 @@
 
     // DOM 요소
     const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
     const loading = document.getElementById('loading');
     const noResults = document.getElementById('noResults');
     const resultsSection = document.getElementById('resultsSection');
 
-    // 검색 버튼
-    searchBtn.addEventListener('click', () => {
-      const query = searchInput.value.trim();
-      if (query) {
-        currentQuery = query;
-        analyzeDream(query);
-      } else {
-        alert('꿈 내용을 입력해주세요.');
-      }
-    });
-
     // Enter 키
     searchInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
-        searchBtn.click();
+        searchDream();
       }
     });
+
+    // 🎫 이용권 체크 후 꿈 검색 (래퍼 함수)
+    function searchDream() {
+      const query = searchInput.value.trim();
+      if (!query) {
+        alert('꿈 내용을 입력해주세요.');
+        return;
+      }
+
+      // 마스터 모드는 바로 실행
+      if (isMasterMode()) {
+        currentQuery = query;
+        analyzeDream(query);
+        return;
+      }
+
+      // 이용권 확인
+      const check = canUseFortune();
+
+      if (check.reason === 'has_tickets') {
+        // 이용권 있음 - 소모 확인 모달
+        showUseTicketModal(check.tickets, () => {
+          const result = useTicket();
+          if (result.success) {
+            currentQuery = query;
+            analyzeDream(query);
+          } else {
+            alert('⚠️ 이용권 소모 실패: ' + result.error);
+          }
+        });
+      } else if (check.reason === 'need_charge') {
+        // 이용권 없음 - 충전 유도 모달
+        showChargeTicketModal(() => {
+          const chargeResult = chargeTickets();
+          if (chargeResult.success) {
+            window.open("https://www.coupang.com/?src=fortune-platform", '_blank');
+            setTimeout(() => {
+              alert('🎫 이용권 2개 충전 완료! 다시 검색해주세요.');
+            }, 500);
+          }
+        });
+      } else if (check.reason === 'already_used') {
+        showComeTomorrowModal();
+      }
+    }
 
     // 꿈 해석 함수 (DB 기반 AI 해석)
     async function analyzeDream(dreamText) {
@@ -1193,6 +1226,14 @@
         loadUserInfo();
       }
     });
+  </script>
+
+  <!-- 🎫 이용권 시스템 -->
+  <script src="../utils/ticket-system.js"></script>
+  <script src="../components/common/TicketModal.jsx"></script>
+  <script>
+    // 페이지 로드 시 마스터 모드 체크
+    checkMasterModeFromURL();
   </script>
 </body>
 </html>

@@ -42,6 +42,34 @@
     .header-buttons {
       display: flex;
       gap: 10px;
+      align-items: center;
+    }
+
+    /* 🎫 이용권 배지 스타일 */
+    .ticket-badge {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ticket-badge.master-mode {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
     }
 
     .change-saju-btn,
@@ -201,6 +229,9 @@
     <div class="header">
       <h1>우리의 운세</h1>
       <div class="header-buttons">
+        <!-- 🎫 이용권 배지 -->
+        <div id="ticketBadge"></div>
+        
         <button class="change-saju-btn" onclick="openModal()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
@@ -325,7 +356,123 @@
     </div>
   </div>
 
+  <!-- 🎫 이용권 시스템 스크립트 -->
+  <script src="utils/ticket-system.js"></script>
+  <script src="components/common/TicketModal.jsx"></script>
+
   <script>
+    // ============================================
+    // 🎫 페이지 초기화
+    // ============================================
+    
+    // 페이지 로드 시 마스터 모드 체크
+    checkMasterModeFromURL();
+    
+    // 이용권 배지 렌더링
+    updateTicketBadge();
+    
+    // ============================================
+    // 🎨 이용권 배지 업데이트
+    // ============================================
+    function updateTicketBadge() {
+      const badgeContainer = document.getElementById('ticketBadge');
+      
+      if (isMasterMode()) {
+        badgeContainer.innerHTML = `
+          <div class="ticket-badge master-mode">
+            🔓 Master Mode
+          </div>
+        `;
+      } else {
+        const tickets = getRemainingTickets();
+        badgeContainer.innerHTML = `
+          <div class="ticket-badge">
+            🎫 ${tickets}개
+          </div>
+        `;
+      }
+    }
+    
+    // ============================================
+    // 🎯 기능 클릭 핸들러 (이용권 체크 추가)
+    // ============================================
+    function handleFeatureClick(pageName) {
+      console.log(`🎯 ${pageName} 클릭`);
+      
+      // 마스터 모드는 바로 이동
+      if (isMasterMode()) {
+        console.log('🔓 Master Mode - 바로 이동');
+        window.location.href = `pages/${pageName}`;
+        return;
+      }
+      
+      // 이용권 사용 가능 여부 확인
+      const check = canUseFortune();
+      
+      console.log('이용권 체크 결과:', check);
+      
+      if (check.reason === 'has_tickets') {
+        // 이용권 있음 - 소모 확인 모달
+        showUseTicketModal(check.tickets, () => {
+          // 확인 클릭 - 이용권 소모
+          const result = useTicket();
+          
+          if (result.success) {
+            console.log('✅ 이용권 소모 성공:', result);
+            updateTicketBadge();
+            window.location.href = `pages/${pageName}`;
+          } else {
+            alert('⚠️ 이용권 소모 실패: ' + result.error);
+          }
+        }, () => {
+          // 취소 클릭
+          console.log('❌ 사용 취소');
+        });
+        
+      } else if (check.reason === 'need_charge') {
+        // 이용권 없음 - 충전 유도 모달
+        showChargeTicketModal(() => {
+          // 예 클릭 - 바로 이용권 충전하고 쿠팡으로 이동
+          console.log('✅ 쿠팡 방문 동의');
+          
+          // 이용권 충전
+          const chargeResult = chargeTickets();
+          
+          if (chargeResult.success) {
+            console.log('✅ 이용권 충전 완료:', chargeResult);
+            
+            // 쿠팡 링크 (나중에 실제 링크로 변경)
+            const COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform";
+            
+            // 새 창으로 쿠팡 열기
+            window.open(COUPANG_LINK, '_blank');
+            
+            // 잠시 후 페이지 새로고침 (이용권 배지 업데이트)
+            setTimeout(() => {
+              updateTicketBadge();
+              alert('🎫 이용권 2개가 충전되었습니다!\n이제 다시 기능을 선택해주세요.');
+            }, 500);
+          } else {
+            alert('⚠️ ' + chargeResult.error);
+          }
+          
+        }, () => {
+          // 아니요 클릭
+          console.log('❌ 쿠팡 방문 거부');
+        });
+        
+      } else if (check.reason === 'already_used') {
+        // 이용권 없음 - 이미 사용함
+        showComeTomorrowModal(() => {
+          console.log('✅ 내일 다시 오세요 확인');
+        });
+      }
+    }
+
+    // ============================================
+    // 📝 기존 스크립트 (사주 정보 관리)
+    // ============================================
+
     // localStorage에서 사주 정보 불러오기 (없으면 기본값)
     let savedData = JSON.parse(localStorage.getItem('fortuneUserData')) || {
       gender: '남성',
@@ -467,6 +614,9 @@
         savedData = JSON.parse(latestData);
         updateUserInfoDisplay();
       }
+      
+      // 🎫 이용권 배지도 업데이트
+      updateTicketBadge();
     });
 
     // focus 이벤트로도 확인 (탭 전환 시)
@@ -476,6 +626,9 @@
         savedData = JSON.parse(latestData);
         updateUserInfoDisplay();
       }
+      
+      // 🎫 이용권 배지도 업데이트
+      updateTicketBadge();
     });
   </script>
 

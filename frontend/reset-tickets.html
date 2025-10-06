@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이용권 초기화</title>
+  <style>
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .btn {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: #ff6b6b;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #ff5252;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: #667eea;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎫 이용권 관리</h1>
+    <p>현재 이용권 상태를 초기화할 수 있습니다.</p>
+    
+    <div style="margin: 30px 0;">
+      <button class="btn btn-primary" onclick="resetTickets()">
+        🔄 이용권 완전 초기화 (0개)
+      </button>
+      <br>
+      <button class="btn btn-secondary" onclick="setTickets(2)">
+        ➕ 이용권 2개로 설정
+      </button>
+      <br>
+      <button class="btn btn-secondary" onclick="setTickets(1)">
+        ➕ 이용권 1개로 설정
+      </button>
+    </div>
+    
+    <div class="result" id="result">
+      준비 완료
+    </div>
+    
+    <div style="margin-top: 20px;">
+      <a href="index.html" style="color: #667eea; text-decoration: none; font-weight: bold;">
+        ← 메인으로 돌아가기
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function resetTickets() {
+      localStorage.removeItem('fortune_tickets');
+      localStorage.removeItem('master_mode');
+      document.getElementById('result').innerHTML = '✅ 이용권이 완전히 초기화되었습니다!<br>이용권: 0개, 충전 가능';
+      setTimeout(() => {
+        location.reload();
+      }, 1500);
+    }
+    
+    function setTickets(count) {
+      localStorage.setItem('fortune_tickets', JSON.stringify({
+        date: getTodayString(),
+        count: count,
+        charged: true,
+        last_use: null
+      }));
+      document.getElementById('result').innerHTML = `✅ 이용권이 ${count}개로 설정되었습니다!`;
+      setTimeout(() => {
+        location.reload();
+      }, 1500);
+    }
+    
+    function getTodayString() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    
+    // 페이지 로드 시 현재 상태 표시
+    window.onload = function() {
+      const tickets = localStorage.getItem('fortune_tickets');
+      const masterMode = localStorage.getItem('master_mode');
+      
+      if (masterMode === 'true') {
+        document.getElementById('result').innerHTML = '🔓 Master Mode 활성화 중';
+      } else if (tickets) {
+        const data = JSON.parse(tickets);
+        document.getElementById('result').innerHTML = `현재 이용권: ${data.count}개<br>충전 여부: ${data.charged ? '완료' : '가능'}`;
+      } else {
+        document.getElementById('result').innerHTML = '이용권: 0개 (초기 상태)';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -256,6 +256,36 @@
       color: #333;
     }
 
+    /* ⭐ 총평 전용 스타일 */
+    .overall-interpretation {
+      background: linear-gradient(135deg, #fff9e6 0%, #ffe8f0 100%);
+      padding: 30px;
+      border-radius: 20px;
+      border: 3px solid #764ba2;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 20px rgba(118, 75, 162, 0.15);
+    }
+
+    .overall-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #764ba2;
+      margin-bottom: 20px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .overall-text {
+      font-size: 16px;
+      color: #333;
+      line-height: 2;
+      text-align: justify;
+      word-break: keep-all;
+    }
+
     .meanings-list {
       display: flex;
       flex-direction: column;
@@ -385,6 +415,11 @@
       <div class="result-title">🔮 타로 리딩 결과</div>
       
       <div class="selected-cards-display" id="selectedCardsDisplay">
+        <!-- JavaScript로 동적 생성 -->
+      </div>
+
+      <!-- ⭐ 총평 전용 칸 추가 -->
+      <div class="overall-interpretation" id="overallInterpretation">
         <!-- JavaScript로 동적 생성 -->
       </div>
 
@@ -635,16 +670,75 @@
     // ========================================
     async function showFinalResult() {
       try {
-        // AI 해석 요청
-        const response = await fetch('/api/tarot/interpret', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId: sessionId
-          })
-        });
-
-        const data = await response.json();
+        // ⭐ Mock 데이터 사용 (테스트용)
+        const useMockData = true; // 실제 API 사용 시 false로 변경
+        
+        let data;
+        
+        if (useMockData) {
+          // Mock 데이터
+          data = {
+            success: true,
+            interpretation: "전체적으로 새로운 시작과 변화의 시기를 맞이하고 있습니다. 과거에는 The Fool이 보여주듯 순수하고 자유로운 선택을 했으며, 현재 핵심은 The Magician으로 창조적 능력과 의지를 발휘할 때입니다. 앞으로 The High Priestess가 예상되며 직관과 내면의 지혜가 중요해질 것입니다. The Empress를 통해 풍요와 창조성을 키우고 인내심을 가지라는 조언을 받습니다. 최종적으로 The Emperor로 안정적이고 체계적인 성과를 이룰 것입니다.",
+            meanings: [
+              {
+                position: 'core',
+                position_ko: '핵심',
+                card: {
+                  name_ko: 'The Fool (바보)',
+                  orientation: 'upright'
+                },
+                meaning: '새로운 시작과 순수한 모험심을 의미합니다. 두려움 없이 앞으로 나아가세요.'
+              },
+              {
+                position: 'past',
+                position_ko: '과거',
+                card: {
+                  name_ko: 'The Magician (마법사)',
+                  orientation: 'upright'
+                },
+                meaning: '당신은 과거에 뛰어난 능력과 의지를 보여주었습니다. 그 경험이 지금의 기반이 됩니다.'
+              },
+              {
+                position: 'future',
+                position_ko: '미래',
+                card: {
+                  name_ko: 'The High Priestess (여사제)',
+                  orientation: 'upright'
+                },
+                meaning: '앞으로 직관과 내면의 지혜가 중요해질 것입니다. 조용히 내면의 소리에 귀 기울이세요.'
+              },
+              {
+                position: 'advice',
+                position_ko: '조언',
+                card: {
+                  name_ko: 'The Empress (황후)',
+                  orientation: 'upright'
+                },
+                meaning: '풍요와 창조성을 키우세요. 인내심을 가지고 자연스럽게 성장하도록 하세요.'
+              },
+              {
+                position: 'result',
+                position_ko: '결과',
+                card: {
+                  name_ko: 'The Emperor (황제)',
+                  orientation: 'upright'
+                },
+                meaning: '안정적이고 체계적인 성과를 얻게 될 것입니다. 리더십과 책임감이 빛을 발합니다.'
+              }
+            ]
+          };
+        } else {
+          // 실제 API 호출
+          const response = await fetch('/api/tarot/interpret', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sessionId: sessionId
+            })
+          });
+          data = await response.json();
+        }
 
         // ✅ API 응답 검증
         if (!data || !data.success) {
@@ -739,21 +833,25 @@
     }
 
     function renderInterpretation(interpretation) {
-      const list = document.getElementById('meaningsList');
+      const container = document.getElementById('overallInterpretation');
       
       // ✅ 입력 검증
       if (!interpretation || typeof interpretation !== 'string' || interpretation.trim() === '') {
         console.warn('AI 해석이 비어있습니다');
+        container.style.display = 'none';
         return;
       }
       
-      // AI 해석을 맨 위에 추가
-      list.insertAdjacentHTML('afterbegin', `
-        <div class="meaning-card" style="border-left: 4px solid #764ba2; background: linear-gradient(135deg, #f8f9fa 0%, #fff5f7 100%);">
-          <div class="meaning-position" style="color: #764ba2;">🔮 AI 종합 해석</div>
-          <div class="meaning-text" style="font-size: 15px; line-height: 1.8;">${interpretation}</div>
+      // ⭐ 총평을 전용 칸에 표시
+      container.style.display = 'block';
+      container.innerHTML = `
+        <div class="overall-title">
+          <span>🔮</span>
+          <span>타로 종합 해석</span>
+          <span>🔮</span>
         </div>
-      `);
+        <div class="overall-text">${interpretation}</div>
+      `;
     }
 
     // ========================================
@@ -770,6 +868,7 @@
       document.getElementById('categorySection').style.display = 'block';
       document.getElementById('cardSelectionSection').classList.remove('active');
       document.getElementById('resultSection').classList.remove('active');
+      document.getElementById('overallInterpretation').style.display = 'none'; // ⭐ 총평 칸 초기화
 
       renderCategories();
     }

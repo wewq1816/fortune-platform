@@ -930,7 +930,10 @@
       }
     }
 
-    async function getHoroscope() {
+    // ========================================
+    // 별자리 운세 불러오기 (내부 실행용)
+    // ========================================
+    async function getHoroscopeCore() {
       const userData = loadUserInfo();
       if (!userData) {
         alert('사주 정보를 먼저 입력해주세요.');
@@ -1006,6 +1009,45 @@
         showError('서버 연결 오류: ' + error.message);
       }
       */
+    }
+
+    // ========================================
+    // 🎫 이용권 체크 후 별자리 운세 보기 (래퍼 함수)
+    // ========================================
+    function getHoroscope() {
+      // 마스터 모드는 바로 실행
+      if (isMasterMode()) {
+        getHoroscopeCore();
+        return;
+      }
+
+      // 이용권 확인
+      const check = canUseFortune();
+
+      if (check.reason === 'has_tickets') {
+        // 이용권 있음 - 소모 확인 모달
+        showUseTicketModal(check.tickets, () => {
+          const result = useTicket();
+          if (result.success) {
+            getHoroscopeCore();
+          } else {
+            alert('⚠️ 이용권 소모 실패: ' + result.error);
+          }
+        });
+      } else if (check.reason === 'need_charge') {
+        // 이용권 없음 - 충전 유도 모달
+        showChargeTicketModal(() => {
+          const chargeResult = chargeTickets();
+          if (chargeResult.success) {
+            window.open("https://www.coupang.com/?src=fortune-platform", '_blank');
+            setTimeout(() => {
+              alert('🎫 이용권 2개 충전 완료! 다시 "운세 보기"를 눌러주세요.');
+            }, 500);
+          }
+        });
+      } else if (check.reason === 'already_used') {
+        showComeTomorrowModal();
+      }
     }
 
     // 별자리 계산 함수
@@ -1175,3 +1217,11 @@
   </script>
 </body>
 </html>
+
+  <!-- 🎫 이용권 시스템 스크립트 -->
+  <script src="../utils/ticket-system.js"></script>
+  <script src="../components/common/TicketModal.jsx"></script>
+  <script>
+    // 페이지 로드 시 마스터 모드 체크
+    checkMasterModeFromURL();
+  </script>

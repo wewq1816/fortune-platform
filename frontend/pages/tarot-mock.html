@@ -553,7 +553,7 @@
     <div class="category-section" id="categorySection">
       <div class="category-title">🎯 어떤 운세를 보고 싶으신가요?</div>
       <div class="category-grid" id="categoryGrid"></div>
-      <button class="action-btn" style="margin-top: 20px;" onclick="startTarotReading()" id="startBtn" disabled>
+      <button class="action-btn" style="margin-top: 20px;" onclick="checkTicketAndStartTarot()" id="startBtn" disabled>
         타로 보러 가기
       </button>
     </div>
@@ -1171,5 +1171,72 @@
       closeModal();
     }
   </script>
+
+  <!-- 🎫 이용권 시스템 스크립트 -->
+  <script src="../utils/ticket-system.js"></script>
+  <script src="../components/common/TicketModal.jsx"></script>
+
+  <script>
+    // 🎫 페이지 로드 시 마스터 모드 체크
+    checkMasterModeFromURL();
+
+    // 🎫 이용권 체크 후 타로 시작
+    function checkTicketAndStartTarot() {
+      console.log('🎯 타로 시작 클릭');
+      
+      // 마스터 모드는 바로 실행
+      if (isMasterMode()) {
+        console.log('🔓 Master Mode - 바로 실행');
+        startTarotReading();
+        return;
+      }
+      
+      // 이용권 사용 가능 여부 확인
+      const check = canUseFortune();
+      
+      console.log('이용권 체크 결과:', check);
+      
+      if (check.reason === 'has_tickets') {
+        // 이용권 있음 - 소모 확인 모달
+        showUseTicketModal(check.tickets, () => {
+          const result = useTicket();
+          if (result.success) {
+            console.log('✅ 이용권 소모 성공:', result);
+            startTarotReading();
+          } else {
+            alert('⚠️ 이용권 소모 실패: ' + result.error);
+          }
+        }, () => {
+          console.log('❌ 사용 취소');
+        });
+        
+      } else if (check.reason === 'need_charge') {
+        // 이용권 없음 - 충전 유도 모달
+        showChargeTicketModal(() => {
+          console.log('✅ 쿠팡 방문 동의');
+          
+          const chargeResult = chargeTickets();
+          if (chargeResult.success) {
+            console.log('✅ 이용권 충전 완료:', chargeResult);
+            const COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform";
+            window.open(COUPANG_LINK, '_blank');
+            setTimeout(() => {
+              alert('🎫 이용권 2개가 충전되었습니다!\n이제 다시 "타로 보기"를 눌러주세요.');
+            }, 500);
+          } else {
+            alert('⚠️ ' + chargeResult.error);
+          }
+        }, () => {
+          console.log('❌ 쿠팡 방문 거부');
+        });
+        
+      } else if (check.reason === 'already_used') {
+        showComeTomorrowModal(() => {
+          console.log('✅ 내일 다시 오세요 확인');
+        });
+      }
+    }
+  </script>
+
 </body>
 </html>
