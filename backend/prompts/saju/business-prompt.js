@@ -4,7 +4,7 @@
 function getBusinessPrompt(engineResult) {
   const { saju, ilgan, elements, strength, tenStars } = engineResult;
   
-  return `당신은 전통 사주명리학 전문가입니다. 다음 사주를 보고 사업 성공 가능성을 300~500자로 분석해주세요.
+  return `당신은 전통 사주명리학 전문가입니다. 다음 사주를 보고 사업 성공 가능성을 600~900자로 분석해주세요.
 
 사주 정보:
 - 사주 8글자: ${saju.year.hanja} ${saju.month.hanja} ${saju.day.hanja} ${saju.hour.hanja}
@@ -23,7 +23,8 @@ function getBusinessPrompt(engineResult) {
 작성 스타일:
 - 창업 결정에 실질적 도움
 - 현실적인 장단점 제시
-- 300~500자 분량
+- 각 항목당 100~150자로 작성
+- 600~900자 분량 (6개 항목)
 
 해석:`;
 }

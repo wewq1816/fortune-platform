@@ -131,8 +131,12 @@ function displaySajuBasicInfo(result) {
   `;
 }
 
-// 사주 보기 버튼 클릭 (선택한 카테고리만 계산)
-function generateSaju() {
+// 사주 보기 버튼 클릭 (API 호출)
+async function generateSaju() {
+  console.log('🚀 generateSaju 함수 실행 시작');
+  console.log('savedData:', savedData);
+  console.log('selectedCategory:', selectedCategory);
+  
   if (!savedData) {
     alert('사주 정보가 없습니다.');
     return;
@@ -143,58 +147,89 @@ function generateSaju() {
     return;
   }
 
-  document.getElementById('inputSection').classList.add('hidden');
-  document.getElementById('loading').classList.add('show');
+  console.log('✅ 검증 통과, API 호출 준비');
+  
+  const inputSection = document.getElementById('inputSection');
+  const loading = document.getElementById('loading');
+  
+  console.log('inputSection 요소:', inputSection);
+  console.log('loading 요소:', loading);
+  
+  if (inputSection) {
+    inputSection.classList.add('hidden');
+  } else {
+    console.error('❌ inputSection 요소를 찾을 수 없습니다!');
+  }
+  
+  if (loading) {
+    loading.classList.add('show');
+  } else {
+    console.error('❌ loading 요소를 찾을 수 없습니다!');
+  }
 
-  setTimeout(() => {
-    try {
-      const year = parseInt(savedData.year);
-      const month = parseInt(savedData.month);
-      const day = parseInt(savedData.day);
-      const birthTime = savedData.birthTime;
-      const gender = savedData.gender || '남성';
+  try {
+    const year = parseInt(savedData.year);
+    const month = parseInt(savedData.month);
+    const day = parseInt(savedData.day);
+    const birthTime = savedData.birthTime;
+    const gender = savedData.gender || '남성';
+    const isLunar = savedData.calendarType.includes('음력');
 
-      // 기본 사주 계산
-      const basicResult = SajuBasicCalculator.calculate(year, month, day, birthTime);
+    console.log('📞 API 호출 데이터:', { year, month, day, birthTime, gender, isLunar, category: selectedCategory });
 
-      // 기본 정보 표시
-      displaySajuBasicInfo(basicResult);
+    // API 호출
+    const response = await fetch('http://localhost:3000/api/saju', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        year: year,
+        month: month,
+        day: day,
+        hour: birthTime,
+        isLunar: isLunar,
+        gender: gender,
+        category: selectedCategory
+      })
+    });
 
-      // 선택한 카테고리만 계산
-      let interpretation = '';
-      let needsExtended = ['daeun', 'move', 'travel', 'sinsal', 'taekil'].includes(selectedCategory);
+    console.log('📬 API 응답 상태:', response.status);
 
-      if (needsExtended) {
-        const daeun = SajuExtendedCalculator.calculateDaeun(year, month, gender);
-        const sinsal = SajuExtendedCalculator.calculateSinsal(basicResult.saju);
-        const taekil = SajuExtendedCalculator.calculateTaekil(2025, 10);
-
-        const extendedResult = { daeun, sinsal, taekil };
-
-        interpretation = calculateInterpretation(selectedCategory, basicResult, extendedResult, gender);
-      } else {
-        interpretation = calculateInterpretation(selectedCategory, basicResult, null, gender);
-      }
-
-      // 결과 표시
-      const title = getCategoryTitle(selectedCategory);
-      document.getElementById('fortuneContent').innerHTML = `
-        <div class="fortune-card">
-          <h3>${title}</h3>
-          <p>${interpretation}</p>
-        </div>
-      `;
-
-      document.getElementById('loading').classList.remove('show');
-      document.getElementById('resultContainer').classList.add('show');
-
-    } catch (error) {
-      console.error('사주 계산 오류:', error);
-      alert('사주 계산 중 오류가 발생했습니다.');
-      document.getElementById('loading').classList.remove('show');
-      document.getElementById('inputSection').classList.remove('hidden');
+    if (!response.ok) {
+      throw new Error('API 호출 실패');
     }
-  }, 500);
+
+    const data = await response.json();
+    
+    console.log('📦 API 응답 데이터:', data);
+    
+    if (!data.success) {
+      throw new Error(data.error || '사주 계산 실패');
+    }
+
+    // 기본 정보 표시
+    displaySajuBasicInfo(data);
+
+    // 결과 표시
+    const title = getCategoryTitle(selectedCategory);
+    document.getElementById('fortuneContent').innerHTML = `
+      <div class="fortune-card">
+        <h3>${title}</h3>
+        <p>${data.interpretation}</p>
+      </div>
+    `;
+
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('resultContainer').classList.add('show');
+
+  } catch (error) {
+    console.error('❌❌❌ 사주 계산 오류:', error);
+    console.error('에러 스택:', error.stack);
+    alert('사주 계산 중 오류가 발생했습니다: ' + error.message);
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('inputSection').classList.remove('hidden');
+  }
 }
 
 // 카테고리 제목 가져오기

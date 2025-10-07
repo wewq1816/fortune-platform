@@ -659,11 +659,23 @@
           <span class="info-value" id="zodiac-display">말띠 ♥ 원숭이띠</span>
         </div>
         <div class="info-row">
-          <span class="info-label">오행 궁합</span>
+          <span class="info-label">일주 (배우자궁)</span>
+          <span class="info-value" id="dayPillar-display">경오 ♥ 임신</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">일간 오행</span>
+          <span class="info-value" id="ilgan-element-display">금(金) ♥ 수(水)</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">배우자궁 관계</span>
+          <span class="info-value" id="ilgan-relation">상생 - 서로 돕는 관계</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">띠 오행</span>
           <span class="info-value" id="element-display">화(火) ♥ 금(金)</span>
         </div>
         <div class="info-row">
-          <span class="info-label">오행 관계</span>
+          <span class="info-label">띠 오행 관계</span>
           <span class="info-value" id="element-relation">피생(被生)</span>
         </div>
         <div class="info-row">
@@ -833,7 +845,7 @@
       const savedDataFromStorage = localStorage.getItem('fortuneUserData');
       if (savedDataFromStorage) {
         const data = JSON.parse(savedDataFromStorage);
-        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})`;
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType}) 태어난 시간 : ${data.birthTime}`;
         document.getElementById('userInfoDisplay').textContent = display;
         return data;
       } else {
@@ -1143,10 +1155,10 @@
     // ========================================
     async function getCompatibilityResult(formData) {
       // 지금은 Mock 사용 ⭐
-      return await getMockCompatibilityResult();
+      // return await getMockCompatibilityResult();
       
       // API 등록 후 아래 줄의 주석을 해제하고 위 줄을 주석 처리하세요! 🚀
-      // return await callRealAPI(formData);
+      return await callRealAPI(formData);
     }
 
     // ========================================
@@ -1251,9 +1263,20 @@
       document.getElementById('type-display').textContent = data.typeIcon + ' ' + data.typeName;
       document.getElementById('zodiac-display').textContent = 
         `${data.person1.zodiac}띠 ♥ ${data.person2.zodiac}띠`;
+      
+      // ⭐ 일주 정보 추가
+      document.getElementById('dayPillar-display').textContent = 
+        `${data.person1.dayPillar} ♥ ${data.person2.dayPillar}`;
+      document.getElementById('ilgan-element-display').textContent = 
+        `${data.person1.ilganElement} ♥ ${data.person2.ilganElement}`;
+      document.getElementById('ilgan-relation').textContent = 
+        `${data.ilganRelation.type} - ${data.ilganRelation.description}`;
+      
+      // 띠 오행
       document.getElementById('element-display').textContent = 
-        `${data.person1.element} ♥ ${data.person2.element}`;
-      document.getElementById('element-relation').textContent = data.elementRelation.type;
+        `${data.person1.zodiacElement} ♥ ${data.person2.zodiacElement}`;
+      document.getElementById('element-relation').textContent = 
+        data.zodiacElementRelation ? data.zodiacElementRelation.type : '-';
       document.getElementById('zodiac-relation').textContent = data.zodiacRelation.description;
 
       const interp = data.interpretation;

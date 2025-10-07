@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>별자리 API 테스트</title>
+</head>
+<body>
+  <h1>별자리 운세 API 직접 테스트</h1>
+  <button onclick="testAPI()">테스트 실행</button>
+  <pre id="result"></pre>
+
+  <script>
+    async function testAPI() {
+      const resultEl = document.getElementById('result');
+      resultEl.textContent = '⏳ API 호출 중...';
+      
+      try {
+        const response = await fetch('http://localhost:3000/api/horoscope', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8'
+          },
+          body: JSON.stringify({
+            year: 1995,
+            month: 3,
+            day: 15,
+            hour: 12,
+            minute: 0
+          })
+        });
+        
+        const data = await response.json();
+        
+        console.log('✅ API 응답:', data);
+        
+        resultEl.textContent = JSON.stringify(data, null, 2);
+        
+        if (data.success) {
+          alert(`✅ 성공!\n별자리: ${data.sign}\n점수: ${data.score}점`);
+        } else {
+          alert('❌ 실패: ' + (data.error || data.message));
+        }
+        
+      } catch (error) {
+        console.error('❌ 오류:', error);
+        resultEl.textContent = '❌ 오류: ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>

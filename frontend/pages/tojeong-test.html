@@ -1017,7 +1017,7 @@
     }
 
     // ========================================
-    // 실제 API (나중에 사용)
+    // 실제 API
     // ========================================
     async function callRealTojeongAPI(requestData, category) {
       const response = await fetch('http://localhost:3000/api/tojeong', {
@@ -1035,18 +1035,73 @@
         throw new Error('API 호출 실패');
       }
 
-      return await response.json();
+      const apiResponse = await response.json();
+      
+      console.log('🔍 백엔드 응답:', apiResponse);
+      console.log('🔍 fortune 객체:', apiResponse.fortune);
+      console.log('🔍 월별운세:', apiResponse.fortune?.월별운세);
+      
+      // 백엔드 응답을 프론트엔드 형식으로 변환
+      if (!apiResponse.success) {
+        throw new Error(apiResponse.error || '토정비결 계산 실패');
+      }
+
+      // 카테고리별 제목과 백엔드 응답 키 매핑
+      const categoryMapping = {
+        '전체운': { title: '종합 운세', key: '종합운세' },
+        '금전운': { title: '금전운', key: '재물운' },
+        '애정운': { title: '애정운', key: '연애운' },
+        '건강운': { title: '건강운', key: '건강운' },
+        '가정운': { title: '가정운', key: '가정운' },
+        '여행운': { title: '여행운', key: '여행운' }
+      };
+
+      const mapping = categoryMapping[category] || { title: '종합 운세', key: '종합운세' };
+      
+      // fortune 객체에서 해당 카테고리 키 찾기
+      // 백엔드는 선택된 카테고리의 운세만 반환함
+      const fortuneKeys = Object.keys(apiResponse.fortune || {});
+      console.log('🔍 fortune 키들:', fortuneKeys);
+      
+      // 월별운세 추출
+      const monthly = apiResponse.fortune?.월별운세 || {};
+      
+      // 카테고리별 운세 찾기 (월별운세가 아닌 다른 키)
+      let yearFortune = '';
+      for (const key of fortuneKeys) {
+        if (key !== '월별운세') {
+          yearFortune = apiResponse.fortune[key];
+          console.log(`🔍 찾은 운세 키: ${key}`, yearFortune);
+          break;
+        }
+      }
+      
+      if (!yearFortune) {
+        yearFortune = '운세 정보를 불러올 수 없습니다.';
+      }
+
+      return {
+        success: true,
+        year: apiResponse.year,
+        yearGanzi: apiResponse.yearGanzi,
+        age: apiResponse.age,
+        mainGua: apiResponse.mainGua,
+        category: category,
+        title: mapping.title,
+        yearFortune: yearFortune,
+        monthly: monthly
+      };
     }
 
     // ========================================
     // 메인 함수 (전환 스위치)
     // ========================================
     async function getTojeongData(requestData, category) {
-      // 지금은 Mock 사용
-      return await getMockTojeongData(category);
+      // Mock 데이터 (테스트용 - 비활성화됨)
+      // return await getMockTojeongData(category);
       
-      // API 등록 후 아래 줄의 주석을 해제하고 위 줄을 주석 처리하세요!
-      // return await callRealTojeongAPI(requestData, category);
+      // ✅ 실제 API 사용 (활성화됨)
+      return await callRealTojeongAPI(requestData, category);
     }
 
     // ========================================

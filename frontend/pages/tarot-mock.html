@@ -653,15 +653,25 @@
   <script>
     // 타로 카드 의미 데이터 (3,276개 테마별 해석)
     let TAROT_MEANINGS = null;
+    let MEANINGS_LOADED = false;
     
     // JSON 파일 로드
     async function loadTarotMeanings() {
       try {
-        const response = await fetch('../../engines/data/tarot-cards-meanings.json');
+        // 서버를 통해 로드 (CORS 문제 해결)
+        const response = await fetch('http://localhost:3000/engines/data/tarot-cards-meanings.json');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         TAROT_MEANINGS = await response.json();
+        MEANINGS_LOADED = true;
         console.log('✅ 타로 의미 데이터 로드 완료:', TAROT_MEANINGS.description);
+        console.log('✅ 총 카드 수:', Object.keys(TAROT_MEANINGS.meanings).length);
       } catch (error) {
         console.error('❌ 타로 의미 데이터 로드 실패:', error);
+        MEANINGS_LOADED = false;
       }
     }
     
@@ -980,11 +990,149 @@
       }, 2000);
     }
 
-    function showFinalResult() {
+    async function showFinalResult() {
+      console.log('🎴 최종 결과 생성 중...');
+      console.log('선택된 카테고리:', selectedCategory);
+      console.log('선택된 카드:', selectedCards);
+
+      // 로딩 표시
       document.getElementById('cardSelectionSection').classList.remove('active');
       document.getElementById('resultSection').classList.add('active');
+      
+      const meaningsList = document.getElementById('meaningsList');
+      meaningsList.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">🔮 AI가 타로를 해석하고 있습니다...</div>';
+      
       renderSelectedCards();
-      renderMeanings();
+
+      try {
+        // 🔥 백엔드 API 호출 - Claude AI 해석 요청
+        const response = await fetch('http://localhost:3000/api/tarot', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8'
+          },
+          body: JSON.stringify({
+            category: selectedCategory,
+            selectedCards: selectedCards.map(card => {
+              // 카테고리별 해석 가져오기
+              let categoryMeaning = '';
+              
+              if (!MEANINGS_LOADED) {
+                console.error('❌ TAROT_MEANINGS 아직 로드 안됨!');
+              } else if (!TAROT_MEANINGS) {
+                console.error('❌ TAROT_MEANINGS가 null!');
+              } else if (!TAROT_MEANINGS.meanings) {
+                console.error('❌ TAROT_MEANINGS.meanings가 없음!');
+              } else if (!TAROT_MEANINGS.meanings[card.id]) {
+                console.error(`❌ ${card.id} - meanings에 없음! 사용 가능한 키:`, Object.keys(TAROT_MEANINGS.meanings).slice(0, 5));
+              } else {
+                const cardMeanings = TAROT_MEANINGS.meanings[card.id];
+                const orientation = card.orientation === 'upright' ? 'upright' : 'reversed';
+                
+                if (!cardMeanings[orientation]) {
+                  console.error(`❌ ${card.id} - ${orientation} 방향 없음!`);
+                } else if (!cardMeanings[orientation][selectedCategory]) {
+                  console.error(`❌ ${card.id} - ${selectedCategory} 카테고리 없음! 사용 가능:`, Object.keys(cardMeanings[orientation]));
+                } else {
+                  categoryMeaning = cardMeanings[orientation][selectedCategory];
+                  console.log(`✅ ${card.name_ko} (${orientation}) - ${selectedCategory}:`, categoryMeaning.substring(0, 50) + '...');
+                }
+              }
+              
+              return {
+                id: card.id,
+                name: card.name,
+                name_ko: card.name_ko,
+                orientation: card.orientation,
+                keywords_upright: card.keywords_upright,
+                keywords_reversed: card.keywords_reversed,
+                meaning_upright: card.meaning_upright,
+                meaning_reversed: card.meaning_reversed,
+                category_meaning: categoryMeaning  // ⭐ 카테고리별 해석 추가!
+              };
+            })
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`API 오류: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ AI 해석 완료:', data);
+
+        // AI 해석 결과 표시
+        if (data.success && data.interpretation) {
+          renderAIMeanings(data.interpretation);
+        } else {
+          throw new Error('AI 해석 실패');
+        }
+
+      } catch (error) {
+        console.error('❌ API 호출 실패:', error);
+        // 폴백: 기본 해석 표시
+        alert('⚠️ AI 해석을 불러올 수 없습니다. 기본 해석을 표시합니다.');
+        renderMeanings();
+      }
+    }
+
+    // 🤖 AI 해석 결과 렌더링
+    function renderAIMeanings(interpretation) {
+      const list = document.getElementById('meaningsList');
+      const positions = ['핵심', '과거', '미래', '조언', '결과'];
+      
+      // AI 응답 파싱 - [핵심] ... [과거] ... [종합분석] 형식
+      const sections = {};
+      
+      // 정규식으로 각 섹션 추출
+      const regex = /\[(\S+)\]\s*([^\[]+)/g;
+      let match;
+      
+      while ((match = regex.exec(interpretation)) !== null) {
+        const key = match[1].trim();
+        const text = match[2].trim();
+        sections[key] = text;
+      }
+      
+      console.log('파싱된 섹션:', sections);
+      
+      let html = selectedCards.map((card, i) => {
+        const position = positions[i];
+        const aiText = sections[position] || `${position}에 대한 해석이 없습니다.`;
+        let keywords = card.orientation === 'upright' ? card.keywords_upright : card.keywords_reversed;
+        
+        return `
+          <div class="meaning-card">
+            <div class="meaning-position">${position}: ${card.name_ko} (${card.orientation === 'upright' ? '정방향 ⬆️' : '역방향 ⬇️'})</div>
+            <div class="meaning-text">
+              <strong>🎯 ${position} 해석</strong><br>
+              <em style="color: #999; font-size: 13px;">키워드: ${keywords.join(', ')}</em><br><br>
+              <div style="line-height: 1.8; color: #333;">
+                ${aiText}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      // 종합분석 추가
+      if (sections['종합분석'] || sections['종합'] || sections['총합']) {
+        const summary = sections['종합분석'] || sections['종합'] || sections['총합'];
+        html += `
+          <div class="meaning-card" style="margin-top: 20px; border: 3px solid #667eea;">
+            <div class="meaning-position" style="color: #667eea; font-size: 17px; display: flex; align-items: center; gap: 8px;">
+              ✨ 종합 분석
+            </div>
+            <div class="meaning-text">
+              <div style="line-height: 2; color: #333; font-size: 15px; white-space: pre-line;">
+                ${summary}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      list.innerHTML = html;
     }
 
     function renderSelectedCards() {

@@ -196,8 +196,9 @@ function generateCompatibilityPrompt(data) {
     level, 
     person1, 
     person2, 
-    elementRelation,
-    zodiacRelation 
+    ilganRelation,
+    zodiacRelation,
+    zodiacElementRelation
   } = data;
   
   const specificPrompt = typeSpecificPrompts[type] || typeSpecificPrompts.lover;
@@ -207,18 +208,31 @@ function generateCompatibilityPrompt(data) {
 
 # 궁합 정보
 - 궁합 타입: ${typeName}
-- 첫 번째 분: ${person1.zodiac}띠 (${person1.element})
-- 두 번째 분: ${person2.zodiac}띠 (${person2.element})
-- 오행 관계: ${elementRelation.type}
-  → ${elementRelation.description}
-- 띠 관계: ${zodiacRelation.description}
-- 궁합 점수: ${score}점 / 100점
-- 궁합 등급: ${level}
+
+## 첫 번째 분
+- 띠: ${person1.zodiac}띠 (${person1.zodiacElement})
+- 일주: ${person1.dayPillar} (일간: ${person1.ilgan}, 일지: ${person1.ilji})
+- 배우자궁 오행: ${person1.ilganElement}
+
+## 두 번째 분
+- 띠: ${person2.zodiac}띠 (${person2.zodiacElement})
+- 일주: ${person2.dayPillar} (일간: ${person2.ilgan}, 일지: ${person2.ilji})
+- 배우자궁 오행: ${person2.ilganElement}
+
+## 궁합 분석
+- **배우자궁 관계**: ${ilganRelation.type}
+  → ${ilganRelation.description}
+- **띠 관계**: ${zodiacRelation.description}
+- **띠 오행 관계**: ${zodiacElementRelation.type}
+  → ${zodiacElementRelation.description}
+- **궁합 점수**: ${score}점 / 100점
+- **궁합 등급**: ${level}
 
 ${specificPrompt}
 
 # 작성 지침
 ⭐ 반드시 400-600자로 충분히 디테일하게 작성
+⭐ 일주(배우자궁)를 중심으로 해석 (가장 중요!)
 ⭐ 따뜻하고 공감하는 어조 유지
 ⭐ 구체적인 조언과 예시 포함
 ⭐ 긍정적이고 희망적인 마무리
@@ -235,7 +249,7 @@ ${specificPrompt}
 다음 JSON 형식으로 작성해주세요:
 
 {
-  "궁합분석": "400-600자의 상세한 궁합 해석. ${typeName} 관점에서 스토리텔링 형식으로 풍부하게 작성.",
+  "궁합분석": "400-600자의 상세한 궁합 해석. ${typeName} 관점에서 일주(배우자궁)를 중심으로 스토리텔링 형식으로 풍부하게 작성.",
   "핵심조언": "한 줄로 핵심만 요약한 조언",
   "장점": "이 관계의 장점 3가지를 쉼표로 구분 (예: 신뢰감, 안정감, 성장)",
   "주의사항": "주의할 점 또는 개선 방법 1-2가지",

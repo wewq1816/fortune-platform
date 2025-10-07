@@ -3,11 +3,14 @@
  * 
  * 기능:
  * - 띠 계산 (생년월일 → 12띠)
- * - 오행 매핑 (띠 → 오행)
+ * - 일주 계산 (년월일 → 일간/일지)
+ * - 오행 매핑 (띠 → 오행, 일간 → 오행)
  * - 오행 상생상극 점수 계산
  * - 타입별 가중치 적용
  * - 최종 궁합 점수 및 레벨 판정
  */
+
+const { calculateDayPillar } = require('../utils/saju-calculator');
 
 // 12띠 배열
 const zodiacAnimals = [
@@ -30,6 +33,20 @@ const zodiacElements = {
   '닭': '금(金)',
   '개': '토(土)',
   '돼지': '수(水)'
+};
+
+// 천간 오행 매핑 (일간 → 오행)
+const cheonganElements = {
+  '갑': '목(木)',
+  '을': '목(木)',
+  '병': '화(火)',
+  '정': '화(火)',
+  '무': '토(土)',
+  '기': '토(土)',
+  '경': '금(金)',
+  '신': '금(金)',
+  '임': '수(水)',
+  '계': '수(水)'
 };
 
 // 오행 한글-영문 매핑
@@ -215,42 +232,48 @@ function getZodiacCompatibilityScore(zodiac1, zodiac2) {
 }
 
 /**
- * 타입별 가중치
+ * 타입별 가중치 (3가지 요소: 일간오행, 띠궁합, 띠오행)
  */
 const typeWeights = {
   'lover': { 
-    element: 0.6, 
-    zodiac: 0.4,
+    ilganElement: 0.4,  // 일간 오행 (배우자궁 - 가장 중요)
+    zodiac: 0.3,         // 띠 궁합
+    zodiacElement: 0.3,  // 띠 오행
     name: '연인 궁합',
     icon: '❤️'
   },
   'marriage': { 
-    element: 0.7, 
+    ilganElement: 0.5,  // 결혼은 일간 오행이 더 중요
     zodiac: 0.3,
+    zodiacElement: 0.2,
     name: '결혼 궁합',
     icon: '💍'
   },
   'family': { 
-    element: 0.5, 
-    zodiac: 0.5,
+    ilganElement: 0.3,
+    zodiac: 0.4,
+    zodiacElement: 0.3,
     name: '가족 궁합',
     icon: '👨‍👩‍👧‍👦'
   },
   'friend': { 
-    element: 0.4, 
-    zodiac: 0.6,
+    ilganElement: 0.2,
+    zodiac: 0.5,        // 친구는 띠 궁합이 중요
+    zodiacElement: 0.3,
     name: '친구 궁합',
     icon: '👯'
   },
   'business': { 
-    element: 0.8, 
+    ilganElement: 0.5,  // 동업은 일간 오행이 중요
     zodiac: 0.2,
+    zodiacElement: 0.3,
     name: '동업 궁합',
     icon: '💼'
   },
   'work': { 
-    element: 0.6, 
-    zodiac: 0.4,
+    ilganElement: 0.4,
+    zodiac: 0.3,
+    zodiacElement: 0.3,
     name: '직장 궁합',
     icon: '🏢'
   }
@@ -291,26 +314,47 @@ function getStarRating(score) {
  */
 function calculateCompatibility(person1, person2, type = 'lover') {
   try {
-    // 1. 띠 계산
+    // 1. 띠 계산 (년주)
     const zodiac1 = getZodiacFromYear(person1.year);
     const zodiac2 = getZodiacFromYear(person2.year);
     
-    // 2. 오행 매핑
-    const element1 = zodiacElements[zodiac1];
-    const element2 = zodiacElements[zodiac2];
+    // 2. 일주 계산 (년월일)
+    const dayPillar1 = calculateDayPillar(person1.year, person1.month, person1.day);
+    const dayPillar2 = calculateDayPillar(person2.year, person2.month, person2.day);
     
-    // 3. 오행 관계 분석
-    const elementRelation = getElementRelationship(element1, element2);
-    const elementScore = elementRelation.score;
+    const ilgan1 = dayPillar1.cheongan;  // 일간 (배우자궁)
+    const ilgan2 = dayPillar2.cheongan;
     
-    // 4. 띠 궁합 점수
+    const ilji1 = dayPillar1.jiji;       // 일지
+    const ilji2 = dayPillar2.jiji;
+    
+    // 3. 오행 계산
+    // 일간 오행 (배우자궁 - 가장 중요!)
+    const ilganElement1 = cheonganElements[ilgan1];
+    const ilganElement2 = cheonganElements[ilgan2];
+    
+    // 띠 오행
+    const zodiacElement1 = zodiacElements[zodiac1];
+    const zodiacElement2 = zodiacElements[zodiac2];
+    
+    // 4. 점수 계산
+    // 4-1. 일간 오행 관계 (배우자궁)
+    const ilganRelation = getElementRelationship(ilganElement1, ilganElement2);
+    const ilganScore = ilganRelation.score;
+    
+    // 4-2. 띠 궁합 점수
     const zodiacScore = getZodiacCompatibilityScore(zodiac1, zodiac2);
     
-    // 5. 타입별 가중치 적용
+    // 4-3. 띠 오행 관계
+    const zodiacElementRelation = getElementRelationship(zodiacElement1, zodiacElement2);
+    const zodiacElementScore = zodiacElementRelation.score;
+    
+    // 5. 타입별 가중치 적용 (3가지 요소)
     const weight = typeWeights[type] || typeWeights.lover;
     const finalScore = Math.round(
-      elementScore * weight.element + 
-      zodiacScore * weight.zodiac
+      ilganScore * weight.ilganElement +           // 일간 오행 (배우자궁)
+      zodiacScore * weight.zodiac +                // 띠 궁합
+      zodiacElementScore * weight.zodiacElement    // 띠 오행
     );
     
     // 6. 레벨 판정
@@ -328,26 +372,49 @@ function calculateCompatibility(person1, person2, type = 'lover') {
       stars: stars,
       person1: {
         zodiac: zodiac1,
-        element: element1,
-        year: person1.year
+        zodiacElement: zodiacElement1,
+        ilgan: ilgan1,
+        ilji: ilji1,
+        ilganElement: ilganElement1,
+        dayPillar: dayPillar1.hanja,
+        year: person1.year,
+        month: person1.month,
+        day: person1.day
       },
       person2: {
         zodiac: zodiac2,
-        element: element2,
-        year: person2.year
+        zodiacElement: zodiacElement2,
+        ilgan: ilgan2,
+        ilji: ilji2,
+        ilganElement: ilganElement2,
+        dayPillar: dayPillar2.hanja,
+        year: person2.year,
+        month: person2.month,
+        day: person2.day
       },
-      elementRelation: {
-        type: elementRelation.type,
-        description: elementRelation.description,
-        score: elementScore
+      ilganRelation: {
+        type: ilganRelation.type,
+        description: ilganRelation.description,
+        score: ilganScore
       },
       zodiacRelation: {
         score: zodiacScore,
         description: getZodiacRelationDescription(zodiac1, zodiac2, zodiacScore)
       },
+      zodiacElementRelation: {
+        type: zodiacElementRelation.type,
+        description: zodiacElementRelation.description,
+        score: zodiacElementScore
+      },
       weights: {
-        element: `${weight.element * 100}%`,
-        zodiac: `${weight.zodiac * 100}%`
+        ilganElement: `${weight.ilganElement * 100}%`,
+        zodiac: `${weight.zodiac * 100}%`,
+        zodiacElement: `${weight.zodiacElement * 100}%`
+      },
+      breakdown: {
+        ilganScore: ilganScore,
+        zodiacScore: zodiacScore,
+        zodiacElementScore: zodiacElementScore
       }
     };
     

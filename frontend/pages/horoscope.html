@@ -963,52 +963,27 @@
         }
       }
 
-      // 별자리 계산 (간단한 로직 - 테스트용)
-      const zodiacData = getZodiacSign(month, day);
-
-      // 테스트용 더미 데이터 (API 연동 전까지 사용)
-      setTimeout(() => {
-        const testData = {
-          success: true,
-          sign: zodiacData.korean,
-          signEn: zodiacData.english,
-          symbol: zodiacData.symbol,
-          level: '매우 좋음',
-          score: 95,
-          fortune: {
-            운세: `오늘은 ${zodiacData.korean}인 당신에게 특별한 날이 될 것입니다. 아침부터 긍정적인 에너지가 가득하며, 주변 사람들과의 소통이 즐거울 것입니다. 오후에는 예상치 못한 좋은 소식이 들려올 수 있으니 마음을 열고 받아들이세요. 저녁에는 자신을 위한 시간을 가지며 하루를 마무리하면 좋겠습니다. 전반적으로 안정적이고 평화로운 하루가 예상됩니다.`,
-            핵심키워드: '여유, 소통, 정리',
-            행운의색: '하늘색',
-            행운의숫자: '7',
-            행운의아이템: '따뜻한 차 한 잔',
-            조심할시간: '저녁 7-9시'
-          },
-          cost: '$0.02 (테스트)'
-        };
-        
-        showFortuneResult(testData);
-      }, 2000);
-
-      /* API 연동 코드 (나중에 활성화)
+      // 🌟 실제 API 연동 (Claude Haiku 사용)
       try {
         const response = await fetch('http://localhost:3000/api/horoscope', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
           body: JSON.stringify({ year, month, day, hour, minute })
         });
 
         const data = await response.json();
+        
+        console.log('✅ API 응답:', data);
 
         if (data.success) {
           showFortuneResult(data);
         } else {
-          showError('운세를 가져오는데 실패했습니다.');
+          showError('운세를 가져오는데 실패했습니다: ' + (data.error || data.message || '알 수 없는 오류'));
         }
       } catch (error) {
-        console.error('오류:', error);
+        console.error('❌ API 오류:', error);
         showError('서버 연결 오류: ' + error.message);
       }
-      */
     }
 
     // ========================================

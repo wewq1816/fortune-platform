@@ -788,11 +788,11 @@
     // 메인 함수 (전환 스위치) 🎛️
     // ========================================
     async function getDailyFortuneData(requestData) {
-      // 지금은 Mock 사용 ⭐
-      return await getMockDailyFortune();
+      // 실제 API 사용 ✅
+      return await callRealDailyFortuneAPI(requestData);
       
-      // API 등록 후 아래 줄의 주석을 해제하고 위 줄을 주석 처리하세요! 🚀
-      // return await callRealDailyFortuneAPI(requestData);
+      // Mock 데이터 (테스트용)
+      // return await getMockDailyFortune();
     }
 
     async function getDailyFortune() {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>우리의 운세</title>
+  <title>하루 2번 평생 무료로 보는 운세</title>
   <style>
     * {
       margin: 0;
@@ -34,9 +34,62 @@
     }
 
     .header h1 {
-      font-size: 28px;
-      color: #333;
+      font-size: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       flex: 1;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.3;
+      position: relative;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .header h1 .highlight {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 900;
+      position: relative;
+    }
+
+    .header h1 .highlight::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ff6b6b, #ff8e53);
+      border-radius: 2px;
+    }
+
+    .header h1 .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      color: #333;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-left: 6px;
+      box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .header-buttons {
@@ -227,7 +280,10 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>우리의 운세</h1>
+      <h1>
+        <span class="highlight">하루 2번</span><br>
+        무료로 보는 운세
+      </h1>
       <div class="header-buttons">
         <!-- 🎫 이용권 배지 -->
         <div id="ticketBadge"></div>

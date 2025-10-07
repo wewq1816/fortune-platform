@@ -13,6 +13,7 @@ const { generateCompatibilityPrompt } = require('./engines/prompts/compatibility
 const { calculateTojeong } = require('./engines/core/tojeong-engine');
 const { generateTojeongPrompt } = require('./engines/prompts/tojeong-prompt');
 const SajuEngine = require('./engines/core/saju-engine');
+const SajuEngineExtended = require('./engines/core/saju-engine-extended');
 const { getSajuPrompt } = require('./backend/prompts/saju-prompt');
 const { TarotEngine } = require('./engines/core/tarot-engine');
 const { generateTarotPrompt } = require('./backend/prompts/tarot-prompt');
@@ -20,10 +21,31 @@ const { generateTarotPrompt } = require('./backend/prompts/tarot-prompt');
 const app = express();
 const PORT = 3000;
 
+// 나이 계산 함수
+function calculateAge(year, month, day) {
+  const today = new Date();
+  const birthDate = new Date(year, month - 1, day);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 // 미들웨어
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ charset: 'utf-8' }));
 app.use(express.static('frontend'));
+
+// engines 폴더도 정적 파일로 제공 (타로 데이터 접근용)
+app.use('/engines', express.static('engines'));
+
+// UTF-8 인코딩 설정 (한글 깨짐 방지)
+app.use((req, res, next) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  next();
+});
 
 // Claude API 클라이언트
 const anthropic = new Anthropic({
@@ -125,6 +147,134 @@ app.post('/api/tarot/interpret', async (req, res) => {
   }
 });
 
+// 🎴 타로 카드 API - 단일 엔드포인트 (프론트엔드용)
+app.post('/api/tarot', async (req, res) => {
+  try {
+    const { category, selectedCards } = req.body;
+    
+    console.log('🎴 타로 해석 요청:', { category, 카드수: selectedCards?.length });
+
+    if (!category || !selectedCards || selectedCards.length !== 5) {
+      return res.status(400).json({ 
+        error: '카테고리와 5장의 카드가 필요합니다.' 
+      });
+    }
+
+    // 1. 카테고리 정보
+    const categoryInfo = {
+      'total': '총운',
+      'personality': '성격',
+      'daeun': '대운',
+      'wealth': '재물운',
+      'love': '애정운',
+      'parents': '부모운',
+      'siblings': '형제운',
+      'children': '자녀운',
+      'spouse': '배우자운',
+      'social': '대인관계',
+      'health': '건강운',
+      'career': '직업운',
+      'study': '학업운',
+      'promotion': '승진운',
+      'aptitude': '적성',
+      'job': '직업추천',
+      'business': '사업운',
+      'move': '이동운',
+      'travel': '여행운',
+      'taekil': '택일',
+      'sinsal': '신살'
+    };
+
+    // 2. 프롬프트 생성
+    const positions = ['핵심', '과거', '미래', '조언', '결과'];
+    let prompt = `당신은 전문 타로 리더입니다. 선택된 카테고리는 **${categoryInfo[category] || category}**입니다.\n\n`;
+    prompt += `고객이 선택한 5장의 타로 카드를 아래와 같이 해석해주세요:\n\n`;
+    
+    selectedCards.forEach((card, i) => {
+      const orientation = card.orientation === 'upright' ? '정방향' : '역방향';
+      const keywords = card.orientation === 'upright' 
+        ? card.keywords_upright?.join(', ') 
+        : card.keywords_reversed?.join(', ');
+      const meaning = card.orientation === 'upright'
+        ? card.meaning_upright
+        : card.meaning_reversed;
+      
+      prompt += `**${positions[i]}**: ${card.name_ko} (${card.name}) - ${orientation}\n`;
+      prompt += `키워드: ${keywords}\n`;
+      prompt += `기본 의미: ${meaning}\n`;
+      
+      // ⭐ 카테고리별 특화 해석 추가!
+      if (card.category_meaning) {
+        prompt += `${categoryInfo[category]} 관점 해석: ${card.category_meaning}\n`;
+        console.log(`✅ ${card.name_ko} - 카테고리 해석 포함됨 (${card.category_meaning.length}자)`);
+      } else {
+        console.warn(`⚠️ ${card.name_ko} - 카테고리 해석 없음!`);
+      }
+      
+      prompt += `\n`;
+    });
+    
+    prompt += `\n위 5장의 카드를 바탕으로, ${categoryInfo[category]} 관점에서 다음과 같이 해석해주세요:\n\n`;
+    prompt += `1. 각 카드의 위치(핵심/과거/미래/조언/결과)에 맞는 구체적인 해석\n`;
+    prompt += `2. ${categoryInfo[category]}에 초점을 맞춘 실용적인 조언\n`;
+    prompt += `3. 따뜻하고 공감하는 톤으로 작성\n`;
+    prompt += `4. 각 카드당 2-3문장으로 명확하게 설명\n`;
+    prompt += `5. **마지막에 반드시 종합 분석 추가** - 5장 카드의 흐름을 연결하여 ${categoryInfo[category]}의 전체적인 그림과 구체적인 조언 제시 (최소 5문장 이상)\n\n`;
+    prompt += `응답 형식:\n`;
+    prompt += `[핵심] ...\n`;
+    prompt += `[과거] ...\n`;
+    prompt += `[미래] ...\n`;
+    prompt += `[조언] ...\n`;
+    prompt += `[결과] ...\n\n`;
+    prompt += `[종합분석]\n`;
+    prompt += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+    prompt += `5장 카드의 흐름을 연결하여 ${categoryInfo[category]}의 전체적인 상황과 앞으로의 방향을 구체적으로 제시해주세요.\n`;
+    prompt += `과거→핵심→미래→조언→결과의 스토리를 만들어주세요.\n`;
+    prompt += `실용적이고 구체적인 행동 지침을 포함해주세요.\n`;
+    prompt += `최소 5문장 이상으로 풍부하게 작성해주세요.`;
+
+    // 3. Claude API 호출
+    console.log('\n' + '='.repeat(80));
+    console.log('🤖 Claude API 호출 중...');
+    console.log('='.repeat(80));
+    console.log(prompt);
+    console.log('='.repeat(80) + '\n');
+    
+    const message = await anthropic.messages.create({
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 1500,
+      messages: [{
+        role: 'user',
+        content: prompt
+      }]
+    });
+    
+    const interpretation = message.content[0].text;
+    
+    console.log('✅ AI 해석 완료:', interpretation.substring(0, 100) + '...');
+
+    // 4. 결과 반환
+    res.json({
+      success: true,
+      category: categoryInfo[category],
+      interpretation: interpretation,
+      cards: selectedCards,
+      usage: {
+        input_tokens: message.usage.input_tokens,
+        output_tokens: message.usage.output_tokens,
+        cost: (message.usage.input_tokens / 1000 * 0.00025 + message.usage.output_tokens / 1000 * 0.00125).toFixed(6)
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ 타로 해석 오류:', error);
+    res.status(500).json({ 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
 // 오늘의 운세 API
 app.post('/api/daily-fortune', async (req, res) => {
   try {
@@ -141,6 +291,13 @@ app.post('/api/daily-fortune', async (req, res) => {
     
     // 2. 프롬프트 생성
     const prompt = generateDailyFortunePrompt(fortuneData);
+    
+    // 프롬프트 출력 (디버깅용)
+    console.log('\n' + '='.repeat(70));
+    console.log('[PROMPT TO CLAUDE]');
+    console.log('='.repeat(70));
+    console.log(prompt);
+    console.log('='.repeat(70) + '\n');
     
     // 3. Claude API 호출
     console.log('Claude API 호출 중...');
@@ -205,20 +362,37 @@ app.post('/api/horoscope', async (req, res) => {
     console.log('Claude API 호출 중...');
     const message = await anthropic.messages.create({
       model: 'claude-3-haiku-20240307',
-      max_tokens: 1500,
+      max_tokens: 800,  // 토큰 제한으로 길이 조절
+      temperature: 0.7,
       messages: [{
         role: 'user',
         content: prompt
       }]
     });
     
-    // 4. 응답 파싱
+    // 4. 응답 파싱 (제어 문자 제거)
     const responseText = message.content[0].text;
+    console.log('Claude 응답:', responseText.substring(0, 200) + '...');
+    
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     let fortuneResult;
     
     if (jsonMatch) {
-      fortuneResult = JSON.parse(jsonMatch[0]);
+      try {
+        // JSON 파싱 전에 제어 문자 제거
+        const cleanedJson = jsonMatch[0]
+          .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 제어 문자 제거
+          .replace(/\n/g, '\\n')  // 줄바꿈을 이스케이프
+          .replace(/\r/g, '\\r')  // 캐리지 리턴을 이스케이프
+          .replace(/\t/g, '\\t'); // 탭을 이스케이프
+        
+        fortuneResult = JSON.parse(cleanedJson);
+      } catch (parseError) {
+        console.error('JSON 파싱 오류:', parseError.message);
+        console.log('문제가 된 JSON:', jsonMatch[0].substring(0, 500));
+        // 파싱 실패 시 원본 텍스트 사용
+        fortuneResult = { 운세: responseText };
+      }
     } else {
       fortuneResult = { 운세: responseText };
     }
@@ -534,8 +708,8 @@ app.post('/api/compatibility', async (req, res) => {
     // 3. Claude API 호출
     console.log('Claude API 호출 중...');
     const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',  // Sonnet 3.5 사용 (정확한 해석)
-      max_tokens: 2000,
+      model: 'claude-3-haiku-20240307',  // Haiku 사용 (비용 절감)
+      max_tokens: 1500,
       messages: [{
         role: 'user',
         content: prompt
@@ -568,7 +742,7 @@ app.post('/api/compatibility', async (req, res) => {
       zodiacRelation: compatibilityData.zodiacRelation,
       weights: compatibilityData.weights,
       interpretation: fortuneResult,
-      cost: (message.usage.input_tokens / 1000 * 0.003 + message.usage.output_tokens / 1000 * 0.015).toFixed(6)
+      cost: (message.usage.input_tokens / 1000 * 0.00025 + message.usage.output_tokens / 1000 * 0.00125).toFixed(6)
     });
     
     console.log('궁합 계산 완료!');
@@ -585,9 +759,9 @@ app.post('/api/compatibility', async (req, res) => {
 // 토정비결 API
 app.post('/api/tojeong', async (req, res) => {
   try {
-    const { year, month, day, isLunar, targetYear } = req.body;
+    const { year, month, day, isLunar, targetYear, category } = req.body;
     
-    console.log('토정비결 요청:', { year, month, day, isLunar, targetYear });
+    console.log('토정비결 요청:', { year, month, day, isLunar, targetYear, category });
     
     // 1. 엔진 계산
     const tojeongData = calculateTojeong(
@@ -602,14 +776,21 @@ app.post('/api/tojeong', async (req, res) => {
       });
     }
     
-    // 2. 프롬프트 생성
-    const prompt = generateTojeongPrompt(tojeongData);
+    // 2. 프롬프트 생성 (카테고리 포함)
+    const prompt = generateTojeongPrompt(tojeongData, category);
+    
+    // 프롬프트 길이 확인
+    console.log('📝 프롬프트 길이:', prompt.length, '자');
+    console.log('📝 프롬프트 미리보기:');
+    console.log('='.repeat(80));
+    console.log(prompt.substring(0, 500) + '...');
+    console.log('='.repeat(80));
     
     // 3. Claude API 호출
     console.log('Claude API 호출 중...');
     const message = await anthropic.messages.create({
       model: 'claude-3-haiku-20240307',
-      max_tokens: 5000,
+      max_tokens: 4000,  // Haiku 최대 제한: 4096 (여유 4000)
       messages: [{
         role: 'user',
         content: prompt
@@ -684,16 +865,49 @@ app.post('/api/saju', async (req, res) => {
     
     console.log('엔진 계산 완료:', engineResult);
     
-    // 2. 프롬프트 생성
-    const prompt = getSajuPrompt(category, engineResult, { gender });
-    console.log('프롬프트 생성 완료');
+    // 2. 카테고리별 추가 계산 (대운, 신살, 택일)
+    const options = { gender };
     
-    // 3. Claude API 호출 (Mock - 나중에 실제 연동)
-    // TODO: 실제 Claude API 연동 시 아래 주석 해제
-    /*
+    // 대운 카테고리
+    if (category === 'daeun') {
+      const daeunList = SajuEngineExtended.calculateDaeun(year, month, day, hour, gender, isLunar);
+      const currentAge = calculateAge(year, month, day);
+      options.daeunList = daeunList;
+      options.currentAge = currentAge;
+      console.log('대운 계산 완료:', { currentAge, daeunCount: daeunList?.length });
+    }
+    
+    // 신살 관련 카테고리 (신살, 이동운, 여행운)
+    if (category === 'sinsal' || category === 'move' || category === 'travel') {
+      const sinsal = SajuEngineExtended.calculateSinsal(saju);
+      options.sinsal = sinsal;
+      console.log('신살 계산 완료:', sinsal);
+    }
+    
+    // 택일 카테고리
+    if (category === 'taekil') {
+      const today = new Date();
+      const targetYear = today.getFullYear();
+      const targetMonth = today.getMonth() + 1;
+      const purpose = req.body.purpose || 'general'; // 프론트에서 목적 받기
+      const taekilResults = SajuEngineExtended.calculateTaekil(targetYear, targetMonth, saju, purpose);
+      options.taekilResults = taekilResults;
+      options.purpose = purpose;
+      console.log('택일 계산 완료:', { targetYear, targetMonth, purpose });
+    }
+    
+    // 3. 프롬프트 생성
+    const prompt = getSajuPrompt(category, engineResult, options);
+    console.log('프롬프트 생성 완료');
+    console.log('='.repeat(80));
+    console.log('📝 Claude API 프롬프트:');
+    console.log(prompt);
+    console.log('='.repeat(80));
+    
+    // 3. Claude API 호출 (실제 연동)
     const message = await anthropic.messages.create({
       model: 'claude-3-haiku-20240307',
-      max_tokens: 1000,
+      max_tokens: 2500,  // 충분한 응답 길이 확보 (약 7500~10000자)
       messages: [{
         role: 'user',
         content: prompt
@@ -704,19 +918,13 @@ app.post('/api/saju', async (req, res) => {
       message.usage.input_tokens / 1000 * 0.00025 + 
       message.usage.output_tokens / 1000 * 0.00125
     ).toFixed(6);
-    */
     
-    // Mock 응답 (테스트용)
-    const mockInterpretations = {
-      total: `일간이 ${saju.ilgan}인 사람은 특별한 성격을 가지고 있습니다. ${strength} 사주로, ${yongsin} 오행이 용신입니다. 오행 분포는 목${elements.목}개, 화${elements.화}개, 토${elements.토}개, 금${elements.금}개, 수${elements.수}개로 나타납니다. 이는 당신의 인생에서 균형과 조화를 의미하며, 용신인 ${yongsin}을 활용하면 더욱 풍요로운 삶을 살 수 있습니다.`,
-      wealth: `재성이 적절히 배치되어 있어 재물운이 안정적입니다. ${strength} 사주는 ${strength === '신강' ? '적극적인 투자보다는 안정적인 저축' : '꾸준한 노력으로 재물을 모을 수 있음'}을 의미합니다.`,
-      love: gender === '여성' 
-        ? `관성(남편)의 배치를 보면 ${strength === '신강' ? '강한 성격으로 배우자와 조화를 이루려 노력이 필요' : '부드러운 성격으로 좋은 배우자운'}합니다. 용신 ${yongsin}을 고려한 상대를 만나면 좋습니다.`
-        : `재성(아내)의 배치를 보면 안정적인 가정을 꾸릴 수 있습니다. ${strength} 사주는 배우자에게 ${strength === '신강' ? '리더십' : '배려심'}을 발휘하게 됩니다.`,
-      health: `오행 분포를 보면 ${Object.entries(elements).sort((a,b) => b[1]-a[1])[0][0]} 기운이 강하고 ${Object.entries(elements).sort((a,b) => a[1]-b[1])[0][0]} 기운이 약합니다. 균형을 맞추기 위해 ${yongsin} 기운을 보충하는 것이 좋습니다.`
-    };
-    
-    const interpretation = mockInterpretations[category] || mockInterpretations.total;
+    console.log('='.repeat(80));
+    console.log('✨ Claude API 응답:');
+    console.log(interpretation);
+    console.log('='.repeat(80));
+    console.log(`💰 비용: $${cost} (입력: ${message.usage.input_tokens} 토큰, 출력: ${message.usage.output_tokens} 토큰)`);
+    console.log('='.repeat(80));
     
     // 4. 결과 반환
     res.json({
@@ -733,7 +941,7 @@ app.post('/api/saju', async (req, res) => {
       yongsin,
       tenStars,
       interpretation,
-      cost: '0.000000' // Mock이므로 비용 0
+      cost // 실제 Claude API 비용
     });
     
     console.log('사주팔자 응답 완료!');
