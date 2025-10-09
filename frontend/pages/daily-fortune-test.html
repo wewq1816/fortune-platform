@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>오늘의 운세 테스트 - 우리의 운세</title>
+  <title>오늘의 운세 - 우리의 운세</title>
   <style>
     * {
       margin: 0;
@@ -421,7 +421,6 @@
 
     <div class="header">
       <h1>오늘의 운세</h1>
-      <p style="background: #667eea; color: white; padding: 5px 15px; border-radius: 15px; display: inline-block; font-size: 12px; margin-top: 5px;">테스트 버전</p>
     </div>
 
     <div class="user-info-display" id="userInfoDisplay">
@@ -518,6 +517,13 @@
     </div>
   </div>
 
+  <!-- 🔐 디바이스 ID & API 헬퍼 -->
+  <script src="../utils/device-id.js"></script>
+  <script src="../utils/api-helper.js"></script>
+
+  <!-- 📊 방문자 추적 시스템 -->
+  <script src="../utils/analytics-tracker.js"></script>
+
   <!-- 🎫 이용권 시스템 스크립트 -->
   <script src="../utils/ticket-system.js"></script>
   <script src="../components/common/TicketModal.jsx"></script>
@@ -546,7 +552,7 @@
         // 이용권 있음 - 소모 확인 모달
         showUseTicketModal(check.tickets, () => {
           // 확인 클릭 - 이용권 소모
-          const result = useTicket();
+          const result = useTicket('오늘의 운세');
           
           if (result.success) {
             console.log('✅ 이용권 소모 성공:', result);
@@ -769,7 +775,7 @@
     // 실제 API (나중에 사용) 🔐
     // ========================================
     async function callRealDailyFortuneAPI(requestData) {
-      const response = await fetch('http://localhost:3000/api/daily-fortune', {
+      const response = await fetchWithDeviceId('http://localhost:3000/api/daily-fortune', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -796,6 +802,11 @@
     }
 
     async function getDailyFortune() {
+      // 📊 이용권 사용 추적
+      if (typeof trackTicketUsage === 'function') {
+        trackTicketUsage('오늘의 운세');
+      }
+      
       const userData = loadUserInfo();
       if (!userData) {
         alert('사주 정보를 먼저 입력해주세요.');

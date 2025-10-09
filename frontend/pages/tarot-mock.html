@@ -650,6 +650,10 @@
     </div>
   </div>
 
+  <!-- 🔐 디바이스 ID & API 헬퍼 -->
+  <script src="../utils/device-id.js"></script>
+  <script src="../utils/api-helper.js"></script>
+
   <script>
     // 타로 카드 의미 데이터 (3,276개 테마별 해석)
     let TAROT_MEANINGS = null;
@@ -746,13 +750,8 @@
       
       if (savedData) {
         const data = JSON.parse(savedData);
-        const birthTimeText = data.birthTime === '태어난 시간' || data.birthTime === '시간 모름' 
-          ? '' 
-          : ` 태어난 시간 : ${data.birthTime}`;
-        
-        userInfoDisplay.innerHTML = `
-          ${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType})${birthTimeText}
-        `;
+        const display = `${data.gender} ${data.year}. ${data.month}. ${data.day} (${data.calendarType}) 태어난 시간 : ${data.birthTime}`;
+        userInfoDisplay.textContent = display;
       } else {
         userInfoDisplay.innerHTML = `
           ⚠️ 어떤 운세를 보고 싶으신가요?
@@ -830,6 +829,11 @@
     }
 
     function startTarotReading() {
+      // 📊 이용권 사용 추적
+      if (typeof trackTicketUsage === 'function') {
+        trackTicketUsage('타로 카드');
+      }
+      
       if (!selectedCategory) {
         alert('카테고리를 선택해주세요.');
         return;
@@ -864,7 +868,7 @@
       grid.innerHTML = cards.slice(0, count).map((card, index) => `
         <div class="tarot-card" id="card-${index}" onclick="selectCard(${index})">
           <div class="card-back-view">
-            <img src="../../public/images/tarot/CardBacks.png" 
+            <img src="/public/images/tarot/CardBacks.png" 
                  alt="카드 뒷면" 
                  style="width: 100%; height: 120px; object-fit: cover; border-radius: 10px; margin-bottom: 8px;">
             <div class="card-name">카드 ${index + 1}</div>
@@ -924,11 +928,11 @@
         
         // 방법 1: 대문자 하이픈 형식 (예: 00-TheFool.png)
         const cardNameCamel = selectedCard.name.replace(/ /g, '');
-        const imgPath1 = `../../public/images/tarot/${cardNum}-${cardNameCamel}.png`;
+        const imgPath1 = `/public/images/tarot/${cardNum}-${cardNameCamel}.png`;
         
         // 방법 2: 소문자 언더스코어 형식 (예: 00_fool.png)
         const cardNameLower = selectedCard.name.toLowerCase().replace(/the /g, '').replace(/ /g, '');
-        const imgPath2 = `../../public/images/tarot/${cardNum}_${cardNameLower}.png`;
+        const imgPath2 = `/public/images/tarot/${cardNum}_${cardNameLower}.png`;
         
         console.log('카드 정보:', {
           이름: selectedCard.name,
@@ -946,7 +950,7 @@
           revealedImg.src = imgPath2;
           revealedImg.onerror = () => {
             console.error('모든 경로 실패, 카드 뒷면 표시');
-            revealedImg.src = '../../public/images/tarot/CardBacks.png';
+            revealedImg.src = '/public/images/tarot/CardBacks.png';
           };
         };
         
@@ -1006,7 +1010,7 @@
 
       try {
         // 🔥 백엔드 API 호출 - Claude AI 해석 요청
-        const response = await fetch('http://localhost:3000/api/tarot', {
+        const response = await fetchWithDeviceId('http://localhost:3000/api/tarot', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json; charset=utf-8'
@@ -1144,11 +1148,11 @@
         
         // 방법 1: 대문자 하이픈 형식
         const cardNameCamel = card.name.replace(/ /g, '');
-        const imgPath = `../../public/images/tarot/${cardNum}-${cardNameCamel}.png`;
+        const imgPath = `/public/images/tarot/${cardNum}-${cardNameCamel}.png`;
         
         // 방법 2: 소문자 언더스코어 형식 (백업)
         const cardNameLower = card.name.toLowerCase().replace(/the /g, '').replace(/ /g, '');
-        const imgPathBackup = `../../public/images/tarot/${cardNum}_${cardNameLower}.png`;
+        const imgPathBackup = `/public/images/tarot/${cardNum}_${cardNameLower}.png`;
         
         console.log(`결과 카드 ${i+1}:`, card.name, '경로:', imgPath);
         
@@ -1159,7 +1163,7 @@
                  alt="${card.name_ko}" 
                  style="width: 100%; max-width: 80px; height: auto; margin: 10px 0; border-radius: 5px; 
                         ${card.orientation === 'reversed' ? 'transform: rotate(180deg);' : ''}"
-                 onerror="this.onerror=null; this.src='${imgPathBackup}'; this.onerror=()=>this.src='../../public/images/tarot/CardBacks.png';">
+                 onerror="this.onerror=null; this.src='${imgPathBackup}'; this.onerror=()=>this.src='/public/images/tarot/CardBacks.png';">
             <div class="selected-card-name">${card.name_ko}</div>
             <div class="selected-card-orientation">${card.orientation === 'upright' ? '정방향' : '역방향'}</div>
           </div>
@@ -1320,6 +1324,9 @@
     }
   </script>
 
+  <!-- 📊 방문자 추적 시스템 -->
+  <script src="../utils/analytics-tracker.js"></script>
+
   <!-- 🎫 이용권 시스템 스크립트 -->
   <script src="../utils/ticket-system.js"></script>
   <script src="../components/common/TicketModal.jsx"></script>
@@ -1347,7 +1354,7 @@
       if (check.reason === 'has_tickets') {
         // 이용권 있음 - 소모 확인 모달
         showUseTicketModal(check.tickets, () => {
-          const result = useTicket();
+          const result = useTicket('타로 카드');
           if (result.success) {
             console.log('✅ 이용권 소모 성공:', result);
             startTarotReading();

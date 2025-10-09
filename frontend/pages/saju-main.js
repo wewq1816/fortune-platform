@@ -175,10 +175,26 @@ async function generateSaju() {
     const gender = savedData.gender || '남성';
     const isLunar = savedData.calendarType.includes('음력');
 
-    console.log('📞 API 호출 데이터:', { year, month, day, birthTime, gender, isLunar, category: selectedCategory });
+    // ⭐ 시간 파싱 (오늘의 운세와 동일)
+    let hour = 12;  // 기본값: 정오
+    
+    if (birthTime.includes('子')) hour = 0;
+    else if (birthTime.includes('丑')) hour = 1;
+    else if (birthTime.includes('寅')) hour = 3;
+    else if (birthTime.includes('卯')) hour = 5;
+    else if (birthTime.includes('辰')) hour = 7;
+    else if (birthTime.includes('巳')) hour = 9;
+    else if (birthTime.includes('午')) hour = 11;
+    else if (birthTime.includes('未')) hour = 13;
+    else if (birthTime.includes('申')) hour = 15;
+    else if (birthTime.includes('酉')) hour = 17;
+    else if (birthTime.includes('戌')) hour = 19;
+    else if (birthTime.includes('亥')) hour = 21;
 
-    // API 호출
-    const response = await fetch('http://localhost:3000/api/saju', {
+    console.log('📞 API 호출 데이터:', { year, month, day, hour, gender, isLunar, category: selectedCategory });
+
+    // API 호출 (디바이스 ID 포함)
+    const response = await fetchWithDeviceId('http://localhost:3000/api/saju', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -187,7 +203,7 @@ async function generateSaju() {
         year: year,
         month: month,
         day: day,
-        hour: birthTime,
+        hour: hour,  // ✅ 숫자로 전달
         isLunar: isLunar,
         gender: gender,
         category: selectedCategory

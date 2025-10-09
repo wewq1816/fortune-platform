@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔐 관리자 대시보드</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      overflow-y: scroll;
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background-color: #f5f5f5;
+      padding-bottom: 40px;
+      min-height: 100%;
+      overflow-y: auto;
+    }
+
+    /* 헤더 - 모바일 앱 스타일 */
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 10px 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .header h1 {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      line-height: 1;
+    }
+
+    .last-update {
+      font-size: 9px;
+      opacity: 0.75;
+    }
+
+    .logout-btn {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .logout-btn:active {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* 컨테이너 */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+
+    /* 섹션 타이틀 */
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #333;
+      margin: 15px 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+
+    /* 실시간 통계 카드 그리드 */
+    .realtime-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      transition: transform 0.2s;
+    }
+
+    .stat-card:active {
+      transform: scale(0.98);
+    }
+
+    .stat-icon {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: #999;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .stat-change {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      display: inline-block;
+      font-weight: 600;
+    }
+
+    .stat-change.positive {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .stat-change.negative {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    /* 전체 너비 카드 */
+    .full-card {
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* 쿠팡 링크 관리 */
+    .link-input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-bottom: 8px;
+      font-family: 'Malgun Gothic', sans-serif;
+    }
+
+    .link-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .save-btn {
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .save-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* 차트 컨테이너 */
+    .chart-container {
+      position: relative;
+      height: 180px;
+      margin-top: 8px;
+    }
+
+    /* 기능별 사용 통계 */
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .feature-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+
+    .feature-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .feature-count {
+      font-size: 14px;
+      font-weight: 800;
+      color: #667eea;
+    }
+
+    /* 알림 */
+    .notification {
+      position: fixed;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      transition: top 0.3s;
+      z-index: 1000;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .notification.show {
+      top: 60px;
+    }
+
+    /* 로딩 */
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #999;
+      font-size: 12px;
+    }
+
+    .loading::after {
+      content: '...';
+      animation: dots 1.5s infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="header-left">
+      <h1>🔐 관리자</h1>
+      <span class="last-update" id="lastUpdate">업데이트 중...</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">로그아웃</button>
+  </div>
+
+  <!-- 알림 -->
+  <div class="notification" id="notification">
+    <span id="notificationMessage"></span>
+  </div>
+
+  <!-- 메인 컨테이너 -->
+  <div class="container">
+    <!-- 실시간 통계 -->
+    <div class="section-title">📊 실시간 통계</div>
+    <div class="realtime-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">오늘 방문자</div>
+        <div class="stat-value" id="visitorsToday">-</div>
+        <span class="stat-change" id="visitorsChange">-</span>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🔗</div>
+        <div class="stat-label">오늘 클릭</div>
+        <div class="stat-value" id="clicksToday">-</div>
+        <span class="stat-change" id="clicksChange">-</span>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🎫</div>
+        <div class="stat-label">이용권 사용</div>
+        <div class="stat-value" id="usageToday">-</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <div class="stat-label">전환율</div>
+        <div class="stat-value" id="conversionRate">-</div>
+      </div>
+    </div>
+
+    <!-- 쿠팡 링크 관리 -->
+    <div class="section-title">🔗 쿠팡 링크 관리</div>
+    <div class="full-card">
+      <input type="text" class="link-input" id="coupangLink" placeholder="쿠팡 파트너스 링크 입력...">
+      <button class="save-btn" onclick="saveCoupangLink()">💾 링크 저장</button>
+    </div>
+
+    <!-- 누적 통계 -->
+    <div class="section-title">📊 누적 통계</div>
+    <div class="realtime-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">총 방문자</div>
+        <div class="stat-value" id="visitorsTotal">-</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🔗</div>
+        <div class="stat-label">총 클릭</div>
+        <div class="stat-value" id="clicksTotal">-</div>
+      </div>
+    </div>
+
+    <!-- 방문자 추이 -->
+    <div class="section-title">📈 방문자 추이 (최근 7일)</div>
+    <div class="full-card">
+      <div class="chart-container">
+        <canvas id="visitorsChart"></canvas>
+      </div>
+    </div>
+
+    <!-- 시간대별 방문 분포 -->
+    <div class="section-title">⏰ 시간대별 방문</div>
+    <div class="full-card">
+      <div class="chart-container">
+        <canvas id="hourlyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- 기능별 이용권 사용 -->
+    <div class="section-title">🎯 기능별 이용권 사용</div>
+    <div class="full-card">
+      <div class="feature-list" id="featureList">
+        <div class="loading">데이터 로드 중</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

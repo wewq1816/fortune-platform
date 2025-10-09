@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>테스트 초기화</title>
+  <style>
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .btn {
+      padding: 15px 30px;
+      font-size: 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    .btn:hover {
+      background: #5568d3;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f0f0f0;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧹 테스트 데이터 초기화</h1>
+    <p>방문자 추적을 새로 시작하려면 LocalStorage를 초기화하세요</p>
+    
+    <button class="btn" onclick="clearData()">LocalStorage 초기화</button>
+    <button class="btn" onclick="location.href='index.html'">메인으로 이동</button>
+    
+    <div class="status" id="status">
+      <p><strong>현재 저장된 데이터:</strong></p>
+      <p id="data">확인 중...</p>
+    </div>
+  </div>
+
+  <script>
+    function showData() {
+      const visitorId = localStorage.getItem('visitorId');
+      const lastVisitDate = localStorage.getItem('lastVisitDate');
+      const coupangVisited = localStorage.getItem('coupang_visited');
+      
+      document.getElementById('data').innerHTML = `
+        방문자 ID: ${visitorId || '없음'}<br>
+        마지막 방문일: ${lastVisitDate || '없음'}<br>
+        쿠팡 방문: ${coupangVisited || '없음'}
+      `;
+    }
+
+    function clearData() {
+      localStorage.removeItem('visitorId');
+      localStorage.removeItem('lastVisitDate');
+      localStorage.removeItem('coupang_visited');
+      localStorage.removeItem('return_url');
+      
+      alert('✅ LocalStorage 초기화 완료!\n새로운 방문자로 카운트됩니다.');
+      showData();
+    }
+
+    // 페이지 로드 시 데이터 표시
+    showData();
+  </script>
+</body>
+</html>

@@ -801,6 +801,10 @@
     </div>
   </div>
 
+  <!-- 🔐 디바이스 ID & API 헬퍼 -->
+  <script src="../utils/device-id.js"></script>
+  <script src="../utils/api-helper.js"></script>
+
   <script>
     // 전역 변수
     let currentPage = 1;
@@ -967,7 +971,7 @@
       if (check.reason === 'has_tickets') {
         // 이용권 있음 - 소모 확인 모달
         showUseTicketModal(check.tickets, () => {
-          const result = useTicket();
+          const result = useTicket('꿈 해몽');
           if (result.success) {
             currentQuery = query;
             analyzeDream(query);
@@ -1000,7 +1004,7 @@
 
       try {
         // DB 기반 AI 해석 API 호출
-        const response = await fetch('http://localhost:3000/api/dream/interpret', {
+        const response = await fetchWithDeviceId('http://localhost:3000/api/dream/interpret', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -1227,6 +1231,9 @@
       }
     });
   </script>
+
+  <!-- 📊 방문자 추적 시스템 -->
+  <script src="../utils/analytics-tracker.js"></script>
 
   <!-- 🎫 이용권 시스템 -->
   <script src="../utils/ticket-system.js"></script>

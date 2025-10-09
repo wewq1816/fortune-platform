@@ -855,7 +855,7 @@
       if (check.reason === 'has_tickets') {
         // 이용권 있음 - 소모 확인 모달
         showUseTicketModal(check.tickets, () => {
-          const result = useTicket();
+          const result = useTicket('로또 번호');
           if (result.success) {
             generateLottoCore();
           } else {
@@ -1023,6 +1023,9 @@
   </script>
 </body>
 </html>
+
+  <!-- 📊 방문자 추적 시스템 -->
+  <script src="../utils/analytics-tracker.js"></script>
 
   <!-- 🎫 이용권 시스템 스크립트 -->
   <script src="../utils/ticket-system.js"></script>

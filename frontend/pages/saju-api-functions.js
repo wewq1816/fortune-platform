@@ -15,8 +15,8 @@
             document.getElementById('loading').classList.add('show');
 
             try {
-                // 실제 API 호출
-                const response = await fetch('http://localhost:3000/api/saju', {
+                // 실제 API 호출 (디바이스 ID 포함)
+                const response = await fetchWithDeviceId('http://localhost:3000/api/saju', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

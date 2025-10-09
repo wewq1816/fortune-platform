@@ -1135,7 +1135,7 @@
     // 실제 API (나중에 사용) 🔐
     // ========================================
     async function callRealAPI(formData) {
-      const response = await fetch('http://localhost:3000/api/compatibility', {
+      const response = await fetchWithDeviceId('http://localhost:3000/api/compatibility', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1147,7 +1147,9 @@
         throw new Error('API 호출 실패');
       }
       
-      return await response.json();
+      const result = await response.json();
+      console.log('🔍 API 응답:', result); // 디버그
+      return result;
     }
 
     // ========================================
@@ -1227,7 +1229,7 @@
       if (check.reason === 'has_tickets') {
         // 이용권 있음 - 소모 확인 모달
         showUseTicketModal(check.tickets, () => {
-          const result = useTicket();
+          const result = useTicket('궁합 보기');
           if (result.success) {
             checkCompatibilityCore();
           } else {
@@ -1254,32 +1256,37 @@
     // 결과 표시
     // ========================================
     function displayResult(data) {
+      console.log('🎨 displayResult 호출, data:', data); // 디버그
+      
       document.getElementById('loading').classList.remove('active');
 
-      document.getElementById('score-number').textContent = data.score;
-      document.getElementById('star-rating').textContent = data.stars;
-      document.getElementById('level-text').textContent = data.level;
+      document.getElementById('score-number').textContent = data.score || 0;
+      document.getElementById('star-rating').textContent = data.stars || '☆☆☆☆☆';
+      document.getElementById('level-text').textContent = data.level || '보통';
 
-      document.getElementById('type-display').textContent = data.typeIcon + ' ' + data.typeName;
-      document.getElementById('zodiac-display').textContent = 
-        `${data.person1.zodiac}띠 ♥ ${data.person2.zodiac}띠`;
+      document.getElementById('type-display').textContent = 
+        (data.typeIcon || '') + ' ' + (data.typeName || '궁합');
       
-      // ⭐ 일주 정보 추가
+      document.getElementById('zodiac-display').textContent = 
+        `${data.person1?.zodiac || '?'}띠 ♥ ${data.person2?.zodiac || '?'}띠`;
+      
+      // ⭐ 일주 정보 (배우자궁 관계)
       document.getElementById('dayPillar-display').textContent = 
-        `${data.person1.dayPillar} ♥ ${data.person2.dayPillar}`;
+        `${data.person1?.dayPillar || '?'} ♥ ${data.person2?.dayPillar || '?'}`;
       document.getElementById('ilgan-element-display').textContent = 
-        `${data.person1.ilganElement} ♥ ${data.person2.ilganElement}`;
+        `${data.person1?.ilganElement || '?'} ♥ ${data.person2?.ilganElement || '?'}`;
       document.getElementById('ilgan-relation').textContent = 
-        `${data.ilganRelation.type} - ${data.ilganRelation.description}`;
+        data.elementRelation ? `${data.elementRelation.type} - ${data.elementRelation.description}` : '? - ?';
       
       // 띠 오행
       document.getElementById('element-display').textContent = 
-        `${data.person1.zodiacElement} ♥ ${data.person2.zodiacElement}`;
+        `${data.person1?.element || '?'} ♥ ${data.person2?.element || '?'}`;
       document.getElementById('element-relation').textContent = 
-        data.zodiacElementRelation ? data.zodiacElementRelation.type : '-';
-      document.getElementById('zodiac-relation').textContent = data.zodiacRelation.description;
+        data.elementRelation ? data.elementRelation.type : '-';
+      document.getElementById('zodiac-relation').textContent = 
+        data.zodiacRelation?.description || '-';
 
-      const interp = data.interpretation;
+      const interp = data.interpretation || {};
       document.getElementById('claude-interpretation').textContent = interp.궁합분석 || '해석 정보가 없습니다';
       document.getElementById('core-advice').textContent = interp.핵심조언 || '-';
       document.getElementById('strengths').textContent = interp.장점 || '-';
@@ -1322,6 +1329,13 @@
       }
     });
   </script>
+
+  <!-- 🔐 디바이스 ID & API 헬퍼 -->
+  <script src="../utils/device-id.js"></script>
+  <script src="../utils/api-helper.js"></script>
+
+  <!-- 📊 방문자 추적 시스템 -->
+  <script src="../utils/analytics-tracker.js"></script>
 
   <!-- 🎫 이용권 시스템 -->
   <script src="../utils/ticket-system.js"></script>

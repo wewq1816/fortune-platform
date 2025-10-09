@@ -1020,7 +1020,7 @@
     // 실제 API
     // ========================================
     async function callRealTojeongAPI(requestData, category) {
-      const response = await fetch('http://localhost:3000/api/tojeong', {
+      const response = await fetchWithDeviceId('http://localhost:3000/api/tojeong', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1165,7 +1165,7 @@
       if (check.reason === 'has_tickets') {
         // 이용권 있음 - 소모 확인 모달
         showUseTicketModal(check.tickets, () => {
-          const result = useTicket();
+          const result = useTicket('토정비결');
           if (result.success) {
             getTojeongCore();
           } else {
@@ -1316,6 +1316,13 @@
       }
     });
   </script>
+
+  <!-- 🔐 디바이스 ID & API 헬퍼 -->
+  <script src="../utils/device-id.js"></script>
+  <script src="../utils/api-helper.js"></script>
+
+  <!-- 📊 방문자 추적 시스템 -->
+  <script src="../utils/analytics-tracker.js"></script>
 
   <!-- 🎫 이용권 시스템 스크립트 -->
   <script src="../utils/ticket-system.js"></script>

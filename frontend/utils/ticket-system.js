@@ -210,10 +210,15 @@ function canUseFortune() {
 
 /**
  * 이용권 소모
+ * @param {string} featureName - 사용한 기능 이름 (예: '오늘의 운세', '타로 카드')
  */
-function useTicket() {
+function useTicket(featureName = '알 수 없음') {
   // 마스터 모드는 소모하지 않음
   if (isMasterMode()) {
+    // 마스터 모드도 통계 기록
+    if (typeof trackTicketUsage === 'function') {
+      trackTicketUsage(featureName);
+    }
     return {
       success: true,
       remaining: Infinity
@@ -235,6 +240,11 @@ function useTicket() {
   ticketData.last_use = new Date().toISOString();
   
   saveTicketData(ticketData);
+  
+  // ⭐ 이용권 사용 통계 기록
+  if (typeof trackTicketUsage === 'function') {
+    trackTicketUsage(featureName);
+  }
   
   return {
     success: true,

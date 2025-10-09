@@ -696,6 +696,13 @@
   <script src="saju-ui-controller.js"></script>
   <script src="saju-main.js"></script>
 
+  <!-- 🔐 디바이스 ID & API 헬퍼 -->
+  <script src="../utils/device-id.js"></script>
+  <script src="../utils/api-helper.js"></script>
+
+  <!-- 📊 방문자 추적 시스템 -->
+  <script src="../utils/analytics-tracker.js"></script>
+
   <!-- 🎫 이용권 시스템 스크립트 -->
   <script src="../utils/ticket-system.js"></script>
   <script src="../components/common/TicketModal.jsx"></script>
@@ -708,6 +715,11 @@
     function checkTicketAndGenerateSaju() {
       console.log('🎯 사주 생성 클릭');
       
+      // 📊 이용권 사용 추적 (마스터 모드 포함 모든 경우)
+      if (typeof trackTicketUsage === 'function') {
+        trackTicketUsage('사주팔자');
+      }
+      
       if (isMasterMode()) {
         console.log('🔓 Master Mode - 바로 실행');
         generateSaju();
@@ -719,7 +731,7 @@
       
       if (check.reason === 'has_tickets') {
         showUseTicketModal(check.tickets, () => {
-          const result = useTicket();
+          const result = useTicket('사주팔자');
           if (result.success) {
             console.log('✅ 이용권 소모 성공:', result);
             generateSaju();
