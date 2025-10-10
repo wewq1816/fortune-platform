@@ -567,18 +567,15 @@
     // 📝 기존 스크립트 (사주 정보 관리)
     // ============================================
 
-    // localStorage에서 사주 정보 불러오기 (없으면 기본값)
-    let savedData = JSON.parse(localStorage.getItem('fortuneUserData')) || {
-      gender: '남성',
-      calendarType: '음력(평달)',
-      year: '1984',
-      month: '7',
-      day: '7',
-      birthTime: '未(13:31~15:30)'
-    };
+    // localStorage에서 사주 정보 불러오기 (없으면 null)
+    let savedData = JSON.parse(localStorage.getItem('fortuneUserData')) || null;
 
     // 사주 정보 화면에 표시하는 함수
     function updateUserInfoDisplay() {
+      if (!savedData) {
+        document.getElementById('userInfo').textContent = '사주 변경을 눌러 정보를 입력하세요';
+        return;
+      }
       const userInfoText = `${savedData.gender} ${savedData.year}. ${savedData.month}. ${savedData.day} (${savedData.calendarType}) 태어난 시간 : ${savedData.birthTime}`;
       document.getElementById('userInfo').textContent = userInfoText;
     }
@@ -616,12 +613,24 @@
         savedData = latestData;
       }
       
-      document.getElementById('gender').value = savedData.gender;
-      document.getElementById('calendarType').value = savedData.calendarType;
-      document.getElementById('year').value = savedData.year + '년';
-      document.getElementById('month').value = savedData.month + '월';
-      document.getElementById('day').value = savedData.day + '일';
-      document.getElementById('birthTime').value = savedData.birthTime;
+      // 처음 방문자 (savedData가 null)
+      if (!savedData) {
+        // 기본값으로 폼 초기화
+        document.getElementById('gender').value = '남성';
+        document.getElementById('calendarType').value = '음력(평달)';
+        document.getElementById('year').value = '2000년';
+        document.getElementById('month').value = '1월';
+        document.getElementById('day').value = '1일';
+        document.getElementById('birthTime').value = '子(23:31~01:30)';
+      } else {
+        // 저장된 데이터로 폼 채우기
+        document.getElementById('gender').value = savedData.gender;
+        document.getElementById('calendarType').value = savedData.calendarType;
+        document.getElementById('year').value = savedData.year + '년';
+        document.getElementById('month').value = savedData.month + '월';
+        document.getElementById('day').value = savedData.day + '일';
+        document.getElementById('birthTime').value = savedData.birthTime;
+      }
       
       document.getElementById('sajuModal').classList.add('active');
     }
@@ -661,6 +670,11 @@
     }
 
     function saveSaju() {
+      // savedData가 null이면 새 객체 생성
+      if (!savedData) {
+        savedData = {};
+      }
+      
       savedData.gender = document.getElementById('gender').value;
       savedData.calendarType = document.getElementById('calendarType').value;
       savedData.year = document.getElementById('year').value.replace('년', '');
@@ -692,9 +706,6 @@
       const storedData = localStorage.getItem('fortuneUserData');
       if (storedData) {
         savedData = JSON.parse(storedData);
-      } else {
-        // localStorage에 없으면 기본값 저장
-        localStorage.setItem('fortuneUserData', JSON.stringify(savedData));
       }
       
       // 화면에 표시
