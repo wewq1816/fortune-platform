@@ -278,6 +278,34 @@
     .submit-btn:hover {
       background: #ff5252;
     }
+
+    @media (max-width: 600px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .header h1 {
+        font-size: 20px;
+      }
+
+      .header-buttons {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .change-saju-btn,
+      .share-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .ticket-badge {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+    }
   </style>
 </head>
 <body>
