@@ -34,7 +34,7 @@ async function chargeTicketsAPI() {
   try {
     const headers = await getAPIHeaders();
     
-    const response = await fetch('http://localhost:3000/api/tickets/charge', {
+    const response = await fetch('https://fortune-platform.onrender.com/api/tickets/charge', {
       method: 'POST',
       headers: headers
     });
@@ -70,7 +70,7 @@ async function checkTicketsAPI() {
   try {
     const headers = await getAPIHeaders();
     
-    const response = await fetch('http://localhost:3000/api/tickets/check', {
+    const response = await fetch('https://fortune-platform.onrender.com/api/tickets/check', {
       method: 'GET',
       headers: headers
     });

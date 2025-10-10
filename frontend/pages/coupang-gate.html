@@ -121,7 +121,7 @@
     // ============================================
     async function loadCoupangLinkAndGo() {
       try {
-        const response = await fetch('http://localhost:3000/api/admin/settings/coupang-link');
+        const response = await fetch('https://fortune-platform.onrender.com/api/admin/settings/coupang-link');
         const data = await response.json();
         
         if (data.coupangLink) {

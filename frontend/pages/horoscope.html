@@ -969,7 +969,7 @@
 
       // 🌟 실제 API 연동 (Claude Haiku 사용)
       try {
-        const response = await fetchWithDeviceId('http://localhost:3000/api/horoscope', {
+        const response = await fetchWithDeviceId('https://fortune-platform.onrender.com/api/horoscope', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json; charset=utf-8' },
           body: JSON.stringify({ year, month, day, hour, minute })

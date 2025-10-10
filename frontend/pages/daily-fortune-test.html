@@ -775,7 +775,7 @@
     // 실제 API (나중에 사용) 🔐
     // ========================================
     async function callRealDailyFortuneAPI(requestData) {
-      const response = await fetchWithDeviceId('http://localhost:3000/api/daily-fortune', {
+      const response = await fetchWithDeviceId('https://fortune-platform.onrender.com/api/daily-fortune', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

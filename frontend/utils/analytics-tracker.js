@@ -7,7 +7,7 @@
  */
 
 // API 엔드포인트
-const API_BASE_URL = 'http://localhost:3000/api/analytics';
+const API_BASE_URL = 'https://fortune-platform.onrender.com/api/analytics';
 
 /**
  * 방문자 고유 ID 생성 또는 가져오기

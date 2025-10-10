@@ -50,7 +50,7 @@ function showNotification(message) {
 // ========================================
 async function updateRealtimeStats() {
   try {
-    const response = await fetch('http://localhost:3000/api/admin/stats/today', { headers });
+    const response = await fetch('https://fortune-platform.onrender.com/api/admin/stats/today', { headers });
     
     if (!response.ok) {
       throw new Error('통계 조회 실패');
@@ -92,12 +92,12 @@ async function updateRealtimeStats() {
 async function loadTotalStats() {
   try {
     // 방문자 통계
-    const visitorsResponse = await fetch('http://localhost:3000/api/admin/stats/visitors', { headers });
+    const visitorsResponse = await fetch('https://fortune-platform.onrender.com/api/admin/stats/visitors', { headers });
     const visitorsData = await visitorsResponse.json();
     document.getElementById('visitorsTotal').textContent = visitorsData.totalVisitors || 0;
     
     // 쿠팡 클릭 통계
-    const coupangResponse = await fetch('http://localhost:3000/api/admin/stats/coupang', { headers });
+    const coupangResponse = await fetch('https://fortune-platform.onrender.com/api/admin/stats/coupang', { headers });
     const coupangData = await coupangResponse.json();
     document.getElementById('clicksTotal').textContent = coupangData.totalClicks || 0;
     
@@ -117,7 +117,7 @@ async function loadTotalStats() {
 // ========================================
 async function loadFeatureStats() {
   try {
-    const response = await fetch('http://localhost:3000/api/admin/stats/features', { headers });
+    const response = await fetch('https://fortune-platform.onrender.com/api/admin/stats/features', { headers });
     const data = await response.json();
     
     const featureList = document.getElementById('featureList');
@@ -255,7 +255,7 @@ function createHourlyChart(data) {
 // ========================================
 async function loadCoupangLink() {
   try {
-    const response = await fetch('http://localhost:3000/api/admin/settings/coupang-link', { headers });
+    const response = await fetch('https://fortune-platform.onrender.com/api/admin/settings/coupang-link', { headers });
     const data = await response.json();
     document.getElementById('coupangLink').value = data.coupangLink || '';
   } catch (error) {
@@ -280,7 +280,7 @@ async function saveCoupangLink() {
   }
   
   try {
-    const response = await fetch('http://localhost:3000/api/admin/settings/coupang-link', {
+    const response = await fetch('https://fortune-platform.onrender.com/api/admin/settings/coupang-link', {
       method: 'PUT',
       headers,
       body: JSON.stringify({ coupangLink })

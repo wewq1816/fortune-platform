@@ -1020,7 +1020,7 @@
     // 실제 API
     // ========================================
     async function callRealTojeongAPI(requestData, category) {
-      const response = await fetchWithDeviceId('http://localhost:3000/api/tojeong', {
+      const response = await fetchWithDeviceId('https://fortune-platform.onrender.com/api/tojeong', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

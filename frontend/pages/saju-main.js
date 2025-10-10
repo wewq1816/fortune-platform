@@ -194,7 +194,7 @@ async function generateSaju() {
     console.log('📞 API 호출 데이터:', { year, month, day, hour, gender, isLunar, category: selectedCategory });
 
     // API 호출 (디바이스 ID 포함)
-    const response = await fetchWithDeviceId('http://localhost:3000/api/saju', {
+    const response = await fetchWithDeviceId('https://fortune-platform.onrender.com/api/saju', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
