@@ -1,22 +1,23 @@
 /**
- * 🌐 API 호출 헬퍼 함수
- * 모든 API 호출에 디바이스 ID를 자동으로 추가
- * 마스터 모드 지원 추가 (2025-01-07)
+ * API Helper - Device ID Auto-Injection
+ * Automatically adds device ID to all API calls
+ * Master mode support added (2025-01-07)
+ * Auto-sync tickets from backend response (2025-01-07)
  */
 
 /**
- * 디바이스 ID를 포함한 fetch 래퍼
+ * Fetch wrapper with device ID
  * @param {string} url - API URL
  * @param {object} options - fetch options
  * @returns {Promise<Response>}
  */
 async function fetchWithDeviceId(url, options = {}) {
-  // 디바이스 ID 가져오기
+  // Get device ID
   let deviceId;
   if (typeof getOrCreateDeviceId === 'function') {
     deviceId = await getOrCreateDeviceId();
   } else {
-    // Fallback: localStorage에서 직접 가져오기
+    // Fallback: Direct read from localStorage
     deviceId = localStorage.getItem('deviceId');
     if (!deviceId) {
       deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -24,26 +25,42 @@ async function fetchWithDeviceId(url, options = {}) {
     }
   }
   
-  // 헤더에 디바이스 ID 추가
+  // Add device ID to headers
   const headers = {
     ...options.headers,
     'X-Device-Id': deviceId
   };
   
-  // ⭐ 마스터 모드일 때 헤더에 마스터 코드 추가
+  // Add master code to headers if master mode
   if (typeof isMasterMode === 'function' && isMasterMode()) {
     headers['X-Master-Code'] = 'cooal';
-    console.log('🔓 API 호출에 마스터 코드 추가');
+    console.log('Master code added to API call');
   }
   
-  // fetch 호출
-  return fetch(url, {
+  // Call fetch
+  const response = await fetch(url, {
     ...options,
     headers
   });
+  
+  // Sync tickets from backend response
+  if (response.ok && typeof syncTicketsFromBackend === 'function') {
+    try {
+      const clonedResponse = response.clone();
+      const data = await clonedResponse.json();
+      
+      if (typeof data.remaining_tickets === 'number') {
+        syncTicketsFromBackend(data.remaining_tickets);
+      }
+    } catch (e) {
+      // Ignore JSON parse errors (images, etc.)
+    }
+  }
+  
+  return response;
 }
 
-// 전역 노출
+// Global exposure
 window.fetchWithDeviceId = fetchWithDeviceId;
 
-console.log('✅ API 헬퍼 로드 완료 (마스터 모드 지원)');
+console.log('API helper loaded (with master mode and auto-sync support)');

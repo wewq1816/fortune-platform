@@ -235,13 +235,10 @@ function useTicket(featureName = '알 수 없음') {
     };
   }
   
-  // 이용권 1개 소모
-  ticketData.count -= 1;
-  ticketData.last_use = new Date().toISOString();
+  // 백엔드에서 소모하므로 프론트엔드는 검증만 수행
+  // 실제 소모는 백엔드 API에서 처리
   
-  saveTicketData(ticketData);
-  
-  // ⭐ 이용권 사용 통계 기록
+  // 이용권 사용 통계 기록
   if (typeof trackTicketUsage === 'function') {
     trackTicketUsage(featureName);
   }
@@ -320,4 +317,21 @@ function getTicketBadgeHTML() {
 function getTimeUntilMidnightText() {
   const { hours, minutes } = getTimeUntilMidnight();
   return `⏰ 자정까지: ${hours}시간 ${minutes}분`;
+}
+
+/**
+ * 백엔드 이용권 개수로 프론트엔드 동기화
+ * API 응답 후 호출
+ */
+function syncTicketsFromBackend(backendTickets) {
+  if (typeof backendTickets !== 'number' || backendTickets < 0) {
+    console.warn('Invalid backend tickets:', backendTickets);
+    return;
+  }
+  
+  const ticketData = getTicketData();
+  ticketData.count = backendTickets;
+  saveTicketData(ticketData);
+  
+  console.log('Tickets synced from backend:', backendTickets);
 }

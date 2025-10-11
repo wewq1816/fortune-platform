@@ -411,8 +411,10 @@ app.post('/api/tarot', checkTicketMiddleware, async (req, res) => {
     console.log('✅ AI 해석 완료:', interpretation.substring(0, 100) + '...');
 
     // 이용권 소모 (마스터 모드 제외)
+    let remainingTickets = Infinity;
     if (!req.isMasterMode) {
-      await useTicket(req, '타로 카드');
+      const ticketResult = await useTicket(req, '타로 카드');
+      remainingTickets = ticketResult.remaining;
     }
 
     // 4. 결과 반환
@@ -421,6 +423,7 @@ app.post('/api/tarot', checkTicketMiddleware, async (req, res) => {
       category: categoryInfo[category],
       interpretation: interpretation,
       cards: selectedCards,
+      remaining_tickets: remainingTickets,
       usage: {
         input_tokens: message.usage.input_tokens,
         output_tokens: message.usage.output_tokens,
@@ -511,8 +514,10 @@ app.post('/api/daily-fortune', checkTicketMiddleware, async (req, res) => {
     }
     
     // 이용권 소모 (마스터 모드 제외)
+    let remainingTickets = Infinity;
     if (!req.isMasterMode) {
-      await useTicket(req, '오늘의 운세');
+      const ticketResult = await useTicket(req, '오늘의 운세');
+      remainingTickets = ticketResult.remaining;
     }
     
     // 5. 결과 반환
@@ -524,6 +529,7 @@ app.post('/api/daily-fortune', checkTicketMiddleware, async (req, res) => {
       score: fortuneData.score,
       level: fortuneData.level,
       fortune: fortuneResult,
+      remaining_tickets: remainingTickets,
       cost: (message.usage.input_tokens / 1000 * 0.00025 + message.usage.output_tokens / 1000 * 0.00125).toFixed(6)
     });
     
@@ -599,8 +605,10 @@ app.post('/api/horoscope', checkTicketMiddleware, async (req, res) => {
     }
     
     // 이용권 소모 (마스터 모드 제외)
+    let remainingTickets = Infinity;
     if (!req.isMasterMode) {
-      await useTicket(req, '별자리 운세');
+      const ticketResult = await useTicket(req, '별자리 운세');
+      remainingTickets = ticketResult.remaining;
     }
     
     // 5. 결과 반환
@@ -613,6 +621,7 @@ app.post('/api/horoscope', checkTicketMiddleware, async (req, res) => {
       score: fortuneData.score,
       date: fortuneData.date,
       fortune: fortuneResult,
+      remaining_tickets: remainingTickets,
       cost: (message.usage.input_tokens / 1000 * 0.00025 + message.usage.output_tokens / 1000 * 0.00125).toFixed(6)
     });
     
@@ -761,10 +770,13 @@ app.post('/api/dream/interpret', checkTicketMiddleware, async (req, res) => {
     const result = await dreamEngine.interpretWithDB(query);
     
     // 이용권 소모 (마스터 모드 제외)
+    let remainingTickets = Infinity;
     if (!req.isMasterMode) {
-      await useTicket(req, '꿈 해몽');
+      const ticketResult = await useTicket(req, '꿈 해몽');
+      remainingTickets = ticketResult.remaining;
     }
     
+    result.remaining_tickets = remainingTickets;
     res.json(result);
     
   } catch (error) {
@@ -957,8 +969,10 @@ app.post('/api/compatibility', checkTicketMiddleware, async (req, res) => {
     }
     
     // 이용권 소모 (마스터 모드 제외)
+    let remainingTickets = Infinity;
     if (!req.isMasterMode) {
-      await useTicket(req, '궁합 보기');
+      const ticketResult = await useTicket(req, '궁합 보기');
+      remainingTickets = ticketResult.remaining;
     }
     
     // 5. 결과 반환
@@ -976,6 +990,7 @@ app.post('/api/compatibility', checkTicketMiddleware, async (req, res) => {
       zodiacRelation: compatibilityData.zodiacRelation,
       weights: compatibilityData.weights,
       interpretation: fortuneResult,
+      remaining_tickets: remainingTickets,
       cost: (message.usage.input_tokens / 1000 * 0.00025 + message.usage.output_tokens / 1000 * 0.00125).toFixed(6)
     });
     
@@ -1048,8 +1063,10 @@ app.post('/api/tojeong', checkTicketMiddleware, async (req, res) => {
     }
     
     // 이용권 소모 (마스터 모드 제외)
+    let remainingTickets = Infinity;
     if (!req.isMasterMode) {
-      await useTicket(req, '토정비결');
+      const ticketResult = await useTicket(req, '토정비결');
+      remainingTickets = ticketResult.remaining;
     }
     
     // 5. 결과 반환
@@ -1061,6 +1078,7 @@ app.post('/api/tojeong', checkTicketMiddleware, async (req, res) => {
       mainGua: tojeongData.mainGua,
       monthlyFortune: tojeongData.monthlyFortune,
       fortune: fortuneResult,
+      remaining_tickets: remainingTickets,
       cost: (
         message.usage.input_tokens / 1000 * 0.00025 + 
         message.usage.output_tokens / 1000 * 0.00125
@@ -1219,8 +1237,10 @@ app.post('/api/saju', checkTicketMiddleware, async (req, res) => {
     console.log('='.repeat(80));
     
     // 이용권 소모 (마스터 모드 제외)
+    let remainingTickets = Infinity;
     if (!req.isMasterMode) {
-      await useTicket(req, '사주팔자');
+      const ticketResult = await useTicket(req, '사주팔자');
+      remainingTickets = ticketResult.remaining;
     }
     
     // 4. 결과 반환
@@ -1238,6 +1258,7 @@ app.post('/api/saju', checkTicketMiddleware, async (req, res) => {
       yongsin,
       tenStars,
       interpretation,
+      remaining_tickets: remainingTickets,
       cost // 실제 Claude API 비용
     });
     
