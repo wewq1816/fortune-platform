@@ -317,20 +317,6 @@ app.post('/api/tarot', checkTicketMiddleware, async (req, res) => {
       });
     }
     
-    // 🎫 이용권 소모 (마스터 모드는 체크 안 함)
-    if (!req.isMasterMode) {
-      const ticketResult = await useTicket(req, '타로 카드');  // ✅ await 추가!
-      if (!ticketResult.success) {
-        return res.status(403).json({
-          success: false,
-          error: '이용권이 부족합니다',
-          remaining: 0
-        });
-      }
-    } else {
-      console.log('🔓 마스터 모드: 이용권 소모 안 함');
-    }
-
     // 1. 카테고리 정보
     const categoryInfo = {
       'total': '총운',
@@ -424,6 +410,11 @@ app.post('/api/tarot', checkTicketMiddleware, async (req, res) => {
     
     console.log('✅ AI 해석 완료:', interpretation.substring(0, 100) + '...');
 
+    // 이용권 소모 (마스터 모드 제외)
+    if (!req.isMasterMode) {
+      await useTicket(req, '타로 카드');
+    }
+
     // 4. 결과 반환
     res.json({
       success: true,
@@ -464,16 +455,6 @@ app.post('/api/daily-fortune', checkTicketMiddleware, async (req, res) => {
       return res.status(400).json({
         success: false,
         error: '생년월일시를 모두 입력해주세요'
-      });
-    }
-    
-    // 🎫 이용권 소모
-    const ticketResult = await useTicket(req, '오늘의 운세');
-    if (!ticketResult.success && !req.isMasterMode) {
-      return res.status(403).json({
-        success: false,
-        error: '이용권이 부족합니다',
-        remaining: 0
       });
     }
     
@@ -529,6 +510,11 @@ app.post('/api/daily-fortune', checkTicketMiddleware, async (req, res) => {
       fortuneResult = { 원문: responseText };
     }
     
+    // 이용권 소모 (마스터 모드 제외)
+    if (!req.isMasterMode) {
+      await useTicket(req, '오늘의 운세');
+    }
+    
     // 5. 결과 반환
     res.json({
       success: true,
@@ -562,16 +548,6 @@ app.post('/api/horoscope', checkTicketMiddleware, async (req, res) => {
     const { year, month, day, hour, minute } = req.body;
     
     console.log('별자리 운세 요청:', { year, month, day, hour, minute });
-    
-    // 🎫 이용권 소모
-    const ticketResult = await useTicket(req, '별자리 운세');
-    if (!ticketResult.success && !req.isMasterMode) {
-      return res.status(403).json({
-        success: false,
-        error: '이용권이 부족합니다',
-        remaining: 0
-      });
-    }
     
     // 1. 별자리 운세 계산 (정밀 판정)
     const fortuneData = getHoroscopeFortune(month, day, year, hour, minute);
@@ -620,6 +596,11 @@ app.post('/api/horoscope', checkTicketMiddleware, async (req, res) => {
       }
     } else {
       fortuneResult = { 운세: responseText };
+    }
+    
+    // 이용권 소모 (마스터 모드 제외)
+    if (!req.isMasterMode) {
+      await useTicket(req, '별자리 운세');
     }
     
     // 5. 결과 반환
@@ -776,18 +757,13 @@ app.post('/api/dream/interpret', checkTicketMiddleware, async (req, res) => {
       });
     }
     
-    // 🎫 이용권 소모
-    const ticketResult = await useTicket(req, '꿈 해몽');
-    if (!ticketResult.success && !req.isMasterMode) {
-      return res.status(403).json({
-        success: false,
-        error: '이용권이 부족합니다',
-        remaining: 0
-      });
-    }
-    
     // DB 검색 + AI 해석 (하이브리드)
     const result = await dreamEngine.interpretWithDB(query);
+    
+    // 이용권 소모 (마스터 모드 제외)
+    if (!req.isMasterMode) {
+      await useTicket(req, '꿈 해몽');
+    }
     
     res.json(result);
     
@@ -912,16 +888,6 @@ app.post('/api/compatibility', checkTicketMiddleware, async (req, res) => {
     
     console.log('궁합 계산 요청:', { type, person1, person2 });
     
-    // 🎫 이용권 소모
-    const ticketResult = await useTicket(req, '궁합 보기');
-    if (!ticketResult.success && !req.isMasterMode) {
-      return res.status(403).json({
-        success: false,
-        error: '이용권이 부족합니다',
-        remaining: 0
-      });
-    }
-    
     // 입력 검증
     if (!type || !person1 || !person2) {
       return res.status(400).json({
@@ -990,6 +956,11 @@ app.post('/api/compatibility', checkTicketMiddleware, async (req, res) => {
       fortuneResult = { 궁합분석: responseText };
     }
     
+    // 이용권 소모 (마스터 모드 제외)
+    if (!req.isMasterMode) {
+      await useTicket(req, '궁합 보기');
+    }
+    
     // 5. 결과 반환
     res.json({
       success: true,
@@ -1025,16 +996,6 @@ app.post('/api/tojeong', checkTicketMiddleware, async (req, res) => {
     const { year, month, day, isLunar, targetYear, category } = req.body;
     
     console.log('토정비결 요청:', { year, month, day, isLunar, targetYear, category });
-    
-    // 🎫 이용권 소모
-    const ticketResult = await useTicket(req, '토정비결');
-    if (!ticketResult.success && !req.isMasterMode) {
-      return res.status(403).json({
-        success: false,
-        error: '이용권이 부족합니다',
-        remaining: 0
-      });
-    }
     
     // 1. 엔진 계산
     const tojeongData = calculateTojeong(
@@ -1084,6 +1045,11 @@ app.post('/api/tojeong', checkTicketMiddleware, async (req, res) => {
         종합운세: responseText,
         월별운세: {}
       };
+    }
+    
+    // 이용권 소모 (마스터 모드 제외)
+    if (!req.isMasterMode) {
+      await useTicket(req, '토정비결');
     }
     
     // 5. 결과 반환
@@ -1155,16 +1121,6 @@ app.post('/api/saju', checkTicketMiddleware, async (req, res) => {
     const normalizedGender = gender === '남성' ? '남자' : gender === '여성' ? '여자' : gender;
     
     console.log('사주팔자 요청:', { year, month, day, hour, gender: normalizedGender, category });
-    
-    // 🎫 이용권 소모
-    const ticketResult = await useTicket(req, '사주팔자');
-    if (!ticketResult.success && !req.isMasterMode) {
-      return res.status(403).json({
-        success: false,
-        error: '이용권이 부족합니다',
-        remaining: 0
-      });
-    }
     
     // 1. 사주 엔진 계산
     console.log('🔧 사주 엔진 계산 시작...');
@@ -1261,6 +1217,11 @@ app.post('/api/saju', checkTicketMiddleware, async (req, res) => {
     console.log('='.repeat(80));
     console.log(`💰 비용: $${cost} (입력: ${message.usage.input_tokens} 토큰, 출력: ${message.usage.output_tokens} 토큰)`);
     console.log('='.repeat(80));
+    
+    // 이용권 소모 (마스터 모드 제외)
+    if (!req.isMasterMode) {
+      await useTicket(req, '사주팔자');
+    }
     
     // 4. 결과 반환
     res.json({
