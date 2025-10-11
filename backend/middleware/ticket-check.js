@@ -98,8 +98,8 @@ function getDeviceID(req) {
     throw new Error('잘못된 디바이스 ID 길이');
   }
   
-  // 형식 검증 (영숫자만 허용)
-  if (!/^[a-zA-Z0-9]+$/.test(deviceId)) {
+  // 형식 검증 (영숫자 + 언더스코어 허용)
+  if (!/^[a-zA-Z0-9_]+$/.test(deviceId)) {
     throw new Error('잘못된 디바이스 ID 형식');
   }
   
