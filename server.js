@@ -468,7 +468,7 @@ app.post('/api/daily-fortune', checkTicketMiddleware, async (req, res) => {
     }
     
     // 🎫 이용권 소모
-    const ticketResult = useTicket(req, '오늘의 운세');
+    const ticketResult = await useTicket(req, '오늘의 운세');
     if (!ticketResult.success && !req.isMasterMode) {
       return res.status(403).json({
         success: false,
@@ -1027,7 +1027,7 @@ app.post('/api/tojeong', checkTicketMiddleware, async (req, res) => {
     console.log('토정비결 요청:', { year, month, day, isLunar, targetYear, category });
     
     // 🎫 이용권 소모
-    const ticketResult = useTicket(req, '토정비결');
+    const ticketResult = await useTicket(req, '토정비결');
     if (!ticketResult.success && !req.isMasterMode) {
       return res.status(403).json({
         success: false,
@@ -1157,7 +1157,7 @@ app.post('/api/saju', checkTicketMiddleware, async (req, res) => {
     console.log('사주팔자 요청:', { year, month, day, hour, gender: normalizedGender, category });
     
     // 🎫 이용권 소모
-    const ticketResult = useTicket(req, '사주팔자');
+    const ticketResult = await useTicket(req, '사주팔자');
     if (!ticketResult.success && !req.isMasterMode) {
       return res.status(403).json({
         success: false,
