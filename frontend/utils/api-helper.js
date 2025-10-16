@@ -10,7 +10,7 @@
  * @param {object} options - fetch options
  * @returns {Promise<Response>}
  */
-async function fetchWithDeviceId(url, options = {}) {
+window.fetchWithDeviceId = async function(url, options = {}) {
   // 디바이스 ID 가져오기
   let deviceId;
   if (typeof getOrCreateDeviceId === 'function') {
@@ -41,9 +41,6 @@ async function fetchWithDeviceId(url, options = {}) {
     ...options,
     headers
   });
-}
-
-// 전역 노출
-window.fetchWithDeviceId = fetchWithDeviceId;
+};
 
 console.log('✅ API 헬퍼 로드 완료 (마스터 모드 지원)');

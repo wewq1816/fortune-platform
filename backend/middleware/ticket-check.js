@@ -98,8 +98,8 @@ function getDeviceID(req) {
     throw new Error('잘못된 디바이스 ID 길이');
   }
   
-  // 형식 검증 (영숫자만 허용)
-  if (!/^[a-zA-Z0-9]+$/.test(deviceId)) {
+  // 형식 검증 (영숫자와 언더스코어 허용)
+  if (!/^[a-zA-Z0-9_]+$/.test(deviceId)) {
     throw new Error('잘못된 디바이스 ID 형식');
   }
   
@@ -169,6 +169,12 @@ async function saveDeviceTicketData(deviceId, data) {
  */
 async function checkTicketMiddleware(req, res, next) {
   try {
+    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎫 이용권 미들웨어 실행');
+    console.log('헤더:', JSON.stringify(req.headers, null, 2));
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    
     // 마스터 모드 체크
     if (checkMasterMode(req)) {
       req.isMasterMode = true;
@@ -181,10 +187,12 @@ async function checkTicketMiddleware(req, res, next) {
     try {
       deviceId = getDeviceID(req);
     } catch (error) {
+      console.error('❌ getDeviceID 실패:', error.message);
       return res.status(400).json({
         success: false,
         error: '디바이스 ID가 필요합니다',
-        code: 'NO_DEVICE_ID'
+        code: 'NO_DEVICE_ID',
+        detail: error.message
       });
     }
     
@@ -203,24 +211,13 @@ async function checkTicketMiddleware(req, res, next) {
     // 이용권 데이터 조회
     const ticketData = await getDeviceTicketData(deviceId);
     
-    // 이용권 있으면 통과
-    if (ticketData.tickets > 0) {
-      req.deviceTicketData = ticketData;
-      req.deviceId = deviceId;
-      return next();
-    }
+    // 이용권 데이터를 req에 저장하고 통과 (체크만 함)
+    req.deviceTicketData = ticketData;
+    req.deviceId = deviceId;
     
-    // 이용권 없으면 차단
-    console.log(`🚫 이용권 없음: ${deviceId.substr(0, 8)}... (charged: ${ticketData.charged})`);
+    console.log(`✅ 이용권 체크: ${deviceId.substr(0, 8)}... (이용권: ${ticketData.tickets}, charged: ${ticketData.charged})`);
     
-    return res.status(403).json({
-      success: false,
-      error: '이용권이 부족합니다',
-      code: ticketData.charged ? 'TICKETS_EXHAUSTED' : 'NEED_CHARGE',
-      message: ticketData.charged 
-        ? '오늘의 이용권을 모두 사용했습니다. 내일 다시 이용해주세요.'
-        : '이용권이 필요합니다. 쿠팡 게이트를 방문해주세요.'
-    });
+    return next();
   } catch (error) {
     console.error('❌ 이용권 검증 오류:', error);
     // 오류 시 차단! (보안)

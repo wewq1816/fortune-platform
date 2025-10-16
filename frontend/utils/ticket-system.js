@@ -209,46 +209,24 @@ function canUseFortune() {
 }
 
 /**
- * 이용권 소모
- * @param {string} featureName - 사용한 기능 이름 (예: '오늘의 운세', '타로 카드')
+ * [DEPRECATED] 이용권 소모 - 사용 안함!
+ * 이제 백엔드에서만 이용권을 소모합니다.
+ * 프론트엔드는 이 함수를 호출하지 마세요!
+ * 
+ * @param {string} featureName - 사용한 기능 이름
  */
-function useTicket(featureName = '알 수 없음') {
-  // 마스터 모드는 소모하지 않음
-  if (isMasterMode()) {
-    // 마스터 모드도 통계 기록
-    if (typeof trackTicketUsage === 'function') {
-      trackTicketUsage(featureName);
-    }
-    return {
-      success: true,
-      remaining: Infinity
-    };
-  }
+function useTicket(featureName = '알수없음') {
+  console.warn('[DEPRECATED] useTicket() 호출됨 - 백엔드에서만 이용권 소모');
   
-  const ticketData = getTicketData();
-  
-  if (ticketData.count <= 0) {
-    return {
-      success: false,
-      remaining: 0,
-      error: '이용권이 없습니다.'
-    };
-  }
-  
-  // 이용권 1개 소모
-  ticketData.count -= 1;
-  ticketData.last_use = new Date().toISOString();
-  
-  saveTicketData(ticketData);
-  
-  // ⭐ 이용권 사용 통계 기록
+  // 통계 기록만 수행 (이용권 소모는 안함)
   if (typeof trackTicketUsage === 'function') {
     trackTicketUsage(featureName);
   }
   
   return {
     success: true,
-    remaining: ticketData.count
+    remaining: getRemainingTickets(),
+    message: '백엔드에서 이용권 검증'
   };
 }
 

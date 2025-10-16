@@ -198,7 +198,7 @@ function generateCompatibilityPrompt(data) {
     person2, 
     ilganRelation,
     zodiacRelation,
-    zodiacElementRelation
+    elementRelation
   } = data;
   
   const specificPrompt = typeSpecificPrompts[type] || typeSpecificPrompts.lover;
@@ -223,8 +223,8 @@ function generateCompatibilityPrompt(data) {
 - **배우자궁 관계**: ${ilganRelation.type}
   → ${ilganRelation.description}
 - **띠 관계**: ${zodiacRelation.description}
-- **띠 오행 관계**: ${zodiacElementRelation.type}
-  → ${zodiacElementRelation.description}
+- **띠 오행 관계**: ${elementRelation.type}
+  → ${elementRelation.description}
 - **궁합 점수**: ${score}점 / 100점
 - **궁합 등급**: ${level}
 

@@ -801,6 +801,18 @@
   <script src="../utils/api-helper.js"></script>
 
   <script>
+    // 환경별 API URL 설정
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1' ||
+                        window.location.hostname === '';
+
+    const API_BASE_URL = isLocalhost 
+      ? 'http://localhost:3000'
+      : 'https://fortune-platform.onrender.com';
+
+    console.log('[Horoscope] Environment:', isLocalhost ? 'Local' : 'Production');
+    console.log('[Horoscope] API URL:', API_BASE_URL);
+
     // localStorage에서 사주 정보 가져오기
     // localStorage에서 사주 정보 가져오기 (없으면 기본값)
     let savedData = JSON.parse(localStorage.getItem('fortuneUserData')) || {
@@ -969,7 +981,7 @@
 
       // 🌟 실제 API 연동 (Claude Haiku 사용)
       try {
-        const response = await fetchWithDeviceId('https://fortune-platform.onrender.com/api/horoscope', {
+        const response = await fetchWithDeviceId(API_BASE_URL + '/api/horoscope', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json; charset=utf-8' },
           body: JSON.stringify({ year, month, day, hour, minute })

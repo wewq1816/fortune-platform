@@ -801,6 +801,18 @@
   </div>
 
   <script>
+    // 환경별 API URL 설정
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1' ||
+                        window.location.hostname === '';
+
+    const API_BASE_URL = isLocalhost 
+      ? 'http://localhost:3000'
+      : 'https://fortune-platform.onrender.com';
+
+    console.log('[Compatibility] Environment:', isLocalhost ? 'Local' : 'Production');
+    console.log('[Compatibility] API URL:', API_BASE_URL);
+
     // ========================================
     // 전역 변수
     // ========================================
@@ -1135,7 +1147,7 @@
     // 실제 API (나중에 사용) 🔐
     // ========================================
     async function callRealAPI(formData) {
-      const response = await fetchWithDeviceId('https://fortune-platform.onrender.com/api/compatibility', {
+      const response = await fetchWithDeviceId(API_BASE_URL + '/api/compatibility', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1229,12 +1241,10 @@
       if (check.reason === 'has_tickets') {
         // 이용권 있음 - 소모 확인 모달
         showUseTicketModal(check.tickets, () => {
-          const result = useTicket('궁합 보기');
-          if (result.success) {
-            checkCompatibilityCore();
-          } else {
-            alert('⚠️ 이용권 소모 실패: ' + result.error);
-          }
+          console.log('사용자 확인 - API 호출');
+          checkCompatibilityCore();
+        }, () => {
+          console.log('사용 취소');
         });
       } else if (check.reason === 'need_charge') {
         // 이용권 없음 - 충전 유도 모달
@@ -1280,7 +1290,7 @@
       
       // 띠 오행
       document.getElementById('element-display').textContent = 
-        `${data.person1?.element || '?'} ♥ ${data.person2?.element || '?'}`;
+        `${data.person1?.zodiacElement || '?'} ♥ ${data.person2?.zodiacElement || '?'}`;
       document.getElementById('element-relation').textContent = 
         data.elementRelation ? data.elementRelation.type : '-';
       document.getElementById('zodiac-relation').textContent = 

@@ -70,7 +70,7 @@ function getCanvasFingerprint() {
  * 디바이스 ID 가져오기 (캐시 사용)
  * @returns {Promise<string>}
  */
-async function getOrCreateDeviceId() {
+window.getOrCreateDeviceId = async function() {
   // localStorage에서 기존 ID 확인
   let deviceId = localStorage.getItem('deviceId');
   
@@ -84,10 +84,9 @@ async function getOrCreateDeviceId() {
   }
   
   return deviceId;
-}
+};
 
 // 전역 노출
-window.getOrCreateDeviceId = getOrCreateDeviceId;
 window.generateDeviceId = generateDeviceId;
 
 console.log('🔐 디바이스 ID 유틸리티 로드 완료');

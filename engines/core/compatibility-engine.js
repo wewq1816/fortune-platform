@@ -401,7 +401,7 @@ function calculateCompatibility(person1, person2, type = 'lover') {
         score: zodiacScore,
         description: getZodiacRelationDescription(zodiac1, zodiac2, zodiacScore)
       },
-      zodiacElementRelation: {
+      elementRelation: {
         type: zodiacElementRelation.type,
         description: zodiacElementRelation.description,
         score: zodiacElementScore

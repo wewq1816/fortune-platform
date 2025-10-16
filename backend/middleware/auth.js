@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 // JWT Secret 환경 변수 검증
 const SECRET_KEY = process.env.JWT_SECRET;

@@ -303,12 +303,27 @@
       padding: 8px;
       background: #f8f9fa;
       border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .ten-star-item.has-star {
       background: #e8daef;
       color: #6c5ce7;
       font-weight: bold;
+    }
+
+    .ten-star-name {
+      font-size: 11px;
+      font-weight: bold;
+      color: #666;
+    }
+
+    .ten-star-count {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
     }
 
     .elements-info {
@@ -731,15 +746,10 @@
       
       if (check.reason === 'has_tickets') {
         showUseTicketModal(check.tickets, () => {
-          const result = useTicket('사주팔자');
-          if (result.success) {
-            console.log('✅ 이용권 소모 성공:', result);
-            generateSaju();
-          } else {
-            alert('⚠️ 이용권 소모 실패: ' + result.error);
-          }
+          console.log('사용자 확인 - API 호출');
+          generateSaju();
         }, () => {
-          console.log('❌ 사용 취소');
+          console.log('사용 취소');
         });
       } else if (check.reason === 'need_charge') {
         showChargeTicketModal(() => {

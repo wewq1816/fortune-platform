@@ -6,18 +6,28 @@
  * - 이용권 사용 추적
  */
 
-// API 엔드포인트
-const API_BASE_URL = 'https://fortune-platform.onrender.com/api/analytics';
+(function() {
+  // API 엔드포인트 (환경에 따라 자동 선택)
+  const isLocalhost = window.location.hostname === 'localhost' || 
+                      window.location.hostname === '127.0.0.1' ||
+                      window.location.hostname === '';
 
-/**
- * 방문자 고유 ID 생성 또는 가져오기
- * 디바이스 ID 사용 (device-id.js에서 생성)
- */
-async function getVisitorId() {
-  // device-id.js에서 디바이스 ID 가져오기
-  if (typeof getOrCreateDeviceId === 'function') {
-    return await getOrCreateDeviceId();
-  }
+  const API_BASE_URL = isLocalhost 
+    ? 'http://localhost:3000'
+    : 'https://fortune-platform.onrender.com';
+
+  console.log('[Analytics] 환경:', isLocalhost ? '로컬 개발' : '배포 서버');
+  console.log('[Analytics] API URL:', API_BASE_URL);
+
+  /**
+   * 방문자 고유 ID 생성 또는 가져오기
+   * 디바이스 ID 사용 (device-id.js에서 생성)
+   */
+  async function getVisitorId() {
+    // device-id.js에서 디바이스 ID 가져오기
+    if (typeof getOrCreateDeviceId === 'function') {
+      return await getOrCreateDeviceId();
+    }
   
   // Fallback: localStorage 기반 (device-id.js 로드 실패 시)
   let visitorId = localStorage.getItem('visitorId');
@@ -53,7 +63,7 @@ async function trackVisit() {
       return;
     }
     
-    const response = await fetch(`${API_BASE_URL}/visit`, {
+    const response = await fetch(`${API_BASE_URL}/api/analytics/visit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -85,7 +95,7 @@ async function trackCoupangClick() {
   try {
     const visitorId = await getVisitorId();  // async로 변경
     
-    const response = await fetch(`${API_BASE_URL}/coupang-click`, {
+    const response = await fetch(`${API_BASE_URL}/api/analytics/coupang-click`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -115,7 +125,7 @@ async function trackTicketUsage(feature) {
   try {
     const visitorId = await getVisitorId();  // async로 변경
     
-    const response = await fetch(`${API_BASE_URL}/ticket-usage`, {
+    const response = await fetch(`${API_BASE_URL}/api/analytics/ticket-usage`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -134,33 +144,34 @@ async function trackTicketUsage(feature) {
   } catch (error) {
     console.error('❌ 이용권 사용 기록 오류:', error);
   }
-}
-
-/**
- * 페이지 로드 시 자동 방문 기록
- * 모든 페이지에서 실행됨 (관리자 페이지 제외)
- */
-if (typeof document !== 'undefined') {
-  // 관리자 페이지는 추적하지 않음
-  const isAdminPage = window.location.pathname.includes('/admin/');
-  
-  if (!isAdminPage) {
-    // DOMContentLoaded 이벤트가 이미 발생했는지 확인
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', trackVisit);
-    } else {
-      // 이미 로드 완료된 경우 바로 실행
-      trackVisit();
-    }
-  } else {
-    console.log('🔒 관리자 페이지는 방문자 추적에서 제외됩니다');
   }
-}
 
-// 전역으로 내보내기 (다른 스크립트에서 사용 가능)
-window.getVisitorId = getVisitorId;
-window.trackVisit = trackVisit;
-window.trackCoupangClick = trackCoupangClick;
-window.trackTicketUsage = trackTicketUsage;
+  /**
+   * 페이지 로드 시 자동 방문 기록
+   * 모든 페이지에서 실행됨 (관리자 페이지 제외)
+   */
+  if (typeof document !== 'undefined') {
+    // 관리자 페이지는 추적하지 않음
+    const isAdminPage = window.location.pathname.includes('/admin/');
+    
+    if (!isAdminPage) {
+      // DOMContentLoaded 이벤트가 이미 발생했는지 확인
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', trackVisit);
+      } else {
+        // 이미 로드 완료된 경우 바로 실행
+        trackVisit();
+      }
+    } else {
+      console.log('🔒 관리자 페이지는 방문자 추적에서 제외됩니다');
+    }
+  }
 
-console.log('📊 Analytics Tracker 로드 완료');
+  // 전역으로 내보내기 (다른 스크립트에서 사용 가능)
+  window.getVisitorId = getVisitorId;
+  window.trackVisit = trackVisit;
+  window.trackCoupangClick = trackCoupangClick;
+  window.trackTicketUsage = trackTicketUsage;
+
+  console.log('📊 Analytics Tracker 로드 완료');
+})();

@@ -147,8 +147,8 @@ const TenStarsCalculator = {
     };
 
     ['year', 'month', 'day', 'hour'].forEach(pillar => {
-      const cheonganStar = tenStars[pillar].cheonganStar;
-      const jijiStar = tenStars[pillar].jijiStar;
+      const cheonganStar = tenStars[pillar].cheongan;
+      const jijiStar = tenStars[pillar].jiji;
       
       if (cheonganStar && cheonganStar !== '일간' && count[cheonganStar] !== undefined) {
         count[cheonganStar]++;

@@ -1,6 +1,18 @@
 // saju-main.js
 // 메인 로직
 
+// 🌐 환경별 API URL 설정
+const isLocalhost = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.hostname === '';
+
+const API_BASE_URL = isLocalhost 
+  ? 'http://localhost:3000'
+  : 'https://fortune-platform.onrender.com';
+
+console.log('[Saju] 환경:', isLocalhost ? '로컬 개발' : '배포 서버');
+console.log('[Saju] API URL:', API_BASE_URL);
+
 let savedData = null;
 let selectedCategory = null;
 
@@ -47,8 +59,8 @@ function displaySajuBasicInfo(result) {
     { label: '일주', char: saju.day.hanja, pillar: 'day' },
     { label: '시주', char: saju.hour.hanja, pillar: 'hour' }
   ].map(p => {
-    const cheonganStar = tenStars && tenStars[p.pillar] ? tenStars[p.pillar].cheonganStar : '';
-    const jijiStar = tenStars && tenStars[p.pillar] ? tenStars[p.pillar].jijiStar : '';
+    const cheonganStar = tenStars && tenStars[p.pillar] ? tenStars[p.pillar].cheongan : '';
+    const jijiStar = tenStars && tenStars[p.pillar] ? tenStars[p.pillar].jiji : '';
     return `
       <div class="pillar">
         <div class="pillar-label">${p.label}</div>
@@ -193,8 +205,8 @@ async function generateSaju() {
 
     console.log('📞 API 호출 데이터:', { year, month, day, hour, gender, isLunar, category: selectedCategory });
 
-    // API 호출 (디바이스 ID 포함)
-    const response = await fetchWithDeviceId('https://fortune-platform.onrender.com/api/saju', {
+    // ⭐ API 호출 (환경별 URL 자동 선택)
+    const response = await fetchWithDeviceId(API_BASE_URL + '/api/saju', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

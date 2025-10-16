@@ -1,0 +1,36 @@
+<!-- 이 파일은 임시로 생성된 수정된 버전입니다 -->
+<!-- 실제 적용하려면 daily-fortune-test.html로 복사하세요 -->
+
+<!-- API URL 자동 선택 로직 (스크립트 상단에 추가) -->
+<script>
+// 환경에 따른 API Base URL 자동 선택
+const isLocalhost = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.hostname === '';
+
+const API_BASE_URL = isLocalhost 
+  ? 'http://localhost:3000'
+  : 'https://fortune-platform.onrender.com';
+
+console.log('[Daily Fortune] 환경:', isLocalhost ? '로컬 개발' : '배포 서버');
+console.log('[Daily Fortune] API URL:', API_BASE_URL);
+</script>
+
+<!-- 기존 callRealDailyFortuneAPI 함수를 다음과 같이 수정 -->
+<script>
+async function callRealDailyFortuneAPI(requestData) {
+  const response = await fetchWithDeviceId(API_BASE_URL + '/api/daily-fortune', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(requestData)
+  });
+
+  if (!response.ok) {
+    throw new Error('API 호출 실패');
+  }
+
+  return await response.json();
+}
+</script>

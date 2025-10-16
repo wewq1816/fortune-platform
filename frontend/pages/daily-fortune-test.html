@@ -529,6 +529,18 @@
   <script src="../components/common/TicketModal.jsx"></script>
 
   <script>
+    // 환경별 API URL 설정
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1' ||
+                        window.location.hostname === '';
+
+    const API_BASE_URL = isLocalhost 
+      ? 'http://localhost:3000'
+      : 'https://fortune-platform.onrender.com';
+
+    console.log('[Daily Fortune] Environment:', isLocalhost ? 'Local' : 'Production');
+    console.log('[Daily Fortune] API URL:', API_BASE_URL);
+
     // 🎫 페이지 로드 시 마스터 모드 체크
     checkMasterModeFromURL();
 
@@ -549,20 +561,12 @@
       console.log('이용권 체크 결과:', check);
       
       if (check.reason === 'has_tickets') {
-        // 이용권 있음 - 소모 확인 모달
+        // 이용권 있음 - 확인 모달
         showUseTicketModal(check.tickets, () => {
-          // 확인 클릭 - 이용권 소모
-          const result = useTicket('오늘의 운세');
-          
-          if (result.success) {
-            console.log('✅ 이용권 소모 성공:', result);
-            getDailyFortune();
-          } else {
-            alert('⚠️ 이용권 소모 실패: ' + result.error);
-          }
+          console.log('사용자 확인 - API 호출');
+          getDailyFortune();
         }, () => {
-          // 취소 클릭
-          console.log('❌ 사용 취소');
+          console.log('사용 취소');
         });
         
       } else if (check.reason === 'need_charge') {
@@ -775,7 +779,7 @@
     // 실제 API (나중에 사용) 🔐
     // ========================================
     async function callRealDailyFortuneAPI(requestData) {
-      const response = await fetchWithDeviceId('https://fortune-platform.onrender.com/api/daily-fortune', {
+      const response = await fetchWithDeviceId(API_BASE_URL + '/api/daily-fortune', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

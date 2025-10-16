@@ -1,3 +1,15 @@
+// 환경별 API URL 설정
+const isLocalhost = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.hostname === '';
+
+const API_BASE_URL = isLocalhost 
+  ? 'http://localhost:3000'
+  : 'https://fortune-platform.onrender.com';
+
+console.log('[Dashboard] Environment:', isLocalhost ? 'Local' : 'Production');
+console.log('[Dashboard] API URL:', API_BASE_URL);
+
 // ========================================
 // 인증 확인
 // ========================================
@@ -50,7 +62,7 @@ function showNotification(message) {
 // ========================================
 async function updateRealtimeStats() {
   try {
-    const response = await fetch('https://fortune-platform.onrender.com/api/admin/stats/today', { headers });
+    const response = await fetch(API_BASE_URL + '/api/admin/stats/today', { headers });
     
     if (!response.ok) {
       throw new Error('통계 조회 실패');
@@ -92,12 +104,12 @@ async function updateRealtimeStats() {
 async function loadTotalStats() {
   try {
     // 방문자 통계
-    const visitorsResponse = await fetch('https://fortune-platform.onrender.com/api/admin/stats/visitors', { headers });
+    const visitorsResponse = await fetch(API_BASE_URL + '/api/admin/stats/visitors', { headers });
     const visitorsData = await visitorsResponse.json();
     document.getElementById('visitorsTotal').textContent = visitorsData.totalVisitors || 0;
     
     // 쿠팡 클릭 통계
-    const coupangResponse = await fetch('https://fortune-platform.onrender.com/api/admin/stats/coupang', { headers });
+    const coupangResponse = await fetch(API_BASE_URL + '/api/admin/stats/coupang', { headers });
     const coupangData = await coupangResponse.json();
     document.getElementById('clicksTotal').textContent = coupangData.totalClicks || 0;
     
