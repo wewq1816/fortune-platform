@@ -880,7 +880,7 @@
       grid.innerHTML = cards.slice(0, count).map((card, index) => `
         <div class="tarot-card" id="card-${index}" onclick="selectCard(${index})">
           <div class="card-back-view">
-            <img src="/public/images/tarot/CardBacks.png" 
+            <img src="/images/tarot/CardBacks.png" 
                  alt="카드 뒷면" 
                  style="width: 100%; height: 120px; object-fit: cover; border-radius: 10px; margin-bottom: 8px;">
             <div class="card-name">카드 ${index + 1}</div>
@@ -940,11 +940,11 @@
         
         // 방법 1: 대문자 하이픈 형식 (예: 00-TheFool.png)
         const cardNameCamel = selectedCard.name.replace(/ /g, '');
-        const imgPath1 = `/public/images/tarot/${cardNum}-${cardNameCamel}.png`;
+        const imgPath1 = `/images/tarot/${cardNum}-${cardNameCamel}.png`;
         
         // 방법 2: 소문자 언더스코어 형식 (예: 00_fool.png)
         const cardNameLower = selectedCard.name.toLowerCase().replace(/the /g, '').replace(/ /g, '');
-        const imgPath2 = `/public/images/tarot/${cardNum}_${cardNameLower}.png`;
+        const imgPath2 = `/images/tarot/${cardNum}_${cardNameLower}.png`;
         
         console.log('카드 정보:', {
           이름: selectedCard.name,
@@ -962,7 +962,7 @@
           revealedImg.src = imgPath2;
           revealedImg.onerror = () => {
             console.error('모든 경로 실패, 카드 뒷면 표시');
-            revealedImg.src = '/public/images/tarot/CardBacks.png';
+            revealedImg.src = '/images/tarot/CardBacks.png';
           };
         };
         
@@ -1160,11 +1160,11 @@
         
         // 방법 1: 대문자 하이픈 형식
         const cardNameCamel = card.name.replace(/ /g, '');
-        const imgPath = `/public/images/tarot/${cardNum}-${cardNameCamel}.png`;
+        const imgPath = `/images/tarot/${cardNum}-${cardNameCamel}.png`;
         
         // 방법 2: 소문자 언더스코어 형식 (백업)
         const cardNameLower = card.name.toLowerCase().replace(/the /g, '').replace(/ /g, '');
-        const imgPathBackup = `/public/images/tarot/${cardNum}_${cardNameLower}.png`;
+        const imgPathBackup = `/images/tarot/${cardNum}_${cardNameLower}.png`;
         
         console.log(`결과 카드 ${i+1}:`, card.name, '경로:', imgPath);
         
@@ -1175,7 +1175,7 @@
                  alt="${card.name_ko}" 
                  style="width: 100%; max-width: 80px; height: auto; margin: 10px 0; border-radius: 5px; 
                         ${card.orientation === 'reversed' ? 'transform: rotate(180deg);' : ''}"
-                 onerror="this.onerror=null; this.src='${imgPathBackup}'; this.onerror=()=>this.src='/public/images/tarot/CardBacks.png';">
+                 onerror="this.onerror=null; this.src='${imgPathBackup}'; this.onerror=()=>this.src='/images/tarot/CardBacks.png';">
             <div class="selected-card-name">${card.name_ko}</div>
             <div class="selected-card-orientation">${card.orientation === 'upright' ? '정방향' : '역방향'}</div>
           </div>
