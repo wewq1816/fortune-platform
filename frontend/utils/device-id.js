@@ -57,7 +57,7 @@ function getCanvasFingerprint() {
     ctx.fillStyle = '#f60';
     ctx.fillRect(0, 0, 200, 50);
     ctx.fillStyle = '#069';
-    ctx.fillText('Device Fingerprint 🔐', 2, 15);
+    ctx.fillText('Device Fingerprint', 2, 15);
     
     // 이미지 데이터를 해시로 변환
     return canvas.toDataURL();
@@ -71,22 +71,29 @@ function getCanvasFingerprint() {
  * @returns {Promise<string>}
  */
 window.getOrCreateDeviceId = async function() {
-  // localStorage에서 기존 ID 확인
-  let deviceId = localStorage.getItem('deviceId');
-  
-  if (!deviceId) {
-    // 새로 생성
-    deviceId = await generateDeviceId();
-    localStorage.setItem('deviceId', deviceId);
-    console.log('✅ 새 디바이스 ID 생성:', deviceId);
-  } else {
-    console.log('✅ 기존 디바이스 ID 로드:', deviceId);
+  try {
+    // localStorage에서 기존 ID 확인
+    let deviceId = localStorage.getItem('deviceId');
+    
+    if (!deviceId) {
+      // 새로 생성
+      deviceId = await generateDeviceId();
+      localStorage.setItem('deviceId', deviceId);
+      console.log('새 디바이스 ID 생성:', deviceId);
+    } else {
+      console.log('기존 디바이스 ID 로드:', deviceId);
+    }
+    
+    return deviceId;
+  } catch (e) {
+    // localStorage 실패 시 임시 ID 생성
+    console.warn('localStorage 접근 실패, 임시 ID 사용:', e.message);
+    const tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    return tempId;
   }
-  
-  return deviceId;
 };
 
 // 전역 노출
 window.generateDeviceId = generateDeviceId;
 
-console.log('🔐 디바이스 ID 유틸리티 로드 완료');
+console.log('디바이스 ID 유틸리티 로드 완료');
