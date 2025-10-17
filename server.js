@@ -1309,30 +1309,43 @@ app.post('/api/saju', checkTicketMiddleware, async (req, res) => {
 });
 
 // ========================================
-// ⭐ 관리자 및 분석 시스템 초기화 (Phase 3)
+// MongoDB 초기화 (티켓 시스템 + 관리자)
 // ========================================
 
 // MongoDB 연결 설정
 const { MongoClient } = require('mongodb');
+const { connectMongoDB } = require('./backend/config/mongodb');
+const { TicketModel } = require('./backend/models/Ticket');
+
 const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017';
 const dbName = process.env.DB_NAME || 'fortune_platform';
 let db;
 
-// MongoDB 연결 및 라우터 초기화
-MongoClient.connect(mongoUrl)
-  .then(client => {
-    console.log('✅ MongoDB 연결 성공');
+// MongoDB 연결 및 초기화
+Promise.all([
+  // 1. 티켓 시스템 MongoDB
+  connectMongoDB().then(async () => {
+    await TicketModel.ensureIndexes();
+    console.log('[Ticket] MongoDB 준비 완료');
+  }),
+  
+  // 2. 관리자 시스템 MongoDB
+  MongoClient.connect(mongoUrl).then(client => {
+    console.log('[Admin] MongoDB 연결 성공');
     db = client.db(dbName);
-    
-    // 라우터에 DB 전달
     adminRouter.initDB(db);
     analyticsRouter.initDB(db);
-    
-    console.log('✅ 관리자 및 분석 시스템 초기화 완료');
+    console.log('[Admin] 관리자 시스템 초기화 완료');
+  })
+])
+  .then(() => {
+    console.log('====================================');
+    console.log('MongoDB 전체 초기화 완료');
+    console.log('====================================');
   })
   .catch(error => {
-    console.error('❌ MongoDB 연결 실패:', error.message);
-    console.log('⚠️ 관리자 기능이 비활성화됩니다 (일반 운세 기능은 정상 작동)');
+    console.error('[MongoDB] 초기화 실패:', error.message);
+    console.log('경고: 일부 기능이 비활성화될 수 있습니다');
   });
 
 // ========================================
