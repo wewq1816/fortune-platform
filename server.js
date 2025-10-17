@@ -103,6 +103,9 @@ const {
 
 const app = express();
 
+// Render 프록시 설정 (ValidationError 해결)
+app.set('trust proxy', true);
+
 // 나이 계산 함수
 function calculateAge(year, month, day) {
   const today = new Date();
