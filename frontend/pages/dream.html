@@ -963,7 +963,7 @@
     });
 
     // 🎫 이용권 체크 후 꿈 검색 (래퍼 함수)
-    function searchDream() {
+    async function searchDream() {
       const query = searchInput.value.trim();
       if (!query) {
         alert('꿈 내용을 입력해주세요.');
@@ -977,8 +977,8 @@
         return;
       }
 
-      // 이용권 확인
-      const check = canUseFortune();
+      // 이용권 확인 (백엔드 동기화)
+      const check = await canUseFortune();
 
       if (check.reason === 'has_tickets') {
         // 이용권 있음 - 소모 확인 모달

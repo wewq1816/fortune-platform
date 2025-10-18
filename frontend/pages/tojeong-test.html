@@ -1164,15 +1164,15 @@
     // ========================================
     // 🎫 이용권 체크 후 토정비결 보기 (래퍼 함수)
     // ========================================
-    function getTojeong() {
+    async function getTojeong() {
       // 마스터 모드는 바로 실행
       if (isMasterMode()) {
         getTojeongCore();
         return;
       }
 
-      // 이용권 확인
-      const check = canUseFortune();
+      // 이용권 확인 (백엔드 동기화)
+      const check = await canUseFortune();
 
       if (check.reason === 'has_tickets') {
         // 이용권 있음 - 소모 확인 모달

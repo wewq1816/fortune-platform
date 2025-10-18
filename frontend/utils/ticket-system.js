@@ -7,7 +7,22 @@
  * - 하루 최대 2번 사용 가능
  * - 자정 지나면 초기화
  * - 마스터 코드 'cooal' = 무제한
+ * 
+ * ⭐ Single Source of Truth: MongoDB (백엔드)
+ * - 모든 이용권 정보는 백엔드 MongoDB에서 관리
+ * - 프론트엔드 localStorage는 캐시용
  */
+
+// ============================================
+// 🌐 API URL 설정
+// ============================================
+const isLocalhost = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.hostname === '';
+
+const API_BASE_URL = isLocalhost 
+  ? 'http://localhost:3000'
+  : 'https://fortune-platform.onrender.com';
 
 // ============================================
 // 📦 localStorage 키 상수
@@ -151,6 +166,56 @@ function saveTicketData(ticketData) {
 // ============================================
 
 /**
+ * 백엔드에서 실제 이용권 확인 (Single Source of Truth)
+ * @returns {Promise<object>} { tickets, charged, date }
+ */
+async function checkTicketsFromBackend() {
+  try {
+    const deviceId = await getOrCreateDeviceId();
+    
+    const response = await fetch(API_BASE_URL + '/api/tickets/check', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Device-ID': deviceId
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('이용권 조회 실패: ' + response.status);
+    }
+    
+    const data = await response.json();
+    
+    // localStorage 동기화 (캐시)
+    const ticketData = {
+      date: data.date || getTodayString(),
+      count: data.tickets || 0,
+      charged: data.charged || false,
+      last_use: null
+    };
+    saveTicketData(ticketData);
+    
+    console.log('[Ticket] 백엔드 동기화:', ticketData);
+    
+    return {
+      tickets: data.tickets || 0,
+      charged: data.charged || false,
+      date: data.date || getTodayString()
+    };
+  } catch (error) {
+    console.error('[Ticket] 백엔드 확인 실패:', error);
+    // 폴백: localStorage 사용
+    const localData = getTicketData();
+    return {
+      tickets: localData.count,
+      charged: localData.charged,
+      date: localData.date
+    };
+  }
+}
+
+/**
  * 남은 이용권 개수
  */
 function getRemainingTickets() {
@@ -163,14 +228,14 @@ function getRemainingTickets() {
 }
 
 /**
- * 기능 사용 가능 여부 확인
+ * 기능 사용 가능 여부 확인 (백엔드 동기화)
  * 
- * @returns {object} { canUse, reason, tickets }
+ * @returns {Promise<object>} { canUse, reason, tickets }
  *   - canUse: 사용 가능 여부
  *   - reason: 'has_tickets' | 'need_charge' | 'already_used' | 'master_mode'
  *   - tickets: 현재 이용권 개수
  */
-function canUseFortune() {
+async function canUseFortune() {
   // 마스터 모드는 무조건 사용 가능
   if (isMasterMode()) {
     return {
@@ -180,19 +245,20 @@ function canUseFortune() {
     };
   }
   
-  const ticketData = getTicketData();
+  // ⭐ 백엔드에서 실제 이용권 확인
+  const backendData = await checkTicketsFromBackend();
   
   // 이용권이 있으면 사용 가능
-  if (ticketData.count > 0) {
+  if (backendData.tickets > 0) {
     return {
       canUse: true,
       reason: 'has_tickets',
-      tickets: ticketData.count
+      tickets: backendData.tickets
     };
   }
   
   // 이용권이 없고, 아직 충전 안 했으면
-  if (ticketData.count === 0 && !ticketData.charged) {
+  if (backendData.tickets === 0 && !backendData.charged) {
     return {
       canUse: false,
       reason: 'need_charge',

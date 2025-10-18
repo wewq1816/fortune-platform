@@ -1356,7 +1356,7 @@
     checkMasterModeFromURL();
 
     // 🎫 이용권 체크 후 타로 시작
-    function checkTicketAndStartTarot() {
+    async function checkTicketAndStartTarot() {
       console.log('🎯 타로 시작 클릭');
       
       // 마스터 모드는 바로 실행
@@ -1366,8 +1366,8 @@
         return;
       }
       
-      // 이용권 사용 가능 여부 확인
-      const check = canUseFortune();
+      // 이용권 사용 가능 여부 확인 (백엔드 동기화)
+      const check = await canUseFortune();
       
       console.log('이용권 체크 결과:', check);
       

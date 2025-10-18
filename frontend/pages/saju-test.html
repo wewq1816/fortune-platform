@@ -727,7 +727,7 @@
     checkMasterModeFromURL();
 
     // 🎫 이용권 체크 후 사주 생성
-    function checkTicketAndGenerateSaju() {
+    async function checkTicketAndGenerateSaju() {
       console.log('🎯 사주 생성 클릭');
       
       // 📊 이용권 사용 추적 (마스터 모드 포함 모든 경우)
@@ -741,7 +741,7 @@
         return;
       }
       
-      const check = canUseFortune();
+      const check = await canUseFortune();
       console.log('이용권 체크 결과:', check);
       
       if (check.reason === 'has_tickets') {
