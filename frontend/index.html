@@ -465,8 +465,20 @@
     // 이용권 배지 렌더링
     updateTicketBadge();
     
+    // 페이지가 다시 보일 때마다 배지 업데이트
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        updateTicketBadge();
+      }
+    });
+    
+    // 페이지 포커스 시에도 배지 업데이트
+    window.addEventListener('focus', function() {
+      updateTicketBadge();
+    });
+    
     // ============================================
-    // 🎨 이용권 배지 업데이트
+    // 이용권 배지 업데이트
     // ============================================
     function updateTicketBadge() {
       const badgeContainer = document.getElementById('ticketBadge');
@@ -474,14 +486,14 @@
       if (isMasterMode()) {
         badgeContainer.innerHTML = `
           <div class="ticket-badge master-mode">
-            🔓 Master Mode
+            Master Mode
           </div>
         `;
       } else {
         const tickets = getRemainingTickets();
         badgeContainer.innerHTML = `
           <div class="ticket-badge">
-            🎫 ${tickets}개
+            ${tickets}개
           </div>
         `;
       }
