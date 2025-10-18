@@ -752,18 +752,42 @@
           console.log('사용 취소');
         });
       } else if (check.reason === 'need_charge') {
-        showChargeTicketModal(() => {
-          console.log('✅ 쿠팡 방문 동의');
-          const chargeResult = chargeTickets();
-          if (chargeResult.success) {
-            console.log('✅ 이용권 충전 완료:', chargeResult);
-            const COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform";
-            window.open(COUPANG_LINK, '_blank');
-            setTimeout(() => {
-              alert('🎫 이용권 2개가 충전되었습니다!\n이제 다시 "사주 보기"를 눌러주세요.');
-            }, 500);
-          } else {
-            alert('⚠️ ' + chargeResult.error);
+        showChargeTicketModal(async () => {
+          console.log('쿠팡 방문 동의');
+          
+          try {
+            const deviceId = await getOrCreateDeviceId();
+            
+            const response = await fetch(API_BASE_URL + '/api/tickets/charge', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Device-ID': deviceId
+              }
+            });
+            
+            const chargeResult = await response.json();
+            
+            if (chargeResult.success) {
+              console.log('이용권 충전 완료:', chargeResult);
+              
+              // 프론트엔드 localStorage 동기화
+              const ticketData = getTicketData();
+              ticketData.count = chargeResult.tickets;
+              ticketData.charged = true;
+              saveTicketData(ticketData);
+              
+              const COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform";
+              window.open(COUPANG_LINK, '_blank');
+              setTimeout(() => {
+                alert('이용권 2개가 충전되었습니다!\n이제 다시 "사주 보기"를 눌러주세요.');
+              }, 500);
+            } else {
+              alert(chargeResult.error || '충전 실패');
+            }
+          } catch (error) {
+            console.error('충전 API 호출 실패:', error);
+            alert('서버 연결 실패');
           }
         }, () => {
           console.log('❌ 쿠팡 방문 거부');

@@ -98,6 +98,8 @@ const {
   useTicket,
   chargeTicketsEndpoint,
   getTicketsEndpoint,
+  resetTicketsEndpoint,
+  setTicketsEndpoint,
   startAutoCleanup
 } = require('./backend/middleware/ticket-check');
 
@@ -197,6 +199,8 @@ console.log('✅ Rate Limiting 활성화: Claude API는 15분당 10,000회 제�
 // 🎫 이용권 시스템 API (이용권 미들웨어 전에 등록 - 검증 불필요)
 app.post('/api/tickets/charge', chargeTicketsEndpoint);  // 이용권 충전
 app.get('/api/tickets/check', getTicketsEndpoint);       // 이용권 조회
+app.post('/api/tickets/reset', resetTicketsEndpoint);    // 이용권 초기화 (관리용)
+app.post('/api/tickets/set', setTicketsEndpoint);        // 이용권 수동 설정 (관리용)
 
 // engines 폴더도 정적 파일로 제공 (타로 데이터 접근용)
 app.use('/engines', express.static('engines'));

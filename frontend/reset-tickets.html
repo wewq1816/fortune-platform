@@ -88,24 +88,83 @@
     </div>
   </div>
 
+  <!-- 디바이스 ID 헬퍼 -->
+  <script src="./utils/device-id.js"></script>
+  
   <script>
-    function resetTickets() {
-      localStorage.removeItem('fortune_tickets');
-      localStorage.removeItem('master_mode');
-      document.getElementById('result').innerHTML = '✅ 이용권이 완전히 초기화되었습니다!<br>이용권: 0개, 충전 가능';
+    // 환경별 API URL
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1' ||
+                        window.location.hostname === '';
+    
+    const API_BASE_URL = isLocalhost 
+      ? 'http://localhost:3000'
+      : 'https://fortune-platform.onrender.com';
+    
+    async function resetTickets() {
+      try {
+        const deviceId = await getOrCreateDeviceId();
+        
+        // 백엔드 API 호출하여 초기화
+        const response = await fetch(API_BASE_URL + '/api/tickets/reset', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Device-ID': deviceId
+          }
+        });
+        
+        if (response.ok) {
+          // 프론트엔드 localStorage도 초기화
+          localStorage.removeItem('fortune_tickets');
+          localStorage.removeItem('master_mode');
+          
+          document.getElementById('result').innerHTML = '완전히 초기화되었습니다!<br>이용권: 0개, 충전 가능';
+        } else {
+          document.getElementById('result').innerHTML = '초기화 실패: ' + response.statusText;
+        }
+      } catch (error) {
+        console.error('초기화 오류:', error);
+        document.getElementById('result').innerHTML = '서버 연결 실패';
+      }
+      
       setTimeout(() => {
         location.reload();
       }, 1500);
     }
     
-    function setTickets(count) {
-      localStorage.setItem('fortune_tickets', JSON.stringify({
-        date: getTodayString(),
-        count: count,
-        charged: true,
-        last_use: null
-      }));
-      document.getElementById('result').innerHTML = `✅ 이용권이 ${count}개로 설정되었습니다!`;
+    async function setTickets(count) {
+      try {
+        const deviceId = await getOrCreateDeviceId();
+        
+        // 백엔드 API 호출하여 이용권 설정
+        const response = await fetch(API_BASE_URL + '/api/tickets/set', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Device-ID': deviceId
+          },
+          body: JSON.stringify({ tickets: count })
+        });
+        
+        if (response.ok) {
+          // 프론트엔드 localStorage도 동기화
+          localStorage.setItem('fortune_tickets', JSON.stringify({
+            date: getTodayString(),
+            count: count,
+            charged: true,
+            last_use: null
+          }));
+          
+          document.getElementById('result').innerHTML = `이용권이 ${count}개로 설정되었습니다!`;
+        } else {
+          document.getElementById('result').innerHTML = '설정 실패: ' + response.statusText;
+        }
+      } catch (error) {
+        console.error('설정 오류:', error);
+        document.getElementById('result').innerHTML = '서버 연결 실패';
+      }
+      
       setTimeout(() => {
         location.reload();
       }, 1500);

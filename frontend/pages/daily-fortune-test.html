@@ -571,28 +571,48 @@
         
       } else if (check.reason === 'need_charge') {
         // 이용권 없음 - 충전 유도 모달
-        showChargeTicketModal(() => {
-          // 예 클릭 - 바로 이용권 충전하고 쿠팡으로 이동
-          console.log('✅ 쿠팡 방문 동의');
+        showChargeTicketModal(async () => {
+          // 예 클릭 - 백엔드 API 호출하여 이용권 충전
+          console.log('쿠팡 방문 동의');
           
-          // 이용권 충전
-          const chargeResult = chargeTickets();
-          
-          if (chargeResult.success) {
-            console.log('✅ 이용권 충전 완료:', chargeResult);
+          try {
+            const deviceId = await getOrCreateDeviceId();
             
-            // 쿠팡 링크 (나중에 실제 링크로 변경)
-            const COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform";
+            const response = await fetch(API_BASE_URL + '/api/tickets/charge', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Device-ID': deviceId
+              }
+            });
             
-            // 새 창으로 쿠팡 열기
-            window.open(COUPANG_LINK, '_blank');
+            const chargeResult = await response.json();
             
-            // 잠시 후 알림
-            setTimeout(() => {
-              alert('🎫 이용권 2개가 충전되었습니다!\n이제 다시 "운세 보기"를 눌러주세요.');
-            }, 500);
-          } else {
-            alert('⚠️ ' + chargeResult.error);
+            if (chargeResult.success) {
+              console.log('이용권 충전 완료:', chargeResult);
+              
+              // 프론트엔드 localStorage 동기화
+              const ticketData = getTicketData();
+              ticketData.count = chargeResult.tickets;
+              ticketData.charged = true;
+              saveTicketData(ticketData);
+              
+              // 쿠팡 링크 (나중에 실제 링크로 변경)
+              const COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform";
+              
+              // 새 창으로 쿠팡 열기
+              window.open(COUPANG_LINK, '_blank');
+              
+              // 잠시 후 알림
+              setTimeout(() => {
+                alert('이용권 2개가 충전되었습니다!\n이제 다시 "운세 보기"를 눌러주세요.');
+              }, 500);
+            } else {
+              alert(chargeResult.error || '충전 실패');
+            }
+          } catch (error) {
+            console.error('충전 API 호출 실패:', error);
+            alert('서버 연결 실패');
           }
           
         }, () => {

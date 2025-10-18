@@ -149,6 +149,56 @@
     }
     
     // ============================================
+    // 백엔드 API 호출하여 이용권 충전
+    // ============================================
+    async function chargeTicketsFromBackend() {
+      try {
+        const deviceId = await window.DeviceFingerprint.getDeviceID();
+        
+        const response = await fetch(API_BASE_URL + '/api/tickets/charge', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Device-ID': deviceId
+          }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          console.log('[Charge] 충전 성공:', result);
+          
+          // 프론트엔드 localStorage 동기화
+          const ticketData = getTicketData();
+          ticketData.count = result.tickets;
+          ticketData.charged = true;
+          saveTicketData(ticketData);
+          
+          // 충전 완료 알림
+          alert('이용권 2개가 충전되었습니다!');
+        } else {
+          console.warn('[Charge] 충전 실패:', result.error);
+          alert(result.error || '충전 실패');
+        }
+        
+        // 쿠팡 방문 기록 삭제
+        localStorage.removeItem('coupang_visited');
+        
+        // 원래 페이지로 복귀
+        const returnUrl = localStorage.getItem('return_url') || '../index.html';
+        window.location.href = returnUrl;
+        
+      } catch (error) {
+        console.error('[Charge] API 호출 실패:', error);
+        alert('서버 연결 실패');
+        
+        // 원래 페이지로 복귀
+        const returnUrl = localStorage.getItem('return_url') || '../index.html';
+        window.location.href = returnUrl;
+      }
+    }
+    
+    // ============================================
     // 🔙 뒤로가기 감지 (브라우저 뒤로가기 버튼)
     // ============================================
     window.addEventListener('pageshow', (event) => {
@@ -160,28 +210,8 @@
         const visited = localStorage.getItem('coupang_visited');
         
         if (visited === 'true') {
-          // 이용권 충전
-          const result = chargeTickets();
-          
-          if (result.success) {
-            console.log('✅ 이용권 충전 완료!', result);
-            
-            // 충전 완료 알림
-            alert('🎫 이용권 2개가 충전되었습니다!');
-            
-            // 쿠팡 방문 기록 삭제
-            localStorage.removeItem('coupang_visited');
-            
-            // 원래 페이지로 복귀
-            const returnUrl = localStorage.getItem('return_url') || '../index.html';
-            window.location.href = returnUrl;
-          } else {
-            alert('⚠️ ' + result.error);
-            
-            // 원래 페이지로 복귀
-            const returnUrl = localStorage.getItem('return_url') || '../index.html';
-            window.location.href = returnUrl;
-          }
+          // 이용권 충전 (백엔드 API 호출)
+          chargeTicketsFromBackend();
         }
       }
     });

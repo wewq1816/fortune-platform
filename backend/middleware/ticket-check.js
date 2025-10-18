@@ -183,21 +183,28 @@ async function checkTicketMiddleware(req, res, next) {
  * 이용권 사용
  */
 async function useTicket(req, featureName = '알 수 없음') {
+  console.log('[DEBUG useTicket] 시작 - featureName:', featureName);
+  
   // 마스터 모드는 소모 안함
   if (req.isMasterMode) {
-    console.log(`[Ticket] 마스터 모드 사용: ${featureName}`);
+    console.log('[Ticket] 마스터 모드 사용:', featureName);
     return { success: true, remaining: Infinity };
   }
   
   const deviceId = req.deviceId;
+  console.log('[DEBUG useTicket] deviceId:', deviceId);
+  
   if (!deviceId) {
-    return { success: false, remaining: 0 };
+    console.log('[DEBUG useTicket] deviceId 없음!');
+    return { success: false, remaining: 0, error: 'deviceId 없음' };
   }
   
   const ticketData = await getDeviceTicketData(deviceId);
+  console.log('[DEBUG useTicket] ticketData:', JSON.stringify(ticketData));
   
   if (ticketData.tickets <= 0) {
-    return { success: false, remaining: 0 };
+    console.log('[DEBUG useTicket] 이용권 부족! tickets:', ticketData.tickets);
+    return { success: false, remaining: 0, error: '이용권 부족' };
   }
   
   // 이용권 1개 소모
@@ -207,7 +214,9 @@ async function useTicket(req, featureName = '알 수 없음') {
     time: new Date().toISOString()
   });
   
+  console.log('[DEBUG useTicket] 저장 시도 - 남은 이용권:', ticketData.tickets);
   await saveDeviceTicketData(deviceId, ticketData);
+  console.log('[DEBUG useTicket] 저장 완료');
   
   console.log(`[Ticket] 사용: ${deviceId.substr(0, 8)}... - ${featureName} (남은: ${ticketData.tickets})`);
   
@@ -315,9 +324,104 @@ async function getTicketsEndpoint(req, res) {
   }
 }
 
+/**
+ * 이용권 초기화 (테스트/관리용)
+ */
+async function resetTicketsEndpoint(req, res) {
+  try {
+    // 디바이스 ID 추출
+    let deviceId;
+    try {
+      deviceId = getDeviceID(req);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        error: '디바이스 ID가 필요합니다'
+      });
+    }
+    
+    // 이용권 데이터 초기화
+    const ticketData = {
+      date: getTodayKST(),
+      tickets: 0,
+      charged: false,
+      usedFeatures: []
+    };
+    
+    await saveDeviceTicketData(deviceId, ticketData);
+    
+    console.log(`[Ticket] 초기화: ${deviceId.substr(0, 8)}...`);
+    
+    return res.json({
+      success: true,
+      tickets: 0,
+      message: '이용권이 초기화되었습니다'
+    });
+  } catch (error) {
+    console.error('[Ticket] 초기화 오류:', error);
+    return res.status(500).json({
+      success: false,
+      error: '서버 오류'
+    });
+  }
+}
+
+/**
+ * 이용권 수동 설정 (테스트/관리용)
+ */
+async function setTicketsEndpoint(req, res) {
+  try {
+    const { tickets } = req.body;
+    
+    if (typeof tickets !== 'number' || tickets < 0) {
+      return res.status(400).json({
+        success: false,
+        error: '올바른 이용권 개수를 입력하세요'
+      });
+    }
+    
+    // 디바이스 ID 추출
+    let deviceId;
+    try {
+      deviceId = getDeviceID(req);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        error: '디바이스 ID가 필요합니다'
+      });
+    }
+    
+    // 이용권 데이터 설정
+    const ticketData = {
+      date: getTodayKST(),
+      tickets: tickets,
+      charged: true,
+      usedFeatures: []
+    };
+    
+    await saveDeviceTicketData(deviceId, ticketData);
+    
+    console.log(`[Ticket] 수동 설정: ${deviceId.substr(0, 8)}... - ${tickets}개`);
+    
+    return res.json({
+      success: true,
+      tickets: tickets,
+      message: `이용권이 ${tickets}개로 설정되었습니다`
+    });
+  } catch (error) {
+    console.error('[Ticket] 설정 오류:', error);
+    return res.status(500).json({
+      success: false,
+      error: '서버 오류'
+    });
+  }
+}
+
 module.exports = {
   checkTicketMiddleware,
   useTicket,
   chargeTicketsEndpoint,
-  getTicketsEndpoint
+  getTicketsEndpoint,
+  resetTicketsEndpoint,
+  setTicketsEndpoint
 };
