@@ -64,10 +64,19 @@ class TicketModel {
     const collection = await this.getCollection();
     const today = getTodayKST();
     
-    await collection.updateOne(
+    // _id, deviceId, date 제외하고 필요한 필드만 업데이트
+    const updateData = {
+      tickets: data.tickets,
+      charged: data.charged,
+      usedFeatures: data.usedFeatures
+    };
+    
+    const result = await collection.updateOne(
       { deviceId, date: today },
-      { $set: data }
+      { $set: updateData }
     );
+    
+    return result.modifiedCount > 0;
   }
   
   // 인덱스 초기화
