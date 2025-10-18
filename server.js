@@ -438,6 +438,7 @@ app.post('/api/tarot', checkTicketMiddleware, async (req, res) => {
     console.log('AI 해석 완료:', interpretation.substring(0, 100) + '...');
 
     // 이용권 소모 (API 성공 후)
+    let remainingTickets = Infinity;
     if (!req.isMasterMode) {
       const ticketResult = await useTicket(req, '타로 카드');
       if (!ticketResult.success) {
@@ -449,6 +450,7 @@ app.post('/api/tarot', checkTicketMiddleware, async (req, res) => {
           remaining: ticketResult.remaining
         });
       }
+      remainingTickets = ticketResult.remaining;
     }
 
     // 4. 결과 반환
@@ -457,6 +459,7 @@ app.post('/api/tarot', checkTicketMiddleware, async (req, res) => {
       category: categoryInfo[category],
       interpretation: interpretation,
       cards: selectedCards,
+      remaining: remainingTickets,
       usage: {
         input_tokens: message.usage.input_tokens,
         output_tokens: message.usage.output_tokens,

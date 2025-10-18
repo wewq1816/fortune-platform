@@ -1075,7 +1075,15 @@
         }
 
         const data = await response.json();
-        console.log('✅ AI 해석 완료:', data);
+        console.log('AI 해석 완료:', data);
+
+        // 이용권 정보 업데이트 (localStorage 동기화)
+        if (data.remaining !== undefined) {
+          const ticketData = getTicketData();
+          ticketData.count = data.remaining;
+          saveTicketData(ticketData);
+          console.log('이용권 업데이트:', data.remaining);
+        }
 
         // AI 해석 결과 표시
         if (data.success && data.interpretation) {
@@ -1085,9 +1093,9 @@
         }
 
       } catch (error) {
-        console.error('❌ API 호출 실패:', error);
+        console.error('API 호출 실패:', error);
         // 폴백: 기본 해석 표시
-        alert('⚠️ AI 해석을 불러올 수 없습니다. 기본 해석을 표시합니다.');
+        alert('AI 해석을 불러올 수 없습니다. 기본 해석을 표시합니다.');
         renderMeanings();
       }
     }
