@@ -435,13 +435,19 @@ app.post('/api/tarot', checkTicketMiddleware, async (req, res) => {
     
     const interpretation = message.content[0].text;
     
-    console.log('✅ AI 해석 완료:', interpretation.substring(0, 100) + '...');
+    console.log('AI 해석 완료:', interpretation.substring(0, 100) + '...');
 
-    // 🎫 이용권 소모 (API 성공 후)
+    // 이용권 소모 (API 성공 후)
     if (!req.isMasterMode) {
       const ticketResult = await useTicket(req, '타로 카드');
       if (!ticketResult.success) {
-        console.warn('⚠️ 이용권 소모 실패:', ticketResult.error);
+        console.warn('이용권 소모 실패:', ticketResult.error);
+        return res.status(403).json({
+          success: false,
+          error: '이용권이 부족합니다',
+          code: 'INSUFFICIENT_TICKETS',
+          remaining: ticketResult.remaining
+        });
       }
     }
 
