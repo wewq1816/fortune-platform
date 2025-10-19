@@ -1,15 +1,7 @@
 // saju-main.js
 // 메인 로직
 
-// 🌐 환경별 API URL 설정
-const isLocalhost = window.location.hostname === 'localhost' || 
-                    window.location.hostname === '127.0.0.1' ||
-                    window.location.hostname === '';
-
-const API_BASE_URL = isLocalhost 
-  ? 'http://localhost:3000'
-  : 'https://fortune-platform.onrender.com';
-
+// ticket-system.js에서 이미 isLocalhost와 API_BASE_URL이 선언되어 있음
 console.log('[Saju] 환경:', isLocalhost ? '로컬 개발' : '배포 서버');
 console.log('[Saju] API URL:', API_BASE_URL);
 
