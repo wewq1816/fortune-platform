@@ -806,15 +806,7 @@
   <script src="../utils/api-helper.js"></script>
 
   <script>
-    // 환경별 API URL 설정
-    const isLocalhost = window.location.hostname === 'localhost' || 
-                        window.location.hostname === '127.0.0.1' ||
-                        window.location.hostname === '';
-
-    const API_BASE_URL = isLocalhost 
-      ? 'http://localhost:3000'
-      : 'https://fortune-platform.onrender.com';
-
+    // ticket-system.js에서 이미 isLocalhost와 API_BASE_URL이 선언되어 있음
     console.log('[Dream] Environment:', isLocalhost ? 'Local' : 'Production');
     console.log('[Dream] API URL:', API_BASE_URL);
 
