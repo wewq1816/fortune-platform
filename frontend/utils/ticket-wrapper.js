@@ -17,7 +17,10 @@ async function checkTicketAndExecute(originalFunction) {
   
   // 이용권 사용 가능 여부 확인
   const check = await canUseFortune();
-  console.log('이용권 체크 결과:', check);
+  console.log('[Ticket Wrapper] 이용권 체크 결과:', check);
+  console.log('[Ticket Wrapper] check.reason:', check.reason);
+  console.log('[Ticket Wrapper] check.tickets:', check.tickets);
+  console.log('[Ticket Wrapper] check.canUse:', check.canUse);
   
   if (check.reason === 'has_tickets') {
     // 이용권 있음 - 소모 확인 모달
