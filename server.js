@@ -105,8 +105,8 @@ const {
 
 const app = express();
 
-// Render 프록시 설정 (ValidationError 해결)
-app.set('trust proxy', true);
+// Render 프록시 설정 (정확한 IP 추적)
+app.set('trust proxy', 1);
 
 // 나이 계산 함수
 function calculateAge(year, month, day) {
