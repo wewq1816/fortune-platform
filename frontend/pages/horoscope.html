@@ -1000,61 +1000,7 @@
     // 🎫 이용권 체크 후 별자리 운세 보기 (래퍼 함수)
     // ========================================
     async function getHoroscope() {
-      // 마스터 모드는 바로 실행
-      if (isMasterMode()) {
-        getHoroscopeCore();
-        return;
-      }
-
-      // 이용권 확인 (백엔드 동기화)
-      const check = await canUseFortune();
-
-      if (check.reason === 'has_tickets') {
-        // 이용권 있음 - 소모 확인 모달
-        showUseTicketModal(check.tickets, () => {
-          // 사용자 확인 후 바로 실행 (백엔드에서 이용권 소모)
-          getHoroscopeCore();
-        });
-      } else if (check.reason === 'need_charge') {
-        // 이용권 없음 - 충전 유도 모달
-        showChargeTicketModal(async () => {
-          try {
-            const deviceId = await getOrCreateDeviceId();
-            
-            const response = await fetch(API_BASE_URL + '/api/tickets/charge', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Device-ID': deviceId
-              }
-            });
-            
-            const chargeResult = await response.json();
-            
-            if (chargeResult.success) {
-              console.log('이용권 충전 완료:', chargeResult);
-              
-              // 프론트엔드 localStorage 동기화
-              const ticketData = getTicketData();
-              ticketData.count = chargeResult.tickets;
-              ticketData.charged = true;
-              saveTicketData(ticketData);
-              
-              window.open("https://www.coupang.com/?src=fortune-platform", '_blank');
-              setTimeout(() => {
-                alert('이용권 2개 충전 완료! 다시 "운세 보기"를 눌러주세요.');
-              }, 500);
-            } else {
-              alert(chargeResult.error || '충전 실패');
-            }
-          } catch (error) {
-            console.error('충전 API 호출 실패:', error);
-            alert('서버 연결 실패');
-          }
-        });
-      } else if (check.reason === 'already_used') {
-        showComeTomorrowModal();
-      }
+      checkTicketAndExecute(getHoroscopeCore);
     }
 
     // 별자리 계산 함수
