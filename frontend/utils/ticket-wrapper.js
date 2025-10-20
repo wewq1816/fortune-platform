@@ -72,7 +72,9 @@ async function checkTicketAndExecute(originalFunction) {
         console.warn('[Ticket Wrapper] 로그 전송 실패:', error);
       }
       
-      const chargeResult = chargeTickets();
+      const chargeResult = await chargeTickets();
+      console.log('[Ticket Wrapper] 충전 결과:', chargeResult);
+      
       if (chargeResult.success) {
         console.log('이용권 충전 완료:', chargeResult);
         window.open(COUPANG_LINK, '_blank');
@@ -80,7 +82,7 @@ async function checkTicketAndExecute(originalFunction) {
           alert('이용권 2개가 충전되었습니다!\n이제 다시 버튼을 눌러주세요.');
         }, 500);
       } else {
-        alert(chargeResult.error);
+        alert(chargeResult.error || '충전 실패');
       }
     }, () => {
       console.log('쿠팡 방문 거부');

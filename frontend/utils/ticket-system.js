@@ -297,9 +297,9 @@ function useTicket(featureName = '알수없음') {
 }
 
 /**
- * 이용권 충전 (쿠팡 방문 후)
+ * 이용권 충전 (쿠팡 방문 후) - 백엔드 API 호출
  */
-function chargeTickets() {
+async function chargeTickets() {
   // 마스터 모드는 충전 불필요
   if (isMasterMode()) {
     return {
@@ -309,28 +309,49 @@ function chargeTickets() {
     };
   }
   
-  const ticketData = getTicketData();
-  
-  // 이미 충전했으면
-  if (ticketData.charged) {
+  try {
+    const deviceId = await getOrCreateDeviceId();
+    
+    const response = await fetch(API_BASE_URL + '/api/tickets/charge', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Device-ID': deviceId
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // localStorage 동기화
+      const ticketData = getTicketData();
+      ticketData.count = data.tickets;
+      ticketData.charged = true;
+      saveTicketData(ticketData);
+      
+      console.log('[Ticket] 백엔드 충전 성공:', data);
+      
+      return {
+        success: true,
+        tickets: data.tickets,
+        message: data.message
+      };
+    } else {
+      console.warn('[Ticket] 백엔드 충전 실패:', data);
+      return {
+        success: false,
+        tickets: 0,
+        error: data.error
+      };
+    }
+  } catch (error) {
+    console.error('[Ticket] 충전 API 호출 실패:', error);
     return {
       success: false,
-      tickets: ticketData.count,
-      error: '오늘은 이미 충전했습니다.'
+      tickets: 0,
+      error: '서버 연결 실패'
     };
   }
-  
-  // 이용권 2개 충전
-  ticketData.count = 2;
-  ticketData.charged = true;
-  
-  saveTicketData(ticketData);
-  
-  return {
-    success: true,
-    tickets: 2,
-    message: '이용권 2개가 충전되었습니다!'
-  };
 }
 
 // ============================================
