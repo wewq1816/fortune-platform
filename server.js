@@ -1372,12 +1372,24 @@ app.get('/api/public/coupang-link', async (req, res) => {
     const settings = await db.collection('admin_settings').findOne();
     
     const defaultLink = 'https://www.coupang.com/?src=fortune-platform';
+    const finalLink = settings?.coupangLink || defaultLink;
+    
+    // 사용자 IP 정보
+    const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+    
+    // 로그 출력
+    console.log('========================================');
+    console.log('[Coupang Link Request]');
+    console.log('Time:', new Date().toLocaleString('ko-KR'));
+    console.log('IP:', clientIP);
+    console.log('User-Agent:', userAgent);
+    console.log('Link:', finalLink);
+    console.log('========================================');
     
     res.json({ 
-      coupangLink: settings?.coupangLink || defaultLink
+      coupangLink: finalLink
     });
-    
-    console.log('[Public API] 쿠팡 링크 조회:', settings?.coupangLink || '기본값');
   } catch (error) {
     console.error('[Public API] 쿠팡 링크 조회 실패:', error);
     res.status(500).json({ 

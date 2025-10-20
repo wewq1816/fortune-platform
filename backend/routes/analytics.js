@@ -144,9 +144,45 @@ router.post('/ticket-usage', async (req, res) => {
 
 /**
  * ==========================================
- * 🔒 통계 조회 (관리자용 - 미들웨어 없음)
+ * 4. 쿠팡 리다이렉트 로그 API
+ * POST /api/analytics/coupang-redirect
+ * - 사용자가 실제 쿠팡 링크로 이동할 때 호출
+ * ==========================================
+ */
+router.post('/coupang-redirect', async (req, res) => {
+  try {
+    const { link, timestamp } = req.body;
+    const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+    
+    // 콘솔 로그 출력
+    console.log('========================================');
+    console.log('[Coupang Redirect]');
+    console.log('Time:', new Date().toLocaleString('ko-KR'));
+    console.log('IP:', clientIP);
+    console.log('Link:', link);
+    console.log('User-Agent:', userAgent);
+    console.log('========================================');
+    
+    // DB에도 저장 (선택)
+    await db.collection('analytics_coupang_redirects').insertOne({
+      link,
+      timestamp: timestamp || new Date(),
+      clientIP,
+      userAgent
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[Coupang Redirect] 로그 저장 실패:', error);
+    res.status(500).json({ error: '로그 저장 실패' });
+  }
+});
+
+/**
+ * ==========================================
+ * 관리자용 통계 조회
  * GET /api/analytics/summary
- * - 관리자 페이지에서 간단한 통계 미리보기
  * ==========================================
  */
 router.get('/summary', async (req, res) => {

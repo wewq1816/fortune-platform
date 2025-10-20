@@ -97,12 +97,26 @@
     let COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform"; // 기본값
     
     // ============================================
-    // 🔗 쿠팡으로 이동
+    // 쿠팡으로 이동
     // ============================================
     async function goToCoupang() {
-      console.log('🛒 쿠팡으로 이동 준비 중...');
+      console.log('[Coupang Gate] 쿠팡으로 이동 준비');
       
-      // 📊 쿠팡 클릭 추적
+      // 백엔드에 이동 로그 전송
+      try {
+        await fetch(API_BASE_URL + '/api/analytics/coupang-redirect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            link: COUPANG_LINK,
+            timestamp: new Date().toISOString()
+          })
+        });
+      } catch (error) {
+        console.warn('[Coupang Gate] 로그 전송 실패:', error);
+      }
+      
+      // 쿠팡 클릭 추적
       if (typeof trackCoupangClick === 'function') {
         await trackCoupangClick();
       }
@@ -114,7 +128,7 @@
       const returnUrl = localStorage.getItem('return_url') || '../index.html';
       localStorage.setItem('return_url', returnUrl);
       
-      console.log('🛒 쿠팡으로 이동:', COUPANG_LINK);
+      console.log('[Coupang Gate] 쿠팡으로 이동:', COUPANG_LINK);
       
       // 쿠팡으로 이동
       window.location.href = COUPANG_LINK;
