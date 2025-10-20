@@ -102,20 +102,6 @@
     async function goToCoupang() {
       console.log('[Coupang Gate] 쿠팡으로 이동 준비');
       
-      // 백엔드에 이동 로그 전송
-      try {
-        await fetch(API_BASE_URL + '/api/analytics/coupang-redirect', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            link: COUPANG_LINK,
-            timestamp: new Date().toISOString()
-          })
-        });
-      } catch (error) {
-        console.warn('[Coupang Gate] 로그 전송 실패:', error);
-      }
-      
       // 쿠팡 클릭 추적
       if (typeof trackCoupangClick === 'function') {
         await trackCoupangClick();
@@ -127,6 +113,24 @@
       // 돌아올 페이지 저장
       const returnUrl = localStorage.getItem('return_url') || '../index.html';
       localStorage.setItem('return_url', returnUrl);
+      
+      // 백엔드에 이동 로그 전송 (비동기로 보내고 완료 대기)
+      try {
+        await fetch(API_BASE_URL + '/api/analytics/coupang-redirect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            link: COUPANG_LINK,
+            timestamp: new Date().toISOString()
+          }),
+          keepalive: true  // 페이지 떠나도 요청 유지
+        });
+        
+        // 로그 전송 완료 후 짧은 대기
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error) {
+        console.warn('[Coupang Gate] 로그 전송 실패:', error);
+      }
       
       console.log('[Coupang Gate] 쿠팡으로 이동:', COUPANG_LINK);
       

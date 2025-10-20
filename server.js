@@ -1327,7 +1327,7 @@ app.post('/api/saju', checkTicketMiddleware, async (req, res) => {
 
 // MongoDB 연결 설정
 const { MongoClient } = require('mongodb');
-const { connectMongoDB } = require('./backend/config/mongodb');
+const { connectMongoDB, getDB } = require('./backend/config/mongodb');
 const { TicketModel } = require('./backend/models/Ticket');
 
 const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017';
