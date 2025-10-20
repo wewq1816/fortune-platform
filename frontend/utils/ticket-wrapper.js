@@ -35,21 +35,52 @@ function checkTicketAndExecute(originalFunction) {
     
   } else if (check.reason === 'need_charge') {
     // 이용권 없음 - 충전 유도 모달
-    showChargeTicketModal(() => {
-      console.log('✅ 쿠팡 방문 동의');
+    showChargeTicketModal(async () => {
+      console.log('쿠팡 방문 동의');
+      
+      // 관리자가 설정한 쿠팡 링크 가져오기
+      let COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform"; // 기본값
+      try {
+        const response = await fetch(API_BASE_URL + '/api/public/coupang-link');
+        const data = await response.json();
+        if (data.coupangLink) {
+          COUPANG_LINK = data.coupangLink;
+          console.log('[Ticket Wrapper] 쿠팡 링크 로드:', COUPANG_LINK);
+        }
+      } catch (error) {
+        console.warn('[Ticket Wrapper] 쿠팡 링크 로드 실패, 기본값 사용:', error);
+      }
+      
+      // 백엔드에 리다이렉트 로그 전송
+      try {
+        await fetch(API_BASE_URL + '/api/analytics/coupang-redirect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            link: COUPANG_LINK,
+            timestamp: new Date().toISOString()
+          }),
+          keepalive: true
+        });
+        
+        // 로그 전송 완료 후 짧은 대기
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error) {
+        console.warn('[Ticket Wrapper] 로그 전송 실패:', error);
+      }
+      
       const chargeResult = chargeTickets();
       if (chargeResult.success) {
-        console.log('✅ 이용권 충전 완료:', chargeResult);
-        const COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform";
+        console.log('이용권 충전 완료:', chargeResult);
         window.open(COUPANG_LINK, '_blank');
         setTimeout(() => {
-          alert('🎫 이용권 2개가 충전되었습니다!\n이제 다시 버튼을 눌러주세요.');
+          alert('이용권 2개가 충전되었습니다!\n이제 다시 버튼을 눌러주세요.');
         }, 500);
       } else {
-        alert('⚠️ ' + chargeResult.error);
+        alert(chargeResult.error);
       }
     }, () => {
-      console.log('❌ 쿠팡 방문 거부');
+      console.log('쿠팡 방문 거부');
     });
     
   } else if (check.reason === 'already_used') {
