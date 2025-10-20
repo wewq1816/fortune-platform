@@ -730,15 +730,27 @@
 
     // 🎫 이용권 체크 후 사주 생성
     async function checkTicketAndGenerateSaju() {
+      console.log('[Saju] checkTicketAndGenerateSaju 시작');
+      
       // 먼저 savedData 확인
       const savedDataFromStorage = localStorage.getItem('fortuneUserData');
+      console.log('[Saju] savedData:', savedDataFromStorage);
+      
       if (!savedDataFromStorage) {
-        alert('사주 정보를 먼저 입력해주세요!');
-        if (typeof openModal === 'function') {
-          openModal();
+        console.log('[Saju] savedData 없음 - 모달 열기');
+        
+        // 모달 직접 열기
+        const modal = document.getElementById('sajuModal');
+        if (modal) {
+          modal.classList.add('active');
+          console.log('[Saju] 모달 열림');
+        } else {
+          console.error('[Saju] 모달을 찾을 수 없습니다');
         }
         return;
       }
+      
+      console.log('[Saju] savedData 있음 - 사주 계산 진행');
       
       // savedData 로드
       if (typeof loadUserInfo === 'function') {
