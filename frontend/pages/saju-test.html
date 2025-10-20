@@ -730,6 +730,21 @@
 
     // 🎫 이용권 체크 후 사주 생성
     async function checkTicketAndGenerateSaju() {
+      // 먼저 savedData 확인
+      const savedDataFromStorage = localStorage.getItem('fortuneUserData');
+      if (!savedDataFromStorage) {
+        alert('사주 정보를 먼저 입력해주세요!');
+        if (typeof openModal === 'function') {
+          openModal();
+        }
+        return;
+      }
+      
+      // savedData 로드
+      if (typeof loadUserInfo === 'function') {
+        loadUserInfo();
+      }
+      
       if (typeof trackTicketUsage === 'function') {
         trackTicketUsage('사주팔자');
       }
