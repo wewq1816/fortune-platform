@@ -25,15 +25,11 @@ async function checkTicketAndExecute(originalFunction) {
   if (check.reason === 'has_tickets') {
     // 이용권 있음 - 소모 확인 모달
     showUseTicketModal(check.tickets, () => {
-      const result = useTicket();
-      if (result.success) {
-        console.log('✅ 이용권 소모 성공:', result);
-        originalFunction();
-      } else {
-        alert('⚠️ 이용권 소모 실패: ' + result.error);
-      }
+      console.log('[Ticket Wrapper] 사용자가 이용권 사용 확인');
+      // 백엔드에서 이용권 소모 처리됨
+      originalFunction();
     }, () => {
-      console.log('❌ 사용 취소');
+      console.log('[Ticket Wrapper] 사용 취소');
     });
     
   } else if (check.reason === 'need_charge') {
