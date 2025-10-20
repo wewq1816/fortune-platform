@@ -1368,7 +1368,14 @@ Promise.all([
 // 쿠팡 링크 조회 (공개)
 app.get('/api/public/coupang-link', async (req, res) => {
   try {
-    const db = getDB();
+    // 관리자 시스템 DB 사용 (티켓 시스템 DB가 아님)
+    if (!db) {
+      return res.status(500).json({ 
+        error: 'DB 초기화 중',
+        coupangLink: 'https://www.coupang.com/?src=fortune-platform'
+      });
+    }
+    
     const settings = await db.collection('admin_settings').findOne();
     
     const defaultLink = 'https://www.coupang.com/?src=fortune-platform';
