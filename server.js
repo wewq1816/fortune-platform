@@ -1372,13 +1372,13 @@ app.get('/api/public/coupang-link', async (req, res) => {
     if (!db) {
       return res.status(500).json({ 
         error: 'DB 초기화 중',
-        coupangLink: 'https://www.coupang.com/?src=fortune-platform'
+        coupangLink: 'https://link.coupang.com/a/cVLo9u'
       });
     }
     
     const settings = await db.collection('admin_settings').findOne();
     
-    const defaultLink = 'https://www.coupang.com/?src=fortune-platform';
+    const defaultLink = 'https://link.coupang.com/a/cVLo9u';
     const finalLink = settings?.coupangLink || defaultLink;
     
     // 사용자 IP 정보
@@ -1401,7 +1401,7 @@ app.get('/api/public/coupang-link', async (req, res) => {
     console.error('[Public API] 쿠팡 링크 조회 실패:', error);
     res.status(500).json({ 
       error: '링크 조회 실패',
-      coupangLink: 'https://www.coupang.com/?src=fortune-platform'
+      coupangLink: 'https://link.coupang.com/a/cVLo9u'
     });
   }
 });

@@ -39,7 +39,7 @@ function checkTicketAndExecute(originalFunction) {
       console.log('쿠팡 방문 동의');
       
       // 관리자가 설정한 쿠팡 링크 가져오기
-      let COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform"; // 기본값
+      let COUPANG_LINK = "https://link.coupang.com/a/cVLo9u"; // 기본값
       try {
         const response = await fetch(API_BASE_URL + '/api/public/coupang-link');
         const data = await response.json();

@@ -1265,7 +1265,10 @@
               ticketData.charged = true;
               saveTicketData(ticketData);
               
-              window.open("https://www.coupang.com/?src=fortune-platform", '_blank');
+              // 쿠팡 링크 조회 후 열기
+              const linkResponse = await fetch('http://localhost:3000/api/public/coupang-link');
+              const linkData = await linkResponse.json();
+              window.open(linkData.coupangLink || 'https://link.coupang.com/a/cVLo9u', '_blank');
               setTimeout(() => {
                 alert('이용권 2개 충전 완료! 다시 "궁합 보기"를 눌러주세요.');
               }, 500);

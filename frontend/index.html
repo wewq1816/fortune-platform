@@ -547,8 +547,10 @@
           if (chargeResult.success) {
             console.log('이용권 충전 완료:', chargeResult);
             
-            // 쿠팡 링크 (나중에 실제 링크로 변경)
-            const COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform";
+            // 쿠팡 링크 조회 후 열기
+            const linkResponse = await fetch('http://localhost:3000/api/public/coupang-link');
+            const linkData = await linkResponse.json();
+            const COUPANG_LINK = linkData.coupangLink || 'https://link.coupang.com/a/cVLo9u';
             
             // 새 창으로 쿠팡 열기
             window.open(COUPANG_LINK, '_blank');

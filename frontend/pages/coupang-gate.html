@@ -94,13 +94,22 @@
     // ============================================
     // 🎯 쿠팡 링크 (관리자 페이지에서 가져오기)
     // ============================================
-    let COUPANG_LINK = "https://www.coupang.com/?src=fortune-platform"; // 기본값
+    let COUPANG_LINK = "https://link.coupang.com/a/cVLo9u"; // 기본값
     
     // ============================================
     // 쿠팡으로 이동
     // ============================================
     async function goToCoupang() {
       console.log('[Coupang Gate] 쿠팡으로 이동 준비');
+      
+      // 쿠팡 링크 조회
+      try {
+        const linkResponse = await fetch(API_BASE_URL + '/api/public/coupang-link');
+        const linkData = await linkResponse.json();
+        COUPANG_LINK = linkData.coupangLink || COUPANG_LINK;
+      } catch (error) {
+        console.warn('[Coupang Gate] 링크 조회 실패, 기본값 사용:', error);
+      }
       
       // 쿠팡 클릭 추적
       if (typeof trackCoupangClick === 'function') {
