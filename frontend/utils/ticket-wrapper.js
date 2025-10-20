@@ -5,7 +5,7 @@
  */
 
 // 🎫 이용권 체크 후 원래 함수 실행
-function checkTicketAndExecute(originalFunction) {
+async function checkTicketAndExecute(originalFunction) {
   console.log('🎯 기능 실행 클릭');
   
   // 마스터 모드는 바로 실행
@@ -16,7 +16,7 @@ function checkTicketAndExecute(originalFunction) {
   }
   
   // 이용권 사용 가능 여부 확인
-  const check = canUseFortune();
+  const check = await canUseFortune();
   console.log('이용권 체크 결과:', check);
   
   if (check.reason === 'has_tickets') {
