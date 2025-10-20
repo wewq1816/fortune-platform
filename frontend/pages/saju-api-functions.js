@@ -91,8 +91,8 @@ async function calculateSaju() {
         }
 
         // 결과 표시
-        if (typeof displaySajuBasicInfo === 'function') {
-            displaySajuBasicInfo(sajuData);
+        if (typeof displayResult === 'function') {
+            displayResult(sajuData);
         }
         
         if (loading) loading.classList.remove('show');
