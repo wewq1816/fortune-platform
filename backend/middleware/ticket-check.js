@@ -70,12 +70,15 @@ function getDeviceID(req) {
  */
 async function getDeviceTicketData(deviceId) {
   try {
+    console.log('[Ticket] 조회 시작 - Device ID:', deviceId);
     let ticket = await TicketModel.findByDeviceId(deviceId);
     
     if (ticket) {
+      console.log('[Ticket] MongoDB에서 찾음:', ticket);
       return ticket;
     }
     
+    console.log('[Ticket] MongoDB에 데이터 없음 - 기본값 반환');
     // 없으면 기본값
     return {
       date: getTodayKST(),
@@ -249,9 +252,11 @@ async function chargeTicketsEndpoint(req, res) {
     }
     
     const ticketData = await getDeviceTicketData(deviceId);
+    console.log('[Ticket] 충전 전 데이터:', ticketData);
     
     // 이미 충전했으면 거부
     if (ticketData.charged) {
+      console.log('[Ticket] 이미 충전됨 - 거부');
       return res.status(400).json({
         success: false,
         tickets: ticketData.tickets,
@@ -265,7 +270,8 @@ async function chargeTicketsEndpoint(req, res) {
     ticketData.charged = true;
     await saveDeviceTicketData(deviceId, ticketData);
     
-    console.log(`[Ticket] 충전: ${deviceId.substr(0, 8)}...`);
+    console.log(`[Ticket] 충전 완료: ${deviceId.substr(0, 8)}... -> 2개`);
+    console.log('[Ticket] 충전 후 데이터:', ticketData);
     
     return res.json({
       success: true,
@@ -308,6 +314,13 @@ async function getTicketsEndpoint(req, res) {
     }
     
     const ticketData = await getDeviceTicketData(deviceId);
+    
+    console.log('[Ticket] 조회 API 응답:', {
+      deviceId: deviceId.substr(0, 8) + '...',
+      tickets: ticketData.tickets,
+      charged: ticketData.charged,
+      date: ticketData.date
+    });
     
     return res.json({
       success: true,
