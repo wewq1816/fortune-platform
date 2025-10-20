@@ -484,3 +484,9 @@ window.onclick = function(event) {
     closeModal();
   }
 }
+
+// 페이지 로드 시 자동 실행
+document.addEventListener('DOMContentLoaded', function() {
+  initSelects();
+  loadUserInfo();
+});
