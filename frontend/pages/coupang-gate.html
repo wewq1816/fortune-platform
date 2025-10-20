@@ -121,19 +121,19 @@
     }
     
     // ============================================
-    // 🎯 관리자가 설정한 쿠팡 링크 불러오기
+    // 관리자가 설정한 쿠팡 링크 불러오기
     // ============================================
     async function loadCoupangLinkAndGo() {
       try {
-        const response = await fetch(API_BASE_URL + '/api/admin/settings/coupang-link');
+        const response = await fetch(API_BASE_URL + '/api/public/coupang-link');
         const data = await response.json();
         
         if (data.coupangLink) {
           COUPANG_LINK = data.coupangLink;
-          console.log('✅ 쿠팡 링크 로드:', COUPANG_LINK);
+          console.log('[Coupang Gate] 쿠팡 링크 로드 성공:', COUPANG_LINK);
         }
       } catch (error) {
-        console.warn('⚠️  쿠팡 링크 로드 실패 (기본값 사용):', error);
+        console.warn('[Coupang Gate] 쿠팡 링크 로드 실패, 기본값 사용:', error);
       }
       
       // 링크 로드 후 즉시 이동

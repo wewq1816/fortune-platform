@@ -1362,6 +1362,32 @@ Promise.all([
   });
 
 // ========================================
+// 공개 API (인증 불필요)
+// ========================================
+
+// 쿠팡 링크 조회 (공개)
+app.get('/api/public/coupang-link', async (req, res) => {
+  try {
+    const db = getDB();
+    const settings = await db.collection('admin_settings').findOne();
+    
+    const defaultLink = 'https://www.coupang.com/?src=fortune-platform';
+    
+    res.json({ 
+      coupangLink: settings?.coupangLink || defaultLink
+    });
+    
+    console.log('[Public API] 쿠팡 링크 조회:', settings?.coupangLink || '기본값');
+  } catch (error) {
+    console.error('[Public API] 쿠팡 링크 조회 실패:', error);
+    res.status(500).json({ 
+      error: '링크 조회 실패',
+      coupangLink: 'https://www.coupang.com/?src=fortune-platform'
+    });
+  }
+});
+
+// ========================================
 // 관리자 & 분석 API 라우터 등록
 // ========================================
 app.use('/api/admin', adminRouter);
