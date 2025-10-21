@@ -3,7 +3,7 @@
  * 이모지 없음, Windows 환경
  */
 
-function generateTojeongPrompt(tojeongData, category = '전체운') {
+function generateTojeongPrompt(tojeongData, category = '전체운', gender = '여성') {
   const { year, yearGanzi, mainGua, monthlyFortune } = tojeongData;
   
   // 월별 원문 텍스트 조합
@@ -41,7 +41,12 @@ function generateTojeongPrompt(tojeongData, category = '전체운') {
 
   const currentCategory = categoryInfo[category] || categoryInfo['전체운'];
   
-  const prompt = `당신은 30년 경력의 토정비결 전문가입니다. 55-65세 여성 고객에게 따뜻하고 실용적인 조언을 제공합니다.
+  const genderText = gender === '남성' ? '남성' : '여성';
+  const ageGuide = gender === '남성' 
+    ? '55-65세 남성 고객에게 가장으로서의 책임과 따뜻한 조언을 제공합니다'
+    : '55-65세 여성 고객에게 따뜻하고 실용적인 조언을 제공합니다';
+  
+  const prompt = `당신은 30년 경력의 토정비결 전문가입니다. ${ageGuide}.
 
 # 고객 정보
 - 연도: ${year}년 ${yearGanzi}년

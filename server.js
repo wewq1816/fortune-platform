@@ -484,9 +484,9 @@ app.post('/api/tarot', checkTicketMiddleware, async (req, res) => {
 app.post('/api/daily-fortune', checkTicketMiddleware, async (req, res) => {
   logApiRequest(req, '/api/daily-fortune');
   try {
-    const { year, month, day, hour, isLunar } = req.body;
+    const { year, month, day, hour, isLunar, gender } = req.body;
     
-    console.log('📥 오늘의 운세 요청:', JSON.stringify(req.body, null, 2));
+    console.log('오늘의 운세 요청:', JSON.stringify(req.body, null, 2));
     console.log('- year:', year, typeof year);
     console.log('- month:', month, typeof month);
     console.log('- day:', day, typeof day);
@@ -517,7 +517,7 @@ app.post('/api/daily-fortune', checkTicketMiddleware, async (req, res) => {
     console.log('✅ 사주 계산 완료:', fortuneData.saju);
     
     // 2. 프롬프트 생성
-    const prompt = generateDailyFortunePrompt(fortuneData);
+    const prompt = generateDailyFortunePrompt(fortuneData, gender);
     
     // 프롬프트 출력 (디버깅용)
     console.log('\n' + '='.repeat(70));
@@ -1053,9 +1053,9 @@ app.post('/api/compatibility', checkTicketMiddleware, async (req, res) => {
 app.post('/api/tojeong', checkTicketMiddleware, async (req, res) => {
   logApiRequest(req, '/api/tojeong');
   try {
-    const { year, month, day, isLunar, targetYear, category } = req.body;
+    const { year, month, day, isLunar, targetYear, category, gender } = req.body;
     
-    console.log('토정비결 요청:', { year, month, day, isLunar, targetYear, category });
+    console.log('토정비결 요청:', { year, month, day, isLunar, targetYear, category, gender });
     
     // 1. 엔진 계산
     const tojeongData = calculateTojeong(
@@ -1071,7 +1071,7 @@ app.post('/api/tojeong', checkTicketMiddleware, async (req, res) => {
     }
     
     // 2. 프롬프트 생성 (카테고리 포함)
-    const prompt = generateTojeongPrompt(tojeongData, category);
+    const prompt = generateTojeongPrompt(tojeongData, category, gender);
     
     // 프롬프트 길이 확인
     console.log('📝 프롬프트 길이:', prompt.length, '자');

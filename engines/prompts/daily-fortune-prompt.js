@@ -8,10 +8,15 @@
  * @param {Object} fortuneData - 운세 계산 결과 데이터
  * @returns {string} Claude API용 프롬프트
  */
-function generateDailyFortunePrompt(fortuneData) {
+function generateDailyFortunePrompt(fortuneData, gender = '여성') {
   const { saju, today, relationship, relationshipDesc, score, level } = fortuneData;
   
-  const prompt = `당신은 30년 경력의 전통 사주명리학 전문가입니다. 따뜻하고 공감하는 어조로, 55-65세 여성 고객에게 조언을 제공합니다.
+  const genderText = gender === '남성' ? '남성' : '여성';
+  const ageGuide = gender === '남성' 
+    ? '따뜻하고 공감하는 어조로, 55-65세 남성 고객에게 조언을 제공합니다'
+    : '따뜻하고 공감하는 어조로, 55-65세 여성 고객에게 조언을 제공합니다';
+  
+  const prompt = `당신은 30년 경력의 전통 사주명리학 전문가입니다. ${ageGuide}.
 
 # 고객 정보
 - 사주 8글자: ${saju.string} (${saju.hanja})
