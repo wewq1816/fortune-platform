@@ -1322,6 +1322,99 @@ app.post('/api/saju', checkTicketMiddleware, async (req, res) => {
 });
 
 // ========================================
+// MongoDB 자동 정리 시스템
+// ========================================
+
+function getFirstDayOfCurrentMonth() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+}
+
+function getFirstDayOfNextMonth() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+}
+
+async function cleanupOldAnalytics() {
+  try {
+    if (!db) {
+      console.warn('[자동 정리] DB 연결 안 됨 - 건너뜀');
+      return;
+    }
+    
+    const cutoffDate = getFirstDayOfCurrentMonth();
+    const now = new Date();
+    
+    console.log('\n' + '='.repeat(70));
+    console.log('[월간 데이터 자동 정리 실행]');
+    console.log('실행 시간:', now.toLocaleString('ko-KR'));
+    console.log('삭제 기준:', cutoffDate.toLocaleString('ko-KR'), '이전 데이터');
+    console.log('='.repeat(70));
+    
+    const visitorsResult = await db.collection('analytics_visitors').deleteMany({
+      visitTime: { $lt: cutoffDate }
+    });
+    console.log('방문자 로그:', visitorsResult.deletedCount, '건 삭제');
+    
+    const clicksResult = await db.collection('analytics_coupang_clicks').deleteMany({
+      clickTime: { $lt: cutoffDate }
+    });
+    console.log('쿠팡 클릭:', clicksResult.deletedCount, '건 삭제');
+    
+    const ticketResult = await db.collection('analytics_ticket_usage').deleteMany({
+      usageTime: { $lt: cutoffDate }
+    });
+    console.log('이용권 기록:', ticketResult.deletedCount, '건 삭제');
+    
+    const redirectResult = await db.collection('analytics_coupang_redirects').deleteMany({
+      timestamp: { $lt: cutoffDate }
+    });
+    console.log('쿠팡 리다이렉트:', redirectResult.deletedCount, '건 삭제');
+    
+    const visitorsCount = await db.collection('analytics_visitors').countDocuments();
+    const clicksCount = await db.collection('analytics_coupang_clicks').countDocuments();
+    const ticketCount = await db.collection('analytics_ticket_usage').countDocuments();
+    const redirectCount = await db.collection('analytics_coupang_redirects').countDocuments();
+    
+    console.log('\n현재 저장 상태:');
+    console.log('   방문자 로그:', visitorsCount, '건');
+    console.log('   쿠팡 클릭:', clicksCount, '건');
+    console.log('   이용권 기록:', ticketCount, '건');
+    console.log('   쿠팡 리다이렉트:', redirectCount, '건');
+    console.log('='.repeat(70) + '\n');
+    
+  } catch (error) {
+    console.error('\n[자동 정리 오류]:', error.message);
+    console.error('스택:', error.stack);
+  }
+}
+
+function startMonthlyCleanupScheduler() {
+  const now = new Date();
+  const nextRun = getFirstDayOfNextMonth();
+  const msUntilNextRun = nextRun.getTime() - now.getTime();
+  const daysUntil = Math.floor(msUntilNextRun / (1000 * 60 * 60 * 24));
+  const hoursUntil = Math.floor((msUntilNextRun % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  
+  console.log('\n[월간 자동 정리 스케줄러 활성화]');
+  console.log('   현재 시간:', now.toLocaleString('ko-KR'));
+  console.log('   다음 실행:', nextRun.toLocaleString('ko-KR'), '(매달 1일 자정)');
+  console.log('   대기 시간:', daysUntil, '일', hoursUntil, '시간');
+  console.log('   보관 정책: 이번 달 데이터만 보관\n');
+  
+  console.log('서버 시작 - 과거 데이터 즉시 정리 중...');
+  cleanupOldAnalytics().then(() => {
+    console.log('초기 정리 완료\n');
+  });
+  
+  setTimeout(() => {
+    cleanupOldAnalytics().then(() => {
+      startMonthlyCleanupScheduler();
+    });
+  }, msUntilNextRun);
+}
+
+// ========================================
 // MongoDB 초기화 (티켓 시스템 + 관리자)
 // ========================================
 
@@ -1355,6 +1448,8 @@ Promise.all([
     console.log('====================================');
     console.log('MongoDB 전체 초기화 완료');
     console.log('====================================');
+    
+    startMonthlyCleanupScheduler();
   })
   .catch(error => {
     console.error('[MongoDB] 초기화 실패:', error.message);
