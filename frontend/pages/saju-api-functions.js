@@ -92,7 +92,7 @@ async function calculateSaju() {
 
         // 결과 표시
         if (typeof displayResult === 'function') {
-            displayResult(sajuData);
+            displayResult(data);
         }
         
         if (loading) loading.classList.remove('show');

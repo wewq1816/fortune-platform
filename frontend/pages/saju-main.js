@@ -135,6 +135,39 @@ function displaySajuBasicInfo(result) {
   `;
 }
 
+// displayResult 함수 추가 (saju-api-functions.js에서 호출)
+function displayResult(data) {
+  console.log('[displayResult] 호출, data:', data);
+  console.log('[displayResult] selectedCategory:', selectedCategory);
+  
+  // 기본 사주 정보 표시
+  displaySajuBasicInfo(data);
+  console.log('[displayResult] displaySajuBasicInfo 완료');
+  
+  // 운세 해석 표시
+  const title = getCategoryTitle(selectedCategory || 'total');
+  console.log('[displayResult] title:', title);
+  
+  const fortuneContent = document.getElementById('fortuneContent');
+  console.log('[displayResult] fortuneContent 요소:', fortuneContent);
+  console.log('[displayResult] data.interpretation:', data.interpretation);
+  
+  if (fortuneContent && data.interpretation) {
+    console.log('[displayResult] fortuneContent에 HTML 삽입 시작');
+    fortuneContent.innerHTML = `
+      <div class="fortune-card">
+        <h3>${title}</h3>
+        <p>${data.interpretation}</p>
+      </div>
+    `;
+    console.log('[displayResult] fortuneContent HTML 삽입 완료');
+  } else {
+    console.error('[displayResult] fortuneContent 또는 interpretation 없음!');
+    console.error('[displayResult] fortuneContent:', fortuneContent);
+    console.error('[displayResult] data.interpretation:', data.interpretation);
+  }
+}
+
 // 사주 보기 버튼 클릭 (API 호출)
 async function generateSaju() {
   console.log('🚀 generateSaju 함수 실행 시작');
